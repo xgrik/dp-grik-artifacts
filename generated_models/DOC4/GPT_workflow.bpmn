@@ -1,0 +1,527 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_07bsiln" targetNamespace="http://bpmn.io/schema/bpmn" xmlns:modeler="http://camunda.org/schema/modeler/1.0" exporter="Camunda Modeler" exporterVersion="5.33.1" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.22.0">
+  <bpmn:process id="Process_1t103nq" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1" name="Start PTSD Care Pathway">
+      <bpmn:outgoing>Flow_01</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <bpmn:userTask id="UserTask_Screening" name="Perform Initial PTSD Screening">
+      <bpmn:incoming>Flow_01</bpmn:incoming>
+      <bpmn:outgoing>Flow_02</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="UserTask_TraumaExposure" name="Identify Traumatic Event Exposure">
+      <bpmn:incoming>Flow_02</bpmn:incoming>
+      <bpmn:outgoing>Flow_03</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="Gateway_TraumaExposure" name="Traumatic event exposure?">
+      <bpmn:incoming>Flow_03</bpmn:incoming>
+      <bpmn:outgoing>Flow_04</bpmn:outgoing>
+      <bpmn:outgoing>Flow_05</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:endEvent id="EndEvent_ExitNoTrauma" name="Exit: No Trauma Exposure">
+      <bpmn:incoming>Flow_05</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:userTask id="UserTask_AssessSymptoms" name="Assess Presence of PTSD Symptoms">
+      <bpmn:incoming>Flow_04</bpmn:incoming>
+      <bpmn:outgoing>Flow_06</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="Gateway_SymptomsPresent" name="PTSD symptoms present?">
+      <bpmn:incoming>Flow_06</bpmn:incoming>
+      <bpmn:outgoing>Flow_07</bpmn:outgoing>
+      <bpmn:outgoing>Flow_08</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="UserTask_EvaluateDuration" name="Evaluate Duration of Symptoms">
+      <bpmn:incoming>Flow_07</bpmn:incoming>
+      <bpmn:outgoing>Flow_09</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="Gateway_Duration" name="Symptoms longer than minimum duration?">
+      <bpmn:incoming>Flow_09</bpmn:incoming>
+      <bpmn:outgoing>Flow_10</bpmn:outgoing>
+      <bpmn:outgoing>Flow_11</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="UserTask_Psychodiagnostics" name="Conduct Structured Psychodiagnostic Assessment">
+      <bpmn:incoming>Flow_10</bpmn:incoming>
+      <bpmn:outgoing>Flow_12</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="UserTask_Differential" name="Perform Differential Diagnosis">
+      <bpmn:incoming>Flow_12</bpmn:incoming>
+      <bpmn:outgoing>Flow_13</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="Gateway_DxConfirmed" name="PTSD diagnosis confirmed?">
+      <bpmn:incoming>Flow_13</bpmn:incoming>
+      <bpmn:outgoing>Flow_14</bpmn:outgoing>
+      <bpmn:outgoing>Flow_15</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:endEvent id="EndEvent_AltDx" name="Exit: Alternative Diagnosis / No PTSD">
+      <bpmn:incoming>Flow_15</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:userTask id="UserTask_SeverityRisk" name="Assess Risk Factors and Severity">
+      <bpmn:incoming>Flow_14</bpmn:incoming>
+      <bpmn:outgoing>Flow_16</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="Gateway_AcuteRisk" name="Acute risk present?">
+      <bpmn:incoming>Flow_16</bpmn:incoming>
+      <bpmn:outgoing>Flow_17</bpmn:outgoing>
+      <bpmn:outgoing>Flow_18</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="UserTask_Emergency" name="Provide Emergency Intervention">
+      <bpmn:incoming>Flow_17</bpmn:incoming>
+      <bpmn:outgoing>Flow_19</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="Gateway_InpatientRequired" name="Inpatient or specialized care required?">
+      <bpmn:incoming>Flow_18</bpmn:incoming>
+      <bpmn:incoming>Flow_19</bpmn:incoming>
+      <bpmn:outgoing>Flow_20</bpmn:outgoing>
+      <bpmn:outgoing>Flow_21</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="UserTask_EscalateCare" name="Escalate Care to Specialized or Inpatient Treatment">
+      <bpmn:incoming>Flow_20</bpmn:incoming>
+      <bpmn:outgoing>Flow_22</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="Gateway_MildEarly" name="Mild / early-stage condition?">
+      <bpmn:incoming>Flow_21</bpmn:incoming>
+      <bpmn:outgoing>Flow_23</bpmn:outgoing>
+      <bpmn:outgoing>Flow_24</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="UserTask_ActiveMonitoring" name="Actively Monitor Patient Without Immediate Treatment">
+      <bpmn:incoming>Flow_08</bpmn:incoming>
+      <bpmn:incoming>Flow_11</bpmn:incoming>
+      <bpmn:incoming>Flow_23</bpmn:incoming>
+      <bpmn:outgoing>Flow_25</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="UserTask_DecideStrategy" name="Decide on Treatment Strategy">
+      <bpmn:incoming>Flow_22</bpmn:incoming>
+      <bpmn:incoming>Flow_24</bpmn:incoming>
+      <bpmn:incoming>Flow_30</bpmn:incoming>
+      <bpmn:outgoing>Flow_26</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="Gateway_PsychotherapyIndicated" name="Psychotherapy indicated as first-line?">
+      <bpmn:incoming>Flow_26</bpmn:incoming>
+      <bpmn:outgoing>Flow_27</bpmn:outgoing>
+      <bpmn:outgoing>Flow_28</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="UserTask_TraumaPsychotherapy" name="Initiate Trauma-Focused Psychotherapy">
+      <bpmn:incoming>Flow_27</bpmn:incoming>
+      <bpmn:outgoing>Flow_29</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="Gateway_PharmIndicated" name="Pharmacological treatment indicated?">
+      <bpmn:incoming>Flow_28</bpmn:incoming>
+      <bpmn:incoming>Flow_29</bpmn:incoming>
+      <bpmn:outgoing>Flow_31</bpmn:outgoing>
+      <bpmn:outgoing>Flow_32</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="UserTask_PharmTreatment" name="Initiate Pharmacological Treatment">
+      <bpmn:incoming>Flow_31</bpmn:incoming>
+      <bpmn:outgoing>Flow_33</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:serviceTask id="ServiceTask_MonitorOutcomes" name="Monitor Treatment Outcomes">
+      <bpmn:incoming>Flow_25</bpmn:incoming>
+      <bpmn:incoming>Flow_32</bpmn:incoming>
+      <bpmn:incoming>Flow_33</bpmn:incoming>
+      <bpmn:outgoing>Flow_34</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:userTask id="UserTask_ReassessEffectiveness" name="Reassess Treatment Effectiveness">
+      <bpmn:incoming>Flow_34</bpmn:incoming>
+      <bpmn:outgoing>Flow_35</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="Gateway_TreatmentEffective" name="Treatment effective?">
+      <bpmn:incoming>Flow_35</bpmn:incoming>
+      <bpmn:outgoing>Flow_36</bpmn:outgoing>
+      <bpmn:outgoing>Flow_37</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:exclusiveGateway id="Gateway_Remission" name="Stabilization or remission achieved?">
+      <bpmn:incoming>Flow_36</bpmn:incoming>
+      <bpmn:outgoing>Flow_38</bpmn:outgoing>
+      <bpmn:outgoing>Flow_39</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="UserTask_Discharge" name="Discharge Patient from Care">
+      <bpmn:incoming>Flow_38</bpmn:incoming>
+      <bpmn:outgoing>Flow_40</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:endEvent id="EndEvent_CareCompleted" name="End: Care Completed">
+      <bpmn:incoming>Flow_40</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:sequenceFlow id="Flow_01" sourceRef="StartEvent_1" targetRef="UserTask_Screening" />
+    <bpmn:sequenceFlow id="Flow_02" sourceRef="UserTask_Screening" targetRef="UserTask_TraumaExposure" />
+    <bpmn:sequenceFlow id="Flow_03" sourceRef="UserTask_TraumaExposure" targetRef="Gateway_TraumaExposure" />
+    <bpmn:sequenceFlow id="Flow_04" name="Exposed to traumatic event" sourceRef="Gateway_TraumaExposure" targetRef="UserTask_AssessSymptoms" />
+    <bpmn:sequenceFlow id="Flow_05" name="No traumatic event exposure" sourceRef="Gateway_TraumaExposure" targetRef="EndEvent_ExitNoTrauma" />
+
+    <bpmn:sequenceFlow id="Flow_06" sourceRef="UserTask_AssessSymptoms" targetRef="Gateway_SymptomsPresent" />
+    <bpmn:sequenceFlow id="Flow_07" name="Symptoms present" sourceRef="Gateway_SymptomsPresent" targetRef="UserTask_EvaluateDuration" />
+    <bpmn:sequenceFlow id="Flow_08" name="Symptoms absent" sourceRef="Gateway_SymptomsPresent" targetRef="UserTask_ActiveMonitoring" />
+
+    <bpmn:sequenceFlow id="Flow_09" sourceRef="UserTask_EvaluateDuration" targetRef="Gateway_Duration" />
+    <bpmn:sequenceFlow id="Flow_10" name="Duration meets criterion" sourceRef="Gateway_Duration" targetRef="UserTask_Psychodiagnostics" />
+    <bpmn:sequenceFlow id="Flow_11" name="Duration below criterion" sourceRef="Gateway_Duration" targetRef="UserTask_ActiveMonitoring" />
+
+    <bpmn:sequenceFlow id="Flow_12" sourceRef="UserTask_Psychodiagnostics" targetRef="UserTask_Differential" />
+    <bpmn:sequenceFlow id="Flow_13" sourceRef="UserTask_Differential" targetRef="Gateway_DxConfirmed" />
+    <bpmn:sequenceFlow id="Flow_14" name="PTSD confirmed" sourceRef="Gateway_DxConfirmed" targetRef="UserTask_SeverityRisk" />
+    <bpmn:sequenceFlow id="Flow_15" name="PTSD not confirmed" sourceRef="Gateway_DxConfirmed" targetRef="EndEvent_AltDx" />
+
+    <bpmn:sequenceFlow id="Flow_16" sourceRef="UserTask_SeverityRisk" targetRef="Gateway_AcuteRisk" />
+    <bpmn:sequenceFlow id="Flow_17" name="Acute risk present" sourceRef="Gateway_AcuteRisk" targetRef="UserTask_Emergency" />
+    <bpmn:sequenceFlow id="Flow_18" name="No acute risk" sourceRef="Gateway_AcuteRisk" targetRef="Gateway_InpatientRequired" />
+
+    <bpmn:sequenceFlow id="Flow_19" sourceRef="UserTask_Emergency" targetRef="Gateway_InpatientRequired" />
+    <bpmn:sequenceFlow id="Flow_20" name="Inpatient / specialized care required" sourceRef="Gateway_InpatientRequired" targetRef="UserTask_EscalateCare" />
+    <bpmn:sequenceFlow id="Flow_21" name="Outpatient care appropriate" sourceRef="Gateway_InpatientRequired" targetRef="Gateway_MildEarly" />
+
+    <bpmn:sequenceFlow id="Flow_22" sourceRef="UserTask_EscalateCare" targetRef="UserTask_DecideStrategy" />
+    <bpmn:sequenceFlow id="Flow_23" name="Mild / early-stage" sourceRef="Gateway_MildEarly" targetRef="UserTask_ActiveMonitoring" />
+    <bpmn:sequenceFlow id="Flow_24" name="Moderate / severe or persistent" sourceRef="Gateway_MildEarly" targetRef="UserTask_DecideStrategy" />
+
+    <bpmn:sequenceFlow id="Flow_25" sourceRef="UserTask_ActiveMonitoring" targetRef="ServiceTask_MonitorOutcomes" />
+
+    <bpmn:sequenceFlow id="Flow_26" sourceRef="UserTask_DecideStrategy" targetRef="Gateway_PsychotherapyIndicated" />
+    <bpmn:sequenceFlow id="Flow_27" name="Psychotherapy indicated" sourceRef="Gateway_PsychotherapyIndicated" targetRef="UserTask_TraumaPsychotherapy" />
+    <bpmn:sequenceFlow id="Flow_28" name="Psychotherapy not indicated" sourceRef="Gateway_PsychotherapyIndicated" targetRef="Gateway_PharmIndicated" />
+
+    <bpmn:sequenceFlow id="Flow_29" sourceRef="UserTask_TraumaPsychotherapy" targetRef="Gateway_PharmIndicated" />
+    <bpmn:sequenceFlow id="Flow_31" name="Pharmacotherapy indicated" sourceRef="Gateway_PharmIndicated" targetRef="UserTask_PharmTreatment" />
+    <bpmn:sequenceFlow id="Flow_32" name="No pharmacotherapy" sourceRef="Gateway_PharmIndicated" targetRef="ServiceTask_MonitorOutcomes" />
+    <bpmn:sequenceFlow id="Flow_33" sourceRef="UserTask_PharmTreatment" targetRef="ServiceTask_MonitorOutcomes" />
+
+    <bpmn:sequenceFlow id="Flow_34" sourceRef="ServiceTask_MonitorOutcomes" targetRef="UserTask_ReassessEffectiveness" />
+    <bpmn:sequenceFlow id="Flow_35" sourceRef="UserTask_ReassessEffectiveness" targetRef="Gateway_TreatmentEffective" />
+    <bpmn:sequenceFlow id="Flow_36" name="Effective" sourceRef="Gateway_TreatmentEffective" targetRef="Gateway_Remission" />
+    <bpmn:sequenceFlow id="Flow_37" name="Not effective" sourceRef="Gateway_TreatmentEffective" targetRef="UserTask_DecideStrategy" />
+
+    <bpmn:sequenceFlow id="Flow_38" name="Stabilization / remission achieved" sourceRef="Gateway_Remission" targetRef="UserTask_Discharge" />
+    <bpmn:sequenceFlow id="Flow_39" name="Not yet stabilized" sourceRef="Gateway_Remission" targetRef="ServiceTask_MonitorOutcomes" />
+
+    <bpmn:sequenceFlow id="Flow_40" sourceRef="UserTask_Discharge" targetRef="EndEvent_CareCompleted" />
+
+  </bpmn:process>
+
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1t103nq">
+
+      <bpmndi:BPMNShape id="StartEvent_1_di" bpmnElement="StartEvent_1">
+        <dc:Bounds x="182" y="162" width="36" height="36" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_Screening_di" bpmnElement="UserTask_Screening">
+        <dc:Bounds x="260" y="140" width="140" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_TraumaExposure_di" bpmnElement="UserTask_TraumaExposure">
+        <dc:Bounds x="430" y="140" width="170" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_TraumaExposure_di" bpmnElement="Gateway_TraumaExposure" isMarkerVisible="true">
+        <dc:Bounds x="630" y="155" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="EndEvent_ExitNoTrauma_di" bpmnElement="EndEvent_ExitNoTrauma">
+        <dc:Bounds x="630" y="300" width="36" height="36" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_AssessSymptoms_di" bpmnElement="UserTask_AssessSymptoms">
+        <dc:Bounds x="720" y="140" width="200" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_SymptomsPresent_di" bpmnElement="Gateway_SymptomsPresent" isMarkerVisible="true">
+        <dc:Bounds x="950" y="155" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_EvaluateDuration_di" bpmnElement="UserTask_EvaluateDuration">
+        <dc:Bounds x="1030" y="140" width="200" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_Duration_di" bpmnElement="Gateway_Duration" isMarkerVisible="true">
+        <dc:Bounds x="1260" y="155" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_Psychodiagnostics_di" bpmnElement="UserTask_Psychodiagnostics">
+        <dc:Bounds x="1340" y="140" width="250" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_Differential_di" bpmnElement="UserTask_Differential">
+        <dc:Bounds x="1620" y="140" width="210" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_DxConfirmed_di" bpmnElement="Gateway_DxConfirmed" isMarkerVisible="true">
+        <dc:Bounds x="1860" y="155" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="EndEvent_AltDx_di" bpmnElement="EndEvent_AltDx">
+        <dc:Bounds x="1865" y="300" width="36" height="36" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_SeverityRisk_di" bpmnElement="UserTask_SeverityRisk">
+        <dc:Bounds x="1950" y="140" width="210" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_AcuteRisk_di" bpmnElement="Gateway_AcuteRisk" isMarkerVisible="true">
+        <dc:Bounds x="2190" y="155" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_Emergency_di" bpmnElement="UserTask_Emergency">
+        <dc:Bounds x="2290" y="40" width="200" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_InpatientRequired_di" bpmnElement="Gateway_InpatientRequired" isMarkerVisible="true">
+        <dc:Bounds x="2460" y="155" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_EscalateCare_di" bpmnElement="UserTask_EscalateCare">
+        <dc:Bounds x="2550" y="40" width="260" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_MildEarly_di" bpmnElement="Gateway_MildEarly" isMarkerVisible="true">
+        <dc:Bounds x="2550" y="155" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_ActiveMonitoring_di" bpmnElement="UserTask_ActiveMonitoring">
+        <dc:Bounds x="2630" y="260" width="280" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_DecideStrategy_di" bpmnElement="UserTask_DecideStrategy">
+        <dc:Bounds x="2650" y="140" width="220" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_PsychotherapyIndicated_di" bpmnElement="Gateway_PsychotherapyIndicated" isMarkerVisible="true">
+        <dc:Bounds x="2900" y="155" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_TraumaPsychotherapy_di" bpmnElement="UserTask_TraumaPsychotherapy">
+        <dc:Bounds x="2980" y="40" width="260" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_PharmIndicated_di" bpmnElement="Gateway_PharmIndicated" isMarkerVisible="true">
+        <dc:Bounds x="3260" y="155" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_PharmTreatment_di" bpmnElement="UserTask_PharmTreatment">
+        <dc:Bounds x="3340" y="40" width="230" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="ServiceTask_MonitorOutcomes_di" bpmnElement="ServiceTask_MonitorOutcomes">
+        <dc:Bounds x="3340" y="260" width="220" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_ReassessEffectiveness_di" bpmnElement="UserTask_ReassessEffectiveness">
+        <dc:Bounds x="3590" y="260" width="240" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_TreatmentEffective_di" bpmnElement="Gateway_TreatmentEffective" isMarkerVisible="true">
+        <dc:Bounds x="3860" y="275" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_Remission_di" bpmnElement="Gateway_Remission" isMarkerVisible="true">
+        <dc:Bounds x="3960" y="275" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_Discharge_di" bpmnElement="UserTask_Discharge">
+        <dc:Bounds x="4060" y="260" width="220" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="EndEvent_CareCompleted_di" bpmnElement="EndEvent_CareCompleted">
+        <dc:Bounds x="4310" y="282" width="36" height="36" />
+      </bpmndi:BPMNShape>
+
+      <!-- Edges -->
+      <bpmndi:BPMNEdge id="Flow_01_di" bpmnElement="Flow_01">
+        <dc:waypoint x="218" y="180" />
+        <dc:waypoint x="260" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_02_di" bpmnElement="Flow_02">
+        <dc:waypoint x="400" y="180" />
+        <dc:waypoint x="430" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_03_di" bpmnElement="Flow_03">
+        <dc:waypoint x="600" y="180" />
+        <dc:waypoint x="630" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_04_di" bpmnElement="Flow_04">
+        <dc:waypoint x="680" y="180" />
+        <dc:waypoint x="720" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_05_di" bpmnElement="Flow_05">
+        <dc:waypoint x="655" y="205" />
+        <dc:waypoint x="655" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_06_di" bpmnElement="Flow_06">
+        <dc:waypoint x="920" y="180" />
+        <dc:waypoint x="950" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_07_di" bpmnElement="Flow_07">
+        <dc:waypoint x="1000" y="180" />
+        <dc:waypoint x="1030" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_08_di" bpmnElement="Flow_08">
+        <dc:waypoint x="975" y="205" />
+        <dc:waypoint x="975" y="300" />
+        <dc:waypoint x="2630" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_09_di" bpmnElement="Flow_09">
+        <dc:waypoint x="1230" y="180" />
+        <dc:waypoint x="1260" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_10_di" bpmnElement="Flow_10">
+        <dc:waypoint x="1310" y="180" />
+        <dc:waypoint x="1340" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_11_di" bpmnElement="Flow_11">
+        <dc:waypoint x="1285" y="205" />
+        <dc:waypoint x="1285" y="300" />
+        <dc:waypoint x="2630" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_12_di" bpmnElement="Flow_12">
+        <dc:waypoint x="1590" y="180" />
+        <dc:waypoint x="1620" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_13_di" bpmnElement="Flow_13">
+        <dc:waypoint x="1830" y="180" />
+        <dc:waypoint x="1860" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_14_di" bpmnElement="Flow_14">
+        <dc:waypoint x="1910" y="180" />
+        <dc:waypoint x="1950" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_15_di" bpmnElement="Flow_15">
+        <dc:waypoint x="1885" y="205" />
+        <dc:waypoint x="1885" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_16_di" bpmnElement="Flow_16">
+        <dc:waypoint x="2160" y="180" />
+        <dc:waypoint x="2190" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_17_di" bpmnElement="Flow_17">
+        <dc:waypoint x="2215" y="155" />
+        <dc:waypoint x="2215" y="80" />
+        <dc:waypoint x="2290" y="80" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_18_di" bpmnElement="Flow_18">
+        <dc:waypoint x="2240" y="180" />
+        <dc:waypoint x="2460" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_19_di" bpmnElement="Flow_19">
+        <dc:waypoint x="2490" y="80" />
+        <dc:waypoint x="2485" y="155" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_20_di" bpmnElement="Flow_20">
+        <dc:waypoint x="2510" y="180" />
+        <dc:waypoint x="2510" y="80" />
+        <dc:waypoint x="2550" y="80" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_21_di" bpmnElement="Flow_21">
+        <dc:waypoint x="2510" y="180" />
+        <dc:waypoint x="2550" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_22_di" bpmnElement="Flow_22">
+        <dc:waypoint x="2810" y="80" />
+        <dc:waypoint x="2760" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_23_di" bpmnElement="Flow_23">
+        <dc:waypoint x="2575" y="205" />
+        <dc:waypoint x="2575" y="300" />
+        <dc:waypoint x="2630" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_24_di" bpmnElement="Flow_24">
+        <dc:waypoint x="2600" y="180" />
+        <dc:waypoint x="2650" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_25_di" bpmnElement="Flow_25">
+        <dc:waypoint x="2910" y="300" />
+        <dc:waypoint x="3340" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_26_di" bpmnElement="Flow_26">
+        <dc:waypoint x="2870" y="180" />
+        <dc:waypoint x="2900" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_27_di" bpmnElement="Flow_27">
+        <dc:waypoint x="2925" y="155" />
+        <dc:waypoint x="2925" y="80" />
+        <dc:waypoint x="2980" y="80" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_28_di" bpmnElement="Flow_28">
+        <dc:waypoint x="2950" y="180" />
+        <dc:waypoint x="3260" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_29_di" bpmnElement="Flow_29">
+        <dc:waypoint x="3240" y="80" />
+        <dc:waypoint x="3285" y="155" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_31_di" bpmnElement="Flow_31">
+        <dc:waypoint x="3310" y="155" />
+        <dc:waypoint x="3310" y="80" />
+        <dc:waypoint x="3340" y="80" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_32_di" bpmnElement="Flow_32">
+        <dc:waypoint x="3310" y="205" />
+        <dc:waypoint x="3310" y="300" />
+        <dc:waypoint x="3340" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_33_di" bpmnElement="Flow_33">
+        <dc:waypoint x="3570" y="80" />
+        <dc:waypoint x="3450" y="260" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_34_di" bpmnElement="Flow_34">
+        <dc:waypoint x="3560" y="300" />
+        <dc:waypoint x="3590" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_35_di" bpmnElement="Flow_35">
+        <dc:waypoint x="3830" y="300" />
+        <dc:waypoint x="3860" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_36_di" bpmnElement="Flow_36">
+        <dc:waypoint x="3910" y="300" />
+        <dc:waypoint x="3960" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_37_di" bpmnElement="Flow_37">
+        <dc:waypoint x="3885" y="325" />
+        <dc:waypoint x="3885" y="180" />
+        <dc:waypoint x="2650" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_38_di" bpmnElement="Flow_38">
+        <dc:waypoint x="4010" y="300" />
+        <dc:waypoint x="4060" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_39_di" bpmnElement="Flow_39">
+        <dc:waypoint x="3985" y="325" />
+        <dc:waypoint x="3985" y="360" />
+        <dc:waypoint x="3450" y="360" />
+        <dc:waypoint x="3450" y="340" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_40_di" bpmnElement="Flow_40">
+        <dc:waypoint x="4280" y="300" />
+        <dc:waypoint x="4310" y="300" />
+      </bpmndi:BPMNEdge>
+
+      <!-- Additional edge for Flow_30 is not needed since Flow_30 is not defined; ensure no dangling references -->
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

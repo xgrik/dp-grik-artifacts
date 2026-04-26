@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+                  id="Definitions_02fe9dz"
+                  targetNamespace="http://bpmn.io/schema/bpmn"
+                  xmlns:modeler="http://camunda.org/schema/modeler/1.0"
+                  exporter="Camunda Modeler"
+                  exporterVersion="5.33.1"
+                  modeler:executionPlatform="Camunda Platform"
+                  modeler:executionPlatformVersion="7.22.0">
+
+  <bpmn:process id="Process_ChronicPain_Management" name="Chronic Pain Assessment and Stratified Management" isExecutable="true">
+
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="Lane_GP" name="General Practitioner / Specialist">
+        <bpmn:flowNodeRef>StartEvent_1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Intake</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_ChronicPain</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_AssessPain</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Biopsychosocial</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ScreenComorbidity</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_RiskStratification</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_RiskLevel</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_BasalIntervention</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ReferPhysio_Medium</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ReferPhysio_High</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ReferPsychology_High</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_NeedPsychiatry</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_RegularFollowUp</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_GoalsMet</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_OutsideScope</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_Completed</bpmn:flowNodeRef>
+      </bpmn:lane>
+
+      <bpmn:lane id="Lane_Psych" name="Psychologist / Psychotherapist">
+        <bpmn:flowNodeRef>Task_PsychAssessment</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Psychotherapy</bpmn:flowNodeRef>
+      </bpmn:lane>
+
+      <bpmn:lane id="Lane_Physio" name="Physiotherapy">
+        <bpmn:flowNodeRef>Task_Physiotherapy</bpmn:flowNodeRef>
+      </bpmn:lane>
+
+      <bpmn:lane id="Lane_Psychiatry" name="Psychiatry">
+        <bpmn:flowNodeRef>Task_PsychiatricAssessment</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_PsychiatricCare</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <!-- Start -->
+    <bpmn:startEvent id="StartEvent_1" name="Patient presents with persistent pain">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <!-- Intake -->
+    <bpmn:task id="Task_Intake" name="Initial clinical intake and case context">
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+    </bpmn:task>
+
+    <!-- Decision: chronic vs acute -->
+    <bpmn:exclusiveGateway id="Gateway_ChronicPain" name="Pain duration &gt; 3 months?">
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_3_YesChronic</bpmn:outgoing>
+      <bpmn:outgoing>Flow_3_NoAcute</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:endEvent id="EndEvent_OutsideScope" name="Acute pain (outside chronic pain pathway)">
+      <bpmn:incoming>Flow_3_NoAcute</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <!-- Assess pain -->
+    <bpmn:task id="Task_AssessPain" name="Assess pain severity, type, and functional impact">
+      <bpmn:incoming>Flow_3_YesChronic</bpmn:incoming>
+      <bpmn:outgoing>Flow_4</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:task id="Task_Biopsychosocial" name="History, diagnostic exam, and bio-psycho-social assessment">
+      <bpmn:incoming>Flow_4</bpmn:incoming>
+      <bpmn:outgoing>Flow_5</bpmn:outgoing>
+    </bpmn:task>
+
+    <!-- Screen comorbidity -->
+    <bpmn:task id="Task_ScreenComorbidity" name="Screen comorbid anxiety and depression (GAD-7, PHQ-9)">
+      <bpmn:incoming>Flow_5</bpmn:incoming>
+      <bpmn:outgoing>Flow_6</bpmn:outgoing>
+    </bpmn:task>
+
+    <!-- Risk stratification -->
+    <bpmn:task id="Task_RiskStratification" name="Administer chronicity risk stratification questionnaire">
+      <bpmn:incoming>Flow_6</bpmn:incoming>
+      <bpmn:outgoing>Flow_7</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:exclusiveGateway id="Gateway_RiskLevel" name="Risk level (low / medium / high)">
+      <bpmn:incoming>Flow_7</bpmn:incoming>
+      <bpmn:outgoing>Flow_Low</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Medium</bpmn:outgoing>
+      <bpmn:outgoing>Flow_High</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- LOW RISK PATH -->
+    <bpmn:task id="Task_BasalIntervention" name="Provide support, basic intervention, and psychoeducation">
+      <bpmn:incoming>Flow_Low</bpmn:incoming>
+      <bpmn:outgoing>Flow_Low_ToFollowUp</bpmn:outgoing>
+    </bpmn:task>
+
+    <!-- MEDIUM RISK PATH -->
+    <bpmn:task id="Task_ReferPhysio_Medium" name="Refer to physiotherapy and reinforce education/adherence">
+      <bpmn:incoming>Flow_Medium</bpmn:incoming>
+      <bpmn:outgoing>Flow_Med_ToPhysio</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:task id="Task_Physiotherapy" name="Physiotherapy and physical reactivation plan">
+      <bpmn:incoming>Flow_Med_ToPhysio</bpmn:incoming>
+      <bpmn:incoming>Flow_High_ToPhysio</bpmn:incoming>
+      <bpmn:outgoing>Flow_Physio_ToFollowUp</bpmn:outgoing>
+    </bpmn:task>
+
+    <!-- HIGH RISK PATH -->
+    <bpmn:task id="Task_ReferPhysio_High" name="Refer to physiotherapy (high risk)">
+      <bpmn:incoming>Flow_High</bpmn:incoming>
+      <bpmn:outgoing>Flow_High_ToPhysio</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:task id="Task_ReferPsychology_High" name="Refer for psychological assessment (high risk or indicated)">
+      <bpmn:incoming>Flow_High</bpmn:incoming>
+      <bpmn:outgoing>Flow_High_ToPsychAssess</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:task id="Task_PsychAssessment" name="Psychodiagnostic assessment and psychoeducation">
+      <bpmn:incoming>Flow_High_ToPsychAssess</bpmn:incoming>
+      <bpmn:outgoing>Flow_PsychAssess_ToPsychotherapy</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:task id="Task_Psychotherapy" name="Psychotherapy / specific psychological interventions">
+      <bpmn:incoming>Flow_PsychAssess_ToPsychotherapy</bpmn:incoming>
+      <bpmn:outgoing>Flow_Psychotherapy_ToPsychiatryDecision</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:exclusiveGateway id="Gateway_NeedPsychiatry" name="Severe comorbidity / need psychiatric evaluation?">
+      <bpmn:incoming>Flow_Psychotherapy_ToPsychiatryDecision</bpmn:incoming>
+      <bpmn:outgoing>Flow_ToPsychiatry</bpmn:outgoing>
+      <bpmn:outgoing>Flow_NoPsychiatry</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:task id="Task_PsychiatricAssessment" name="Psychiatric assessment (consider hospitalization if needed)">
+      <bpmn:incoming>Flow_ToPsychiatry</bpmn:incoming>
+      <bpmn:outgoing>Flow_Psychiatry_ToCare</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:task id="Task_PsychiatricCare" name="Psychiatric care (pharmacotherapy and/or psychotherapy)">
+      <bpmn:incoming>Flow_Psychiatry_ToCare</bpmn:incoming>
+      <bpmn:outgoing>Flow_PsychCare_ToFollowUp</bpmn:outgoing>
+    </bpmn:task>
+
+    <!-- Follow-up and loop -->
+    <bpmn:task id="Task_RegularFollowUp" name="Regular follow-up: reassess pain, function, and comorbidities; support motivation">
+      <bpmn:incoming>Flow_Low_ToFollowUp</bpmn:incoming>
+      <bpmn:incoming>Flow_Physio_ToFollowUp</bpmn:incoming>
+      <bpmn:incoming>Flow_NoPsychiatry</bpmn:incoming>
+      <bpmn:incoming>Flow_PsychCare_ToFollowUp</bpmn:incoming>
+      <bpmn:outgoing>Flow_FollowUp_ToGoals</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:exclusiveGateway id="Gateway_GoalsMet" name="Therapeutic goals achieved?">
+      <bpmn:incoming>Flow_FollowUp_ToGoals</bpmn:incoming>
+      <bpmn:outgoing>Flow_GoalsYes</bpmn:outgoing>
+      <bpmn:outgoing>Flow_GoalsNo</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:endEvent id="EndEvent_Completed" name="Ongoing management stabilized / goals achieved">
+      <bpmn:incoming>Flow_GoalsYes</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <!-- Loop back to reassessment / stratification as needed -->
+    <bpmn:sequenceFlow id="Flow_GoalsNo" sourceRef="Gateway_GoalsMet" targetRef="Task_AssessPain" name="Continue management"/>
+
+    <!-- Sequence flows -->
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_1" targetRef="Task_Intake"/>
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Task_Intake" targetRef="Gateway_ChronicPain"/>
+
+    <bpmn:sequenceFlow id="Flow_3_YesChronic" sourceRef="Gateway_ChronicPain" targetRef="Task_AssessPain" name="Yes"/>
+    <bpmn:sequenceFlow id="Flow_3_NoAcute" sourceRef="Gateway_ChronicPain" targetRef="EndEvent_OutsideScope" name="No"/>
+
+    <bpmn:sequenceFlow id="Flow_4" sourceRef="Task_AssessPain" targetRef="Task_Biopsychosocial"/>
+    <bpmn:sequenceFlow id="Flow_5" sourceRef="Task_Biopsychosocial" targetRef="Task_ScreenComorbidity"/>
+    <bpmn:sequenceFlow id="Flow_6" sourceRef="Task_ScreenComorbidity" targetRef="Task_RiskStratification"/>
+    <bpmn:sequenceFlow id="Flow_7" sourceRef="Task_RiskStratification" targetRef="Gateway_RiskLevel"/>
+
+    <bpmn:sequenceFlow id="Flow_Low" sourceRef="Gateway_RiskLevel" targetRef="Task_BasalIntervention" name="Low risk"/>
+    <bpmn:sequenceFlow id="Flow_Medium" sourceRef="Gateway_RiskLevel" targetRef="Task_ReferPhysio_Medium" name="Medium risk"/>
+    <bpmn:sequenceFlow id="Flow_High" sourceRef="Gateway_RiskLevel" targetRef="Task_ReferPhysio_High" name="High risk"/>
+
+    <bpmn:sequenceFlow id="Flow_Low_ToFollowUp" sourceRef="Task_BasalIntervention" targetRef="Task_RegularFollowUp"/>
+
+    <bpmn:sequenceFlow id="Flow_Med_ToPhysio" sourceRef="Task_ReferPhysio_Medium" targetRef="Task_Physiotherapy"/>
+    <bpmn:sequenceFlow id="Flow_Physio_ToFollowUp" sourceRef="Task_Physiotherapy" targetRef="Task_RegularFollowUp"/>
+
+    <bpmn:sequenceFlow id="Flow_High_ToPhysio" sourceRef="Task_ReferPhysio_High" targetRef="Task_Physiotherapy" name="Physio"/>
+    <bpmn:sequenceFlow id="Flow_High_ToPsychAssess" sourceRef="Task_ReferPsychology_High" targetRef="Task_PsychAssessment" name="Psychology"/>
+
+    <!-- Ensure both high-risk referrals can occur (modeled as parallel execution via explicit split/join is omitted for simplicity);
+         Many implementations treat these as coordinated care activities. -->
+    <bpmn:sequenceFlow id="Flow_PsychAssess_ToPsychotherapy" sourceRef="Task_PsychAssessment" targetRef="Task_Psychotherapy"/>
+    <bpmn:sequenceFlow id="Flow_Psychotherapy_ToPsychiatryDecision" sourceRef="Task_Psychotherapy" targetRef="Gateway_NeedPsychiatry"/>
+
+    <bpmn:sequenceFlow id="Flow_ToPsychiatry" sourceRef="Gateway_NeedPsychiatry" targetRef="Task_PsychiatricAssessment" name="Yes"/>
+    <bpmn:sequenceFlow id="Flow_NoPsychiatry" sourceRef="Gateway_NeedPsychiatry" targetRef="Task_RegularFollowUp" name="No"/>
+
+    <bpmn:sequenceFlow id="Flow_Psychiatry_ToCare" sourceRef="Task_PsychiatricAssessment" targetRef="Task_PsychiatricCare"/>
+    <bpmn:sequenceFlow id="Flow_PsychCare_ToFollowUp" sourceRef="Task_PsychiatricCare" targetRef="Task_RegularFollowUp"/>
+
+    <bpmn:sequenceFlow id="Flow_FollowUp_ToGoals" sourceRef="Task_RegularFollowUp" targetRef="Gateway_GoalsMet"/>
+    <bpmn:sequenceFlow id="Flow_GoalsYes" sourceRef="Gateway_GoalsMet" targetRef="EndEvent_Completed" name="Yes"/>
+
+  </bpmn:process>
+
+  <!-- Minimal DI so Camunda Modeler can open it; layout may be auto-arranged -->
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_ChronicPain_Management"/>
+  </bpmndi:BPMNDiagram>
+
+</bpmn:definitions>

@@ -1,0 +1,407 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1bdj0sq" targetNamespace="http://bpmn.io/schema/bpmn" xmlns:modeler="http://camunda.org/schema/modeler/1.0" exporter="Camunda Modeler" exporterVersion="5.33.1" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.22.0">
+  <bpmn:process id="Process_1wlyh5l" isExecutable="true">
+
+    <bpmn:startEvent id="StartEvent_1" name="Process Start">
+      <bpmn:outgoing>Flow_001</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <bpmn:userTask id="Task_Screening" name="Perform Mental Health Screening">
+      <bpmn:incoming>Flow_001</bpmn:incoming>
+      <bpmn:outgoing>Flow_002</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_EvaluateScreening" name="Evaluate Screening Result">
+      <bpmn:incoming>Flow_002</bpmn:incoming>
+      <bpmn:outgoing>Flow_003</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="Gateway_ScreeningResult" name="Screening Positive?">
+      <bpmn:incoming>Flow_003</bpmn:incoming>
+      <bpmn:outgoing>Flow_004</bpmn:outgoing>
+      <bpmn:outgoing>Flow_005</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:endEvent id="EndEvent_ProcessCompleted" name="Process Completed">
+      <bpmn:incoming>Flow_005</bpmn:incoming>
+      <bpmn:incoming>Flow_022</bpmn:incoming>
+      <bpmn:incoming>Flow_024</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:exclusiveGateway id="Gateway_DoctorCompetence" name="Doctor Competent to Assess Mental State?">
+      <bpmn:incoming>Flow_004</bpmn:incoming>
+      <bpmn:outgoing>Flow_006</bpmn:outgoing>
+      <bpmn:outgoing>Flow_007</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:exclusiveGateway id="Gateway_IsPatientsGP" name="Is Assessing Doctor the Patient's GP?">
+      <bpmn:incoming>Flow_006</bpmn:incoming>
+      <bpmn:outgoing>Flow_008</bpmn:outgoing>
+      <bpmn:outgoing>Flow_009</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="Task_InformGP" name="Inform Patient's GP">
+      <bpmn:incoming>Flow_009</bpmn:incoming>
+      <bpmn:outgoing>Flow_010</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_DecidePsychExamNeed" name="Decide Need for Psychological Assessment">
+      <bpmn:incoming>Flow_007</bpmn:incoming>
+      <bpmn:incoming>Flow_008</bpmn:incoming>
+      <bpmn:incoming>Flow_010</bpmn:incoming>
+      <bpmn:outgoing>Flow_011</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_ReferPsychExam" name="Refer Patient for Clinical Psychological Assessment">
+      <bpmn:incoming>Flow_011</bpmn:incoming>
+      <bpmn:outgoing>Flow_012</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_ConductAssessment" name="Conduct Clinical Psychological Assessment">
+      <bpmn:incoming>Flow_012</bpmn:incoming>
+      <bpmn:outgoing>Flow_013</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_AdministerTools" name="Administer Standardized Psychodiagnostic Tools">
+      <bpmn:incoming>Flow_013</bpmn:incoming>
+      <bpmn:outgoing>Flow_014</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_EvaluateAssessment" name="Evaluate Assessment Results">
+      <bpmn:incoming>Flow_014</bpmn:incoming>
+      <bpmn:outgoing>Flow_015</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:businessRuleTask id="Task_DetermineCareLevel" name="Determine Stepped-Care Level">
+      <bpmn:incoming>Flow_015</bpmn:incoming>
+      <bpmn:incoming>Flow_020</bpmn:incoming>
+      <bpmn:outgoing>Flow_016</bpmn:outgoing>
+    </bpmn:businessRuleTask>
+
+    <bpmn:exclusiveGateway id="Gateway_CareLevel" name="Selected Care Level">
+      <bpmn:incoming>Flow_016</bpmn:incoming>
+      <bpmn:outgoing>Flow_017</bpmn:outgoing>
+      <bpmn:outgoing>Flow_018</bpmn:outgoing>
+      <bpmn:outgoing>Flow_019</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="Task_PlanIntervention" name="Plan Psychological Intervention">
+      <bpmn:incoming>Flow_017</bpmn:incoming>
+      <bpmn:incoming>Flow_018</bpmn:incoming>
+      <bpmn:outgoing>Flow_021</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_ProvideIntervention" name="Provide Psychological/Psychotherapeutic Intervention">
+      <bpmn:incoming>Flow_021</bpmn:incoming>
+      <bpmn:outgoing>Flow_023</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_MonitorEffect" name="Monitor Intervention Progress and Effect">
+      <bpmn:incoming>Flow_023</bpmn:incoming>
+      <bpmn:outgoing>Flow_025</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="Gateway_InterventionEffective" name="Intervention Effective?">
+      <bpmn:incoming>Flow_025</bpmn:incoming>
+      <bpmn:outgoing>Flow_022</bpmn:outgoing>
+      <bpmn:outgoing>Flow_026</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:exclusiveGateway id="Gateway_DurationImpact" name="Significant Duration or Functional Impact?">
+      <bpmn:incoming>Flow_026</bpmn:incoming>
+      <bpmn:outgoing>Flow_020</bpmn:outgoing>
+      <bpmn:outgoing>Flow_027</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:exclusiveGateway id="Gateway_NeedSpecializedCenter" name="Need Specialized Multidisciplinary Center?">
+      <bpmn:incoming>Flow_027</bpmn:incoming>
+      <bpmn:outgoing>Flow_028</bpmn:outgoing>
+      <bpmn:outgoing>Flow_020B</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="Task_ReferCenter" name="Refer Patient to Specialized Center/Multidisciplinary Team">
+      <bpmn:incoming>Flow_019</bpmn:incoming>
+      <bpmn:incoming>Flow_028</bpmn:incoming>
+      <bpmn:outgoing>Flow_024</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:sequenceFlow id="Flow_001" sourceRef="StartEvent_1" targetRef="Task_Screening" />
+    <bpmn:sequenceFlow id="Flow_002" sourceRef="Task_Screening" targetRef="Task_EvaluateScreening" />
+    <bpmn:sequenceFlow id="Flow_003" sourceRef="Task_EvaluateScreening" targetRef="Gateway_ScreeningResult" />
+    <bpmn:sequenceFlow id="Flow_004" name="Positive" sourceRef="Gateway_ScreeningResult" targetRef="Gateway_DoctorCompetence" />
+    <bpmn:sequenceFlow id="Flow_005" name="Negative" sourceRef="Gateway_ScreeningResult" targetRef="EndEvent_ProcessCompleted" />
+
+    <bpmn:sequenceFlow id="Flow_006" name="Competent" sourceRef="Gateway_DoctorCompetence" targetRef="Gateway_IsPatientsGP" />
+    <bpmn:sequenceFlow id="Flow_007" name="Not competent" sourceRef="Gateway_DoctorCompetence" targetRef="Task_DecidePsychExamNeed" />
+
+    <bpmn:sequenceFlow id="Flow_008" name="Yes" sourceRef="Gateway_IsPatientsGP" targetRef="Task_DecidePsychExamNeed" />
+    <bpmn:sequenceFlow id="Flow_009" name="No" sourceRef="Gateway_IsPatientsGP" targetRef="Task_InformGP" />
+    <bpmn:sequenceFlow id="Flow_010" sourceRef="Task_InformGP" targetRef="Task_DecidePsychExamNeed" />
+
+    <bpmn:sequenceFlow id="Flow_011" sourceRef="Task_DecidePsychExamNeed" targetRef="Task_ReferPsychExam" />
+    <bpmn:sequenceFlow id="Flow_012" sourceRef="Task_ReferPsychExam" targetRef="Task_ConductAssessment" />
+    <bpmn:sequenceFlow id="Flow_013" sourceRef="Task_ConductAssessment" targetRef="Task_AdministerTools" />
+    <bpmn:sequenceFlow id="Flow_014" sourceRef="Task_AdministerTools" targetRef="Task_EvaluateAssessment" />
+    <bpmn:sequenceFlow id="Flow_015" sourceRef="Task_EvaluateAssessment" targetRef="Task_DetermineCareLevel" />
+    <bpmn:sequenceFlow id="Flow_016" sourceRef="Task_DetermineCareLevel" targetRef="Gateway_CareLevel" />
+
+    <bpmn:sequenceFlow id="Flow_017" name="Level 1" sourceRef="Gateway_CareLevel" targetRef="Task_PlanIntervention" />
+    <bpmn:sequenceFlow id="Flow_018" name="Level 2" sourceRef="Gateway_CareLevel" targetRef="Task_PlanIntervention" />
+    <bpmn:sequenceFlow id="Flow_019" name="Level 3" sourceRef="Gateway_CareLevel" targetRef="Task_ReferCenter" />
+
+    <bpmn:sequenceFlow id="Flow_021" sourceRef="Task_PlanIntervention" targetRef="Task_ProvideIntervention" />
+    <bpmn:sequenceFlow id="Flow_023" sourceRef="Task_ProvideIntervention" targetRef="Task_MonitorEffect" />
+    <bpmn:sequenceFlow id="Flow_025" sourceRef="Task_MonitorEffect" targetRef="Gateway_InterventionEffective" />
+
+    <bpmn:sequenceFlow id="Flow_022" name="Effective" sourceRef="Gateway_InterventionEffective" targetRef="EndEvent_ProcessCompleted" />
+    <bpmn:sequenceFlow id="Flow_026" name="Not effective" sourceRef="Gateway_InterventionEffective" targetRef="Gateway_DurationImpact" />
+
+    <bpmn:sequenceFlow id="Flow_020" name="Not significant" sourceRef="Gateway_DurationImpact" targetRef="Task_DetermineCareLevel" />
+    <bpmn:sequenceFlow id="Flow_027" name="Significant" sourceRef="Gateway_DurationImpact" targetRef="Gateway_NeedSpecializedCenter" />
+
+    <bpmn:sequenceFlow id="Flow_028" name="Yes" sourceRef="Gateway_NeedSpecializedCenter" targetRef="Task_ReferCenter" />
+    <bpmn:sequenceFlow id="Flow_020B" name="No" sourceRef="Gateway_NeedSpecializedCenter" targetRef="Task_DetermineCareLevel" />
+
+    <bpmn:sequenceFlow id="Flow_024" sourceRef="Task_ReferCenter" targetRef="EndEvent_ProcessCompleted" />
+
+  </bpmn:process>
+
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1wlyh5l">
+
+      <bpmndi:BPMNShape id="StartEvent_1_di" bpmnElement="StartEvent_1">
+        <dc:Bounds x="182" y="162" width="36" height="36" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_Screening_di" bpmnElement="Task_Screening">
+        <dc:Bounds x="260" y="140" width="150" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_EvaluateScreening_di" bpmnElement="Task_EvaluateScreening">
+        <dc:Bounds x="440" y="140" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_ScreeningResult_di" bpmnElement="Gateway_ScreeningResult">
+        <dc:Bounds x="635" y="155" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="EndEvent_ProcessCompleted_di" bpmnElement="EndEvent_ProcessCompleted">
+        <dc:Bounds x="1800" y="162" width="36" height="36" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_DoctorCompetence_di" bpmnElement="Gateway_DoctorCompetence">
+        <dc:Bounds x="740" y="155" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_IsPatientsGP_di" bpmnElement="Gateway_IsPatientsGP">
+        <dc:Bounds x="845" y="155" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_InformGP_di" bpmnElement="Task_InformGP">
+        <dc:Bounds x="910" y="260" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_DecidePsychExamNeed_di" bpmnElement="Task_DecidePsychExamNeed">
+        <dc:Bounds x="980" y="140" width="220" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_ReferPsychExam_di" bpmnElement="Task_ReferPsychExam">
+        <dc:Bounds x="1230" y="140" width="230" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_ConductAssessment_di" bpmnElement="Task_ConductAssessment">
+        <dc:Bounds x="1490" y="140" width="220" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_AdministerTools_di" bpmnElement="Task_AdministerTools">
+        <dc:Bounds x="1740" y="140" width="260" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_EvaluateAssessment_di" bpmnElement="Task_EvaluateAssessment">
+        <dc:Bounds x="2030" y="140" width="200" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_DetermineCareLevel_di" bpmnElement="Task_DetermineCareLevel">
+        <dc:Bounds x="2260" y="140" width="210" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_CareLevel_di" bpmnElement="Gateway_CareLevel">
+        <dc:Bounds x="2505" y="155" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_PlanIntervention_di" bpmnElement="Task_PlanIntervention">
+        <dc:Bounds x="2590" y="140" width="210" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_ProvideIntervention_di" bpmnElement="Task_ProvideIntervention">
+        <dc:Bounds x="2830" y="140" width="280" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_MonitorEffect_di" bpmnElement="Task_MonitorEffect">
+        <dc:Bounds x="3140" y="140" width="240" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_InterventionEffective_di" bpmnElement="Gateway_InterventionEffective">
+        <dc:Bounds x="3415" y="155" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_DurationImpact_di" bpmnElement="Gateway_DurationImpact">
+        <dc:Bounds x="3525" y="155" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_NeedSpecializedCenter_di" bpmnElement="Gateway_NeedSpecializedCenter">
+        <dc:Bounds x="3635" y="155" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_ReferCenter_di" bpmnElement="Task_ReferCenter">
+        <dc:Bounds x="3755" y="140" width="320" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNEdge id="Flow_001_di" bpmnElement="Flow_001">
+        <dc:waypoint x="218" y="180" />
+        <dc:waypoint x="260" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_002_di" bpmnElement="Flow_002">
+        <dc:waypoint x="410" y="180" />
+        <dc:waypoint x="440" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_003_di" bpmnElement="Flow_003">
+        <dc:waypoint x="600" y="180" />
+        <dc:waypoint x="635" y="180" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_004_di" bpmnElement="Flow_004">
+        <dc:waypoint x="685" y="180" />
+        <dc:waypoint x="740" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_005_di" bpmnElement="Flow_005">
+        <dc:waypoint x="660" y="205" />
+        <dc:waypoint x="660" y="300" />
+        <dc:waypoint x="1818" y="300" />
+        <dc:waypoint x="1818" y="198" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_006_di" bpmnElement="Flow_006">
+        <dc:waypoint x="790" y="180" />
+        <dc:waypoint x="845" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_007_di" bpmnElement="Flow_007">
+        <dc:waypoint x="765" y="205" />
+        <dc:waypoint x="765" y="250" />
+        <dc:waypoint x="1090" y="250" />
+        <dc:waypoint x="1090" y="220" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_008_di" bpmnElement="Flow_008">
+        <dc:waypoint x="895" y="180" />
+        <dc:waypoint x="980" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_009_di" bpmnElement="Flow_009">
+        <dc:waypoint x="870" y="205" />
+        <dc:waypoint x="870" y="300" />
+        <dc:waypoint x="910" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_010_di" bpmnElement="Flow_010">
+        <dc:waypoint x="1070" y="300" />
+        <dc:waypoint x="1090" y="300" />
+        <dc:waypoint x="1090" y="220" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_011_di" bpmnElement="Flow_011">
+        <dc:waypoint x="1200" y="180" />
+        <dc:waypoint x="1230" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_012_di" bpmnElement="Flow_012">
+        <dc:waypoint x="1460" y="180" />
+        <dc:waypoint x="1490" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_013_di" bpmnElement="Flow_013">
+        <dc:waypoint x="1710" y="180" />
+        <dc:waypoint x="1740" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_014_di" bpmnElement="Flow_014">
+        <dc:waypoint x="2000" y="180" />
+        <dc:waypoint x="2030" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_015_di" bpmnElement="Flow_015">
+        <dc:waypoint x="2230" y="180" />
+        <dc:waypoint x="2260" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_016_di" bpmnElement="Flow_016">
+        <dc:waypoint x="2470" y="180" />
+        <dc:waypoint x="2505" y="180" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_017_di" bpmnElement="Flow_017">
+        <dc:waypoint x="2555" y="170" />
+        <dc:waypoint x="2590" y="170" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_018_di" bpmnElement="Flow_018">
+        <dc:waypoint x="2530" y="205" />
+        <dc:waypoint x="2530" y="240" />
+        <dc:waypoint x="2650" y="240" />
+        <dc:waypoint x="2650" y="220" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_019_di" bpmnElement="Flow_019">
+        <dc:waypoint x="2530" y="155" />
+        <dc:waypoint x="2530" y="120" />
+        <dc:waypoint x="3915" y="120" />
+        <dc:waypoint x="3915" y="140" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_021_di" bpmnElement="Flow_021">
+        <dc:waypoint x="2800" y="180" />
+        <dc:waypoint x="2830" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_023_di" bpmnElement="Flow_023">
+        <dc:waypoint x="3110" y="180" />
+        <dc:waypoint x="3140" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_025_di" bpmnElement="Flow_025">
+        <dc:waypoint x="3380" y="180" />
+        <dc:waypoint x="3415" y="180" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_022_di" bpmnElement="Flow_022">
+        <dc:waypoint x="3440" y="155" />
+        <dc:waypoint x="3440" y="90" />
+        <dc:waypoint x="1818" y="90" />
+        <dc:waypoint x="1818" y="162" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_026_di" bpmnElement="Flow_026">
+        <dc:waypoint x="3465" y="180" />
+        <dc:waypoint x="3525" y="180" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_020_di" bpmnElement="Flow_020">
+        <dc:waypoint x="3550" y="205" />
+        <dc:waypoint x="3550" y="360" />
+        <dc:waypoint x="2365" y="360" />
+        <dc:waypoint x="2365" y="220" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_027_di" bpmnElement="Flow_027">
+        <dc:waypoint x="3575" y="180" />
+        <dc:waypoint x="3635" y="180" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_028_di" bpmnElement="Flow_028">
+        <dc:waypoint x="3685" y="180" />
+        <dc:waypoint x="3755" y="180" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_020B_di" bpmnElement="Flow_020B">
+        <dc:waypoint x="3660" y="205" />
+        <dc:waypoint x="3660" y="420" />
+        <dc:waypoint x="2365" y="420" />
+        <dc:waypoint x="2365" y="220" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_024_di" bpmnElement="Flow_024">
+        <dc:waypoint x="4075" y="180" />
+        <dc:waypoint x="1818" y="180" />
+      </bpmndi:BPMNEdge>
+
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

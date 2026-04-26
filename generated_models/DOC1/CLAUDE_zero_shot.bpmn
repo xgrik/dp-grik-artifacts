@@ -1,0 +1,638 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+                  id="Definitions_ChronicPain"
+                  targetNamespace="http://bpmn.io/schema/bpmn"
+                  xmlns:modeler="http://camunda.org/schema/modeler/1.0"
+                  exporter="Camunda Modeler"
+                  exporterVersion="5.33.1"
+                  modeler:executionPlatform="Camunda Platform"
+                  modeler:executionPlatformVersion="7.22.0">
+
+  <bpmn:collaboration id="Collaboration_1">
+    <bpmn:participant id="Participant_Patient" name="Pacient s chronickou bolesťou" processRef="Process_ChronicPain"/>
+  </bpmn:collaboration>
+
+  <bpmn:process id="Process_ChronicPain" name="Komplexný psychologický manažment dospelého pacienta s chronickou bolesťou" isExecutable="true">
+
+    <!-- START EVENT -->
+    <bpmn:startEvent id="StartEvent_1" name="Pacient vyhľadá pomoc (bolesť > 3 mesiace)">
+      <bpmn:outgoing>Flow_01</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <!-- TASK 1: Initial Assessment by GP -->
+    <bpmn:task id="Task_01_InitialAssessment" name="Vyšetrenie všeobecným lekárom&#10;(anamnéza, klinické vyšetrenie, bio-psycho-sociálne hodnotenie)">
+      <bpmn:incoming>Flow_01</bpmn:incoming>
+      <bpmn:outgoing>Flow_02</bpmn:outgoing>
+    </bpmn:task>
+
+    <!-- TASK 2: Screening Questionnaires -->
+    <bpmn:task id="Task_02_Screening" name="Administrácia skríningových dotazníkov&#10;(GAD-7, PHQ-9, dotazník chronifikácie bolesti)">
+      <bpmn:incoming>Flow_02</bpmn:incoming>
+      <bpmn:outgoing>Flow_03</bpmn:outgoing>
+    </bpmn:task>
+
+    <!-- GATEWAY: Chronification Risk Stratification -->
+    <bpmn:exclusiveGateway id="GW_RiskStratification" name="Stratifikácia rizika chronifikácie bolesti">
+      <bpmn:incoming>Flow_03</bpmn:incoming>
+      <bpmn:outgoing>Flow_LowRisk</bpmn:outgoing>
+      <bpmn:outgoing>Flow_MediumRisk</bpmn:outgoing>
+      <bpmn:outgoing>Flow_HighRisk</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- LOW RISK PATH -->
+    <bpmn:task id="Task_LowRisk" name="Nízke riziko:&#10;Psychoedukácia, podpora zdravého životného štýlu, sledovanie">
+      <bpmn:incoming>Flow_LowRisk</bpmn:incoming>
+      <bpmn:outgoing>Flow_LowRisk_Join</bpmn:outgoing>
+    </bpmn:task>
+
+    <!-- MEDIUM RISK PATH -->
+    <bpmn:task id="Task_MediumRisk_Physio" name="Stredné riziko:&#10;Odoslanie na fyzioterapiu + psychoedukácia, manažment fyzickej reaktivácie">
+      <bpmn:incoming>Flow_MediumRisk</bpmn:incoming>
+      <bpmn:outgoing>Flow_MediumRisk_Join</bpmn:outgoing>
+    </bpmn:task>
+
+    <!-- HIGH RISK PATH -->
+    <bpmn:task id="Task_HighRisk_Referral" name="Vysoké riziko:&#10;Odoslanie na psychologické vyšetrenie + fyzioterapia">
+      <bpmn:incoming>Flow_HighRisk</bpmn:incoming>
+      <bpmn:outgoing>Flow_HighRisk_01</bpmn:outgoing>
+    </bpmn:task>
+
+    <!-- TASK: Psychological Diagnostic Assessment -->
+    <bpmn:task id="Task_PsychDiagnostics" name="Psychodiagnostické vyšetrenie klinickým psychológom&#10;(pozorovanie, anamnéza bolesti, presvedčenia, coping, sociálne faktory)">
+      <bpmn:incoming>Flow_HighRisk_01</bpmn:incoming>
+      <bpmn:outgoing>Flow_HighRisk_02</bpmn:outgoing>
+    </bpmn:task>
+
+    <!-- TASK: Pain Assessment Tools -->
+    <bpmn:task id="Task_PainAssessment" name="Hodnotenie bolesti pomocou nástrojov&#10;(VAS, NRS, BPI, denník bolesti, PCS, TSK, WHOQOL, CAQ)">
+      <bpmn:incoming>Flow_HighRisk_02</bpmn:incoming>
+      <bpmn:outgoing>Flow_HighRisk_03</bpmn:outgoing>
+    </bpmn:task>
+
+    <!-- GATEWAY: Comorbidities Present? -->
+    <bpmn:exclusiveGateway id="GW_Comorbidities" name="Prítomné komorbídne poruchy?">
+      <bpmn:incoming>Flow_HighRisk_03</bpmn:incoming>
+      <bpmn:outgoing>Flow_Comorbid_Yes</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Comorbid_No</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- TASK: Treat Comorbidities -->
+    <bpmn:task id="Task_Comorbid_Treatment" name="Liečba komorbídnych porúch&#10;(depresia, úzkosť, insomniaodoslanie na psychiatra ak potrebné)">
+      <bpmn:incoming>Flow_Comorbid_Yes</bpmn:incoming>
+      <bpmn:outgoing>Flow_Comorbid_Join</bpmn:outgoing>
+    </bpmn:task>
+
+    <!-- JOINING GATEWAY after comorbidity decision -->
+    <bpmn:exclusiveGateway id="GW_ComorbidJoin" name="">
+      <bpmn:incoming>Flow_Comorbid_Join</bpmn:incoming>
+      <bpmn:incoming>Flow_Comorbid_No</bpmn:incoming>
+      <bpmn:outgoing>Flow_TreatmentPlan</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- TASK: Create Individual Treatment Plan -->
+    <bpmn:task id="Task_TreatmentPlan" name="Tvorba individuálneho terapeutického plánu&#10;(multidisciplinárna spolupráca: psychológ, lekár, fyzioterapeut)">
+      <bpmn:incoming>Flow_TreatmentPlan</bpmn:incoming>
+      <bpmn:outgoing>Flow_TreatmentChoice</bpmn:outgoing>
+    </bpmn:task>
+
+    <!-- GATEWAY: Select Psychotherapy Approach -->
+    <bpmn:parallelGateway id="GW_TherapySelection" name="Výber terapeutických intervencií (môžu sa kombinovať)">
+      <bpmn:incoming>Flow_TreatmentChoice</bpmn:incoming>
+      <bpmn:outgoing>Flow_KBT</bpmn:outgoing>
+      <bpmn:outgoing>Flow_ACT</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Mindfulness</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Behavioral</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Multidisciplinary</bpmn:outgoing>
+    </bpmn:parallelGateway>
+
+    <!-- THERAPY: KBT -->
+    <bpmn:task id="Task_KBT" name="Kognitívno-behaviorálna terapia (KBT)&#10;(individuálna / skupinová / telefonická / online)&#10;Zahŕňa: edukáciu, kognitívnu reštrukturalizáciu,&#10;copingové stratégie, riešenie komorbídnej depresie/úzkosti">
+      <bpmn:incoming>Flow_KBT</bpmn:incoming>
+      <bpmn:outgoing>Flow_KBT_Done</bpmn:outgoing>
+    </bpmn:task>
+
+    <!-- THERAPY: ACT -->
+    <bpmn:task id="Task_ACT" name="Terapia prijatia a záväzku (ACT)&#10;(8 sedení: akceptácia bolesti, hodnoty, mindfulness,&#10;defúzia myšlienok, záväzné konanie)">
+      <bpmn:incoming>Flow_ACT</bpmn:incoming>
+      <bpmn:outgoing>Flow_ACT_Done</bpmn:outgoing>
+    </bpmn:task>
+
+    <!-- THERAPY: Mindfulness -->
+    <bpmn:task id="Task_Mindfulness" name="Mindfulness intervencie&#10;(meditácia všímavosti, zníženie bolesti&#10;a depresívnych symptómov)">
+      <bpmn:incoming>Flow_Mindfulness</bpmn:incoming>
+      <bpmn:outgoing>Flow_Mindfulness_Done</bpmn:outgoing>
+    </bpmn:task>
+
+    <!-- THERAPY: Behavioral (Biofeedback + Relaxation) -->
+    <bpmn:task id="Task_Behavioral" name="Behaviorálna terapia&#10;(EMG biofeedback, Jacobsonova progresívna svalová relaxácia,&#10;nácvik komunikačných schopností, behaviorálna aktivácia)">
+      <bpmn:incoming>Flow_Behavioral</bpmn:incoming>
+      <bpmn:outgoing>Flow_Behavioral_Done</bpmn:outgoing>
+    </bpmn:task>
+
+    <!-- THERAPY: Multidisciplinary Program -->
+    <bpmn:task id="Task_Multidisciplinary" name="Multidisciplinárna bio-psycho-sociálna liečba (PMP)&#10;(psychoterapia + fyzioterapia + relaxácia&#10;+ edukácia pacienta + lekárske ošetrenie)">
+      <bpmn:incoming>Flow_Multidisciplinary</bpmn:incoming>
+      <bpmn:outgoing>Flow_Multidisciplinary_Done</bpmn:outgoing>
+    </bpmn:task>
+
+    <!-- JOINING GATEWAY after therapy -->
+    <bpmn:parallelGateway id="GW_TherapyJoin" name="Ukončenie terapeutických intervencií">
+      <bpmn:incoming>Flow_KBT_Done</bpmn:incoming>
+      <bpmn:incoming>Flow_ACT_Done</bpmn:incoming>
+      <bpmn:incoming>Flow_Mindfulness_Done</bpmn:incoming>
+      <bpmn:incoming>Flow_Behavioral_Done</bpmn:incoming>
+      <bpmn:incoming>Flow_Multidisciplinary_Done</bpmn:incoming>
+      <bpmn:outgoing>Flow_PostTherapy</bpmn:outgoing>
+    </bpmn:parallelGateway>
+
+    <!-- TASK: Pharmacotherapy (if indicated) -->
+    <bpmn:task id="Task_Pharmacotherapy" name="Farmakoterapia (v kompetencii lekára)&#10;(zvážiť antidepresíva; vyhnúť sa: opioidom,&#10;benzodiazepinam, NSAID pri primárnej chron. bolesti)">
+      <bpmn:incoming>Flow_PostTherapy</bpmn:incoming>
+      <bpmn:outgoing>Flow_Evaluation</bpmn:outgoing>
+    </bpmn:task>
+
+    <!-- TASK: Evaluate Treatment Outcome -->
+    <bpmn:task id="Task_Evaluation" name="Hodnotenie výsledkov liečby&#10;(funkčný stav, kvalita života, intenzita bolesti,&#10;coping, motivácia, prevencia relapsu)">
+      <bpmn:incoming>Flow_Evaluation</bpmn:incoming>
+      <bpmn:outgoing>Flow_OutcomeGW</bpmn:outgoing>
+    </bpmn:task>
+
+    <!-- GATEWAY: Treatment Outcome -->
+    <bpmn:exclusiveGateway id="GW_Outcome" name="Výsledok liečby dostatočný?">
+      <bpmn:incoming>Flow_OutcomeGW</bpmn:incoming>
+      <bpmn:outgoing>Flow_Outcome_Good</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Outcome_Poor</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- TASK: Adjust Treatment Plan -->
+    <bpmn:task id="Task_AdjustPlan" name="Úprava terapeutického plánu&#10;(alternatívne prístupy: EMDR, hypnóza,&#10;svojpomocné skupiny, zmena psychoterapeutickej metódy)">
+      <bpmn:incoming>Flow_Outcome_Poor</bpmn:incoming>
+      <bpmn:outgoing>Flow_BackToTherapy</bpmn:outgoing>
+    </bpmn:task>
+
+    <!-- TASK: Ongoing Care and Prevention of Relapse -->
+    <bpmn:task id="Task_OngoingCare" name="Dlhodobá starostlivosť a prevencia relapsu&#10;(pravidelné kontroly, udržiavacia terapia,&#10;skríning komorbidít, posudková činnosť ak potrebná)">
+      <bpmn:incoming>Flow_Outcome_Good</bpmn:incoming>
+      <bpmn:incoming>Flow_LowRisk_Join</bpmn:incoming>
+      <bpmn:incoming>Flow_MediumRisk_Join</bpmn:incoming>
+      <bpmn:outgoing>Flow_End</bpmn:outgoing>
+    </bpmn:task>
+
+    <!-- GATEWAY: Suicidality Risk Check -->
+    <bpmn:boundaryEvent id="BoundaryEvent_Suicidality" name="Riziko suicidality identifikované" attachedToRef="Task_Evaluation">
+      <bpmn:outgoing>Flow_Suicidality</bpmn:outgoing>
+      <bpmn:conditionalEventDefinition id="ConditionalEventDefinition_1">
+        <bpmn:condition xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">suicidalityRisk == true</bpmn:condition>
+      </bpmn:conditionalEventDefinition>
+    </bpmn:boundaryEvent>
+
+    <!-- TASK: Crisis Intervention -->
+    <bpmn:task id="Task_CrisisIntervention" name="Krízová intervencia&#10;(odoslanie na psychiatrické vyšetrenie,&#10;zvážiť hospitalizáciu, intenzívna podpora)">
+      <bpmn:incoming>Flow_Suicidality</bpmn:incoming>
+      <bpmn:outgoing>Flow_CrisisBack</bpmn:outgoing>
+    </bpmn:task>
+
+    <!-- END EVENT -->
+    <bpmn:endEvent id="EndEvent_1" name="Pacient stabilizovaný,&#10;bolesť manažovaná, kvalita života zlepšená">
+      <bpmn:incoming>Flow_End</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <!-- SEQUENCE FLOWS -->
+    <bpmn:sequenceFlow id="Flow_01" sourceRef="StartEvent_1" targetRef="Task_01_InitialAssessment"/>
+    <bpmn:sequenceFlow id="Flow_02" sourceRef="Task_01_InitialAssessment" targetRef="Task_02_Screening"/>
+    <bpmn:sequenceFlow id="Flow_03" sourceRef="Task_02_Screening" targetRef="GW_RiskStratification"/>
+
+    <bpmn:sequenceFlow id="Flow_LowRisk" name="Nízke riziko&#10;(skóre 0-3)" sourceRef="GW_RiskStratification" targetRef="Task_LowRisk">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">totalScore &lt;= 3 &amp;&amp; subScore &lt; 3</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_MediumRisk" name="Stredné riziko" sourceRef="GW_RiskStratification" targetRef="Task_MediumRisk_Physio">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">totalScore >= 4 &amp;&amp; subScore &lt; 4</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_HighRisk" name="Vysoké riziko&#10;(subScore >= 4)" sourceRef="GW_RiskStratification" targetRef="Task_HighRisk_Referral">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">subScore >= 4</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="Flow_LowRisk_Join" sourceRef="Task_LowRisk" targetRef="Task_OngoingCare"/>
+    <bpmn:sequenceFlow id="Flow_MediumRisk_Join" sourceRef="Task_MediumRisk_Physio" targetRef="Task_OngoingCare"/>
+
+    <bpmn:sequenceFlow id="Flow_HighRisk_01" sourceRef="Task_HighRisk_Referral" targetRef="Task_PsychDiagnostics"/>
+    <bpmn:sequenceFlow id="Flow_HighRisk_02" sourceRef="Task_PsychDiagnostics" targetRef="Task_PainAssessment"/>
+    <bpmn:sequenceFlow id="Flow_HighRisk_03" sourceRef="Task_PainAssessment" targetRef="GW_Comorbidities"/>
+
+    <bpmn:sequenceFlow id="Flow_Comorbid_Yes" name="Áno" sourceRef="GW_Comorbidities" targetRef="Task_Comorbid_Treatment">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">comorbiditiesPresent == true</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_Comorbid_No" name="Nie" sourceRef="GW_Comorbidities" targetRef="GW_ComorbidJoin">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">comorbiditiesPresent == false</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_Comorbid_Join" sourceRef="Task_Comorbid_Treatment" targetRef="GW_ComorbidJoin"/>
+    <bpmn:sequenceFlow id="Flow_TreatmentPlan" sourceRef="GW_ComorbidJoin" targetRef="Task_TreatmentPlan"/>
+    <bpmn:sequenceFlow id="Flow_TreatmentChoice" sourceRef="Task_TreatmentPlan" targetRef="GW_TherapySelection"/>
+
+    <bpmn:sequenceFlow id="Flow_KBT" sourceRef="GW_TherapySelection" targetRef="Task_KBT"/>
+    <bpmn:sequenceFlow id="Flow_ACT" sourceRef="GW_TherapySelection" targetRef="Task_ACT"/>
+    <bpmn:sequenceFlow id="Flow_Mindfulness" sourceRef="GW_TherapySelection" targetRef="Task_Mindfulness"/>
+    <bpmn:sequenceFlow id="Flow_Behavioral" sourceRef="GW_TherapySelection" targetRef="Task_Behavioral"/>
+    <bpmn:sequenceFlow id="Flow_Multidisciplinary" sourceRef="GW_TherapySelection" targetRef="Task_Multidisciplinary"/>
+
+    <bpmn:sequenceFlow id="Flow_KBT_Done" sourceRef="Task_KBT" targetRef="GW_TherapyJoin"/>
+    <bpmn:sequenceFlow id="Flow_ACT_Done" sourceRef="Task_ACT" targetRef="GW_TherapyJoin"/>
+    <bpmn:sequenceFlow id="Flow_Mindfulness_Done" sourceRef="Task_Mindfulness" targetRef="GW_TherapyJoin"/>
+    <bpmn:sequenceFlow id="Flow_Behavioral_Done" sourceRef="Task_Behavioral" targetRef="GW_TherapyJoin"/>
+    <bpmn:sequenceFlow id="Flow_Multidisciplinary_Done" sourceRef="Task_Multidisciplinary" targetRef="GW_TherapyJoin"/>
+
+    <bpmn:sequenceFlow id="Flow_PostTherapy" sourceRef="GW_TherapyJoin" targetRef="Task_Pharmacotherapy"/>
+    <bpmn:sequenceFlow id="Flow_Evaluation" sourceRef="Task_Pharmacotherapy" targetRef="Task_Evaluation"/>
+    <bpmn:sequenceFlow id="Flow_OutcomeGW" sourceRef="Task_Evaluation" targetRef="GW_Outcome"/>
+
+    <bpmn:sequenceFlow id="Flow_Outcome_Good" name="Áno - dostatočný pokrok" sourceRef="GW_Outcome" targetRef="Task_OngoingCare">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">outcomeGood == true</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_Outcome_Poor" name="Nie - nedostatočný pokrok" sourceRef="GW_Outcome" targetRef="Task_AdjustPlan">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">outcomeGood == false</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_BackToTherapy" sourceRef="Task_AdjustPlan" targetRef="Task_TreatmentPlan"/>
+
+    <bpmn:sequenceFlow id="Flow_Suicidality" sourceRef="BoundaryEvent_Suicidality" targetRef="Task_CrisisIntervention"/>
+    <bpmn:sequenceFlow id="Flow_CrisisBack" sourceRef="Task_CrisisIntervention" targetRef="Task_TreatmentPlan"/>
+
+    <bpmn:sequenceFlow id="Flow_End" sourceRef="Task_OngoingCare" targetRef="EndEvent_1"/>
+
+  </bpmn:process>
+
+  <!-- DIAGRAM -->
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1">
+
+      <bpmndi:BPMNShape id="Participant_Patient_di" bpmnElement="Participant_Patient" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="2600" height="1100"/>
+      </bpmndi:BPMNShape>
+
+      <!-- Start Event -->
+      <bpmndi:BPMNShape id="StartEvent_1_di" bpmnElement="StartEvent_1">
+        <dc:Bounds x="220" y="552" width="36" height="36"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="196" y="595" width="84" height="40"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- Task 1 -->
+      <bpmndi:BPMNShape id="Task_01_di" bpmnElement="Task_01_InitialAssessment">
+        <dc:Bounds x="310" y="530" width="160" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <!-- Task 2 -->
+      <bpmndi:BPMNShape id="Task_02_di" bpmnElement="Task_02_Screening">
+        <dc:Bounds x="530" y="530" width="160" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <!-- GW Risk Stratification -->
+      <bpmndi:BPMNShape id="GW_RiskStratification_di" bpmnElement="GW_RiskStratification" isMarkerVisible="true">
+        <dc:Bounds x="755" y="545" width="50" height="50"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="730" y="602" width="100" height="40"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- Low Risk Task -->
+      <bpmndi:BPMNShape id="Task_LowRisk_di" bpmnElement="Task_LowRisk">
+        <dc:Bounds x="870" y="160" width="180" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <!-- Medium Risk Task -->
+      <bpmndi:BPMNShape id="Task_MediumRisk_di" bpmnElement="Task_MediumRisk_Physio">
+        <dc:Bounds x="870" y="530" width="180" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <!-- High Risk Task -->
+      <bpmndi:BPMNShape id="Task_HighRisk_di" bpmnElement="Task_HighRisk_Referral">
+        <dc:Bounds x="870" y="860" width="180" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <!-- Psych Diagnostics -->
+      <bpmndi:BPMNShape id="Task_PsychDiag_di" bpmnElement="Task_PsychDiagnostics">
+        <dc:Bounds x="1110" y="860" width="180" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <!-- Pain Assessment -->
+      <bpmndi:BPMNShape id="Task_PainAssess_di" bpmnElement="Task_PainAssessment">
+        <dc:Bounds x="1350" y="860" width="180" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <!-- GW Comorbidities -->
+      <bpmndi:BPMNShape id="GW_Comorbidities_di" bpmnElement="GW_Comorbidities" isMarkerVisible="true">
+        <dc:Bounds x="1595" y="875" width="50" height="50"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1570" y="932" width="100" height="27"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- Comorbid Treatment -->
+      <bpmndi:BPMNShape id="Task_ComorbidTreat_di" bpmnElement="Task_Comorbid_Treatment">
+        <dc:Bounds x="1700" y="980" width="180" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <!-- GW Comorbid Join -->
+      <bpmndi:BPMNShape id="GW_ComorbidJoin_di" bpmnElement="GW_ComorbidJoin" isMarkerVisible="true">
+        <dc:Bounds x="1940" y="875" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+
+      <!-- Treatment Plan -->
+      <bpmndi:BPMNShape id="Task_TreatPlan_di" bpmnElement="Task_TreatmentPlan">
+        <dc:Bounds x="2050" y="860" width="180" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <!-- GW Therapy Selection -->
+      <bpmndi:BPMNShape id="GW_TherapySelect_di" bpmnElement="GW_TherapySelection">
+        <dc:Bounds x="2295" y="875" width="50" height="50"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2265" y="932" width="110" height="40"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- KBT -->
+      <bpmndi:BPMNShape id="Task_KBT_di" bpmnElement="Task_KBT">
+        <dc:Bounds x="2400" y="140" width="180" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <!-- ACT -->
+      <bpmndi:BPMNShape id="Task_ACT_di" bpmnElement="Task_ACT">
+        <dc:Bounds x="2400" y="360" width="180" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <!-- Mindfulness -->
+      <bpmndi:BPMNShape id="Task_Mind_di" bpmnElement="Task_Mindfulness">
+        <dc:Bounds x="2400" y="580" width="180" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <!-- Behavioral -->
+      <bpmndi:BPMNShape id="Task_Beh_di" bpmnElement="Task_Behavioral">
+        <dc:Bounds x="2400" y="800" width="180" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <!-- Multidisciplinary -->
+      <bpmndi:BPMNShape id="Task_Multi_di" bpmnElement="Task_Multidisciplinary">
+        <dc:Bounds x="2400" y="1020" width="180" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <!-- GW Therapy Join -->
+      <bpmndi:BPMNShape id="GW_TherapyJoin_di" bpmnElement="GW_TherapyJoin">
+        <dc:Bounds x="2645" y="875" width="50" height="50"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2615" y="932" width="110" height="27"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- Pharmacotherapy -->
+      <bpmndi:BPMNShape id="Task_Pharma_di" bpmnElement="Task_Pharmacotherapy">
+        <dc:Bounds x="2750" y="860" width="180" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <!-- Evaluation -->
+      <bpmndi:BPMNShape id="Task_Eval_di" bpmnElement="Task_Evaluation">
+        <dc:Bounds x="2000" y="530" width="180" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <!-- Boundary Event Suicidality -->
+      <bpmndi:BPMNShape id="BoundaryEvent_Suic_di" bpmnElement="BoundaryEvent_Suicidality">
+        <dc:Bounds x="2062" y="592" width="36" height="36"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2010" y="635" width="100" height="27"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- Crisis Intervention -->
+      <bpmndi:BPMNShape id="Task_Crisis_di" bpmnElement="Task_CrisisIntervention">
+        <dc:Bounds x="1870" y="680" width="180" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <!-- GW Outcome -->
+      <bpmndi:BPMNShape id="GW_Outcome_di" bpmnElement="GW_Outcome" isMarkerVisible="true">
+        <dc:Bounds x="1755" y="545" width="50" height="50"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1730" y="602" width="100" height="27"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- Adjust Plan -->
+      <bpmndi:BPMNShape id="Task_Adjust_di" bpmnElement="Task_AdjustPlan">
+        <dc:Bounds x="1600" y="530" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <!-- Ongoing Care -->
+      <bpmndi:BPMNShape id="Task_Ongoing_di" bpmnElement="Task_OngoingCare">
+        <dc:Bounds x="1100" y="530" width="180" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <!-- End Event -->
+      <bpmndi:BPMNShape id="EndEvent_1_di" bpmnElement="EndEvent_1">
+        <dc:Bounds x="900" y="552" width="36" height="36"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="876" y="595" width="84" height="40"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- EDGES -->
+      <bpmndi:BPMNEdge id="Flow_01_di" bpmnElement="Flow_01">
+        <di:waypoint x="256" y="570"/>
+        <di:waypoint x="310" y="570"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_02_di" bpmnElement="Flow_02">
+        <di:waypoint x="470" y="570"/>
+        <di:waypoint x="530" y="570"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_03_di" bpmnElement="Flow_03">
+        <di:waypoint x="690" y="570"/>
+        <di:waypoint x="755" y="570"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_LowRisk_di" bpmnElement="Flow_LowRisk">
+        <di:waypoint x="780" y="545"/>
+        <di:waypoint x="780" y="200"/>
+        <di:waypoint x="870" y="200"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_MediumRisk_di" bpmnElement="Flow_MediumRisk">
+        <di:waypoint x="805" y="570"/>
+        <di:waypoint x="870" y="570"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_HighRisk_di" bpmnElement="Flow_HighRisk">
+        <di:waypoint x="780" y="595"/>
+        <di:waypoint x="780" y="900"/>
+        <di:waypoint x="870" y="900"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_LowRisk_Join_di" bpmnElement="Flow_LowRisk_Join">
+        <di:waypoint x="1050" y="200"/>
+        <di:waypoint x="1190" y="200"/>
+        <di:waypoint x="1190" y="530"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_MediumRisk_Join_di" bpmnElement="Flow_MediumRisk_Join">
+        <di:waypoint x="1050" y="570"/>
+        <di:waypoint x="1100" y="570"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_HighRisk_01_di" bpmnElement="Flow_HighRisk_01">
+        <di:waypoint x="1050" y="900"/>
+        <di:waypoint x="1110" y="900"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_HighRisk_02_di" bpmnElement="Flow_HighRisk_02">
+        <di:waypoint x="1290" y="900"/>
+        <di:waypoint x="1350" y="900"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_HighRisk_03_di" bpmnElement="Flow_HighRisk_03">
+        <di:waypoint x="1530" y="900"/>
+        <di:waypoint x="1595" y="900"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_Comorbid_Yes_di" bpmnElement="Flow_Comorbid_Yes">
+        <di:waypoint x="1620" y="925"/>
+        <di:waypoint x="1620" y="1020"/>
+        <di:waypoint x="1700" y="1020"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_Comorbid_No_di" bpmnElement="Flow_Comorbid_No">
+        <di:waypoint x="1645" y="900"/>
+        <di:waypoint x="1940" y="900"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_Comorbid_Join_di" bpmnElement="Flow_Comorbid_Join">
+        <di:waypoint x="1880" y="1020"/>
+        <di:waypoint x="1965" y="1020"/>
+        <di:waypoint x="1965" y="925"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_TreatmentPlan_di" bpmnElement="Flow_TreatmentPlan">
+        <di:waypoint x="1990" y="900"/>
+        <di:waypoint x="2050" y="900"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_TreatmentChoice_di" bpmnElement="Flow_TreatmentChoice">
+        <di:waypoint x="2230" y="900"/>
+        <di:waypoint x="2295" y="900"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_KBT_di" bpmnElement="Flow_KBT">
+        <di:waypoint x="2320" y="875"/>
+        <di:waypoint x="2320" y="180"/>
+        <di:waypoint x="2400" y="180"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_ACT_di" bpmnElement="Flow_ACT">
+        <di:waypoint x="2320" y="875"/>
+        <di:waypoint x="2320" y="400"/>
+        <di:waypoint x="2400" y="400"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_Mind_di" bpmnElement="Flow_Mindfulness">
+        <di:waypoint x="2320" y="875"/>
+        <di:waypoint x="2320" y="620"/>
+        <di:waypoint x="2400" y="620"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_Beh_di" bpmnElement="Flow_Behavioral">
+        <di:waypoint x="2345" y="900"/>
+        <di:waypoint x="2400" y="840"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_Multi_di" bpmnElement="Flow_Multidisciplinary">
+        <di:waypoint x="2320" y="925"/>
+        <di:waypoint x="2320" y="1060"/>
+        <di:waypoint x="2400" y="1060"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_KBT_Done_di" bpmnElement="Flow_KBT_Done">
+        <di:waypoint x="2580" y="180"/>
+        <di:waypoint x="2670" y="180"/>
+        <di:waypoint x="2670" y="875"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_ACT_Done_di" bpmnElement="Flow_ACT_Done">
+        <di:waypoint x="2580" y="400"/>
+        <di:waypoint x="2670" y="400"/>
+        <di:waypoint x="2670" y="875"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_Mind_Done_di" bpmnElement="Flow_Mindfulness_Done">
+        <di:waypoint x="2580" y="620"/>
+        <di:waypoint x="2670" y="620"/>
+        <di:waypoint x="2670" y="875"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_Beh_Done_di" bpmnElement="Flow_Behavioral_Done">
+        <di:waypoint x="2580" y="840"/>
+        <di:waypoint x="2645" y="900"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_Multi_Done_di" bpmnElement="Flow_Multidisciplinary_Done">
+        <di:waypoint x="2580" y="1060"/>
+        <di:waypoint x="2670" y="1060"/>
+        <di:waypoint x="2670" y="925"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_PostTherapy_di" bpmnElement="Flow_PostTherapy">
+        <di:waypoint x="2695" y="900"/>
+        <di:waypoint x="2750" y="900"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_Evaluation_di" bpmnElement="Flow_Evaluation">
+        <di:waypoint x="2750" y="860"/>
+        <di:waypoint x="2750" y="570"/>
+        <di:waypoint x="2180" y="570"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_OutcomeGW_di" bpmnElement="Flow_OutcomeGW">
+        <di:waypoint x="2000" y="570"/>
+        <di:waypoint x="1805" y="570"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_Outcome_Good_di" bpmnElement="Flow_Outcome_Good">
+        <di:waypoint x="1755" y="570"/>
+        <di:waypoint x="1280" y="570"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_Outcome_Poor_di" bpmnElement="Flow_Outcome_Poor">
+        <di:waypoint x="1755" y="570"/>
+        <di:waypoint x="1700" y="570"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_BackToTherapy_di" bpmnElement="Flow_BackToTherapy">
+        <di:waypoint x="1600" y="570"/>
+        <di:waypoint x="1600" y="760"/>
+        <di:waypoint x="2140" y="760"/>
+        <di:waypoint x="2140" y="860"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_Suicidality_di" bpmnElement="Flow_Suicidality">
+        <di:waypoint x="2062" y="610"/>
+        <di:waypoint x="1960" y="680"/>
+        <di:waypoint x="1960" y="720"/>
+        <di:waypoint x="2050" y="720"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_CrisisBack_di" bpmnElement="Flow_CrisisBack">
+        <di:waypoint x="1870" y="720"/>
+        <di:waypoint x="1820" y="720"/>
+        <di:waypoint x="1820" y="800"/>
+        <di:waypoint x="2140" y="800"/>
+        <di:waypoint x="2140" y="860"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_End_di" bpmnElement="Flow_End">
+        <di:waypoint x="1100" y="570"/>
+        <di:waypoint x="936" y="570"/>
+      </bpmndi:BPMNEdge>
+
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

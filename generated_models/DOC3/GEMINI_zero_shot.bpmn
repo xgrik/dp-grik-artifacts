@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_Agoraphobia" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.33.1">
+  <bpmn:collaboration id="Collaboration_Agoraphobia">
+    <bpmn:participant id="Participant_HealthcareSystem" name="Agoraphobia Management Process" processRef="Process_Agoraphobia_Management" />
+  </bpmn:collaboration>
+  
+  <bpmn:process id="Process_Agoraphobia_Management" isExecutable="true">
+    <bpmn:laneSet id="LaneSet_01">
+      <bpmn:lane id="Lane_GP" name="General Practitioner">
+        <bpmn:flowNodeRef>StartEvent_PatientEntry</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_Screening</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_SuspectedDisorder</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_NoDisorder</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Specialist" name="Specialist (Psychiatrist / Clinical Psychologist)">
+        <bpmn:flowNodeRef>Activity_PsychiatricExam</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_SomaticExam</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_PsychologicalExam</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_TreatmentPlanning</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_TreatmentStep</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_Step1_SelfHelp</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_Step2_Psychotherapy</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_Step3_Pharmacotherapy</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_Step4_SupportGroups</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_Monitoring</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_TreatmentEffective</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_TreatmentComplete</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:startEvent id="StartEvent_PatientEntry" name="Patient presents with symptoms">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <bpmn:task id="Activity_Screening" name="Initial Screening (Katzman Questions)">
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:exclusiveGateway id="Gateway_SuspectedDisorder" name="Disorder Suspected?">
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_3</bpmn:outgoing>
+      <bpmn:outgoing>Flow_4</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:endEvent id="EndEvent_NoDisorder" name="Process Ends">
+      <bpmn:incoming>Flow_3</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:task id="Activity_PsychiatricExam" name="Psychiatric Examination (ICD-10/DSM-5)">
+      <bpmn:incoming>Flow_4</bpmn:incoming>
+      <bpmn:outgoing>Flow_5</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:task id="Activity_SomaticExam" name="Physical Examination (Rule out somatic causes)">
+      <bpmn:incoming>Flow_5</bpmn:incoming>
+      <bpmn:outgoing>Flow_6</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:task id="Activity_PsychologicalExam" name="Clinical-Psychological Exam (Psychometrics)">
+      <bpmn:incoming>Flow_6</bpmn:incoming>
+      <bpmn:outgoing>Flow_7</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:task id="Activity_TreatmentPlanning" name="Treatment Planning &#38; Informed Consent">
+      <bpmn:incoming>Flow_7</bpmn:incoming>
+      <bpmn:outgoing>Flow_8</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:inclusiveGateway id="Gateway_TreatmentStep" name="Select Stepped Care Level">
+      <bpmn:incoming>Flow_8</bpmn:incoming>
+      <bpmn:incoming>Flow_Relapse</bpmn:incoming>
+      <bpmn:outgoing>Flow_Step1</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Step2</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Step3</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Step4</bpmn:outgoing>
+    </bpmn:inclusiveGateway>
+
+    <bpmn:task id="Activity_Step1_SelfHelp" name="Step 1: Self-help &#38; Lifestyle Changes">
+      <bpmn:incoming>Flow_Step1</bpmn:incoming>
+      <bpmn:outgoing>Flow_ToMonitor1</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:task id="Activity_Step2_Psychotherapy" name="Step 2: Specific Psychotherapy (CBT/BT)">
+      <bpmn:incoming>Flow_Step2</bpmn:incoming>
+      <bpmn:outgoing>Flow_ToMonitor2</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:task id="Activity_Step3_Pharmacotherapy" name="Step 3: Pharmacotherapy (SSRI/etc.)">
+      <bpmn:incoming>Flow_Step3</bpmn:incoming>
+      <bpmn:outgoing>Flow_ToMonitor3</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:task id="Activity_Step4_SupportGroups" name="Step 4: Support Groups &#38; Rehabilitation">
+      <bpmn:incoming>Flow_Step4</bpmn:incoming>
+      <bpmn:outgoing>Flow_ToMonitor4</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:task id="Activity_Monitoring" name="Monitor Progress (Psychometric Scales)">
+      <bpmn:incoming>Flow_ToMonitor1</bpmn:incoming>
+      <bpmn:incoming>Flow_ToMonitor2</bpmn:incoming>
+      <bpmn:incoming>Flow_ToMonitor3</bpmn:incoming>
+      <bpmn:incoming>Flow_ToMonitor4</bpmn:incoming>
+      <bpmn:outgoing>Flow_Eval</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:exclusiveGateway id="Gateway_TreatmentEffective" name="Treatment Effective?">
+      <bpmn:incoming>Flow_Eval</bpmn:incoming>
+      <bpmn:outgoing>Flow_Success</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Relapse</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:endEvent id="EndEvent_TreatmentComplete" name="Maintenance Phase">
+      <bpmn:incoming>Flow_Success</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_PatientEntry" targetRef="Activity_Screening" />
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Activity_Screening" targetRef="Gateway_SuspectedDisorder" />
+    <bpmn:sequenceFlow id="Flow_3" name="No" sourceRef="Gateway_SuspectedDisorder" targetRef="EndEvent_NoDisorder" />
+    <bpmn:sequenceFlow id="Flow_4" name="Yes" sourceRef="Gateway_SuspectedDisorder" targetRef="Activity_PsychiatricExam" />
+    <bpmn:sequenceFlow id="Flow_5" sourceRef="Activity_PsychiatricExam" targetRef="Activity_SomaticExam" />
+    <bpmn:sequenceFlow id="Flow_6" sourceRef="Activity_SomaticExam" targetRef="Activity_PsychologicalExam" />
+    <bpmn:sequenceFlow id="Flow_7" sourceRef="Activity_PsychologicalExam" targetRef="Activity_TreatmentPlanning" />
+    <bpmn:sequenceFlow id="Flow_8" sourceRef="Activity_TreatmentPlanning" targetRef="Gateway_TreatmentStep" />
+    
+    <bpmn:sequenceFlow id="Flow_Step1" sourceRef="Gateway_TreatmentStep" targetRef="Activity_Step1_SelfHelp" />
+    <bpmn:sequenceFlow id="Flow_Step2" sourceRef="Gateway_TreatmentStep" targetRef="Activity_Step2_Psychotherapy" />
+    <bpmn:sequenceFlow id="Flow_Step3" sourceRef="Gateway_TreatmentStep" targetRef="Activity_Step3_Pharmacotherapy" />
+    <bpmn:sequenceFlow id="Flow_Step4" sourceRef="Gateway_TreatmentStep" targetRef="Activity_Step4_SupportGroups" />
+
+    <bpmn:sequenceFlow id="Flow_ToMonitor1" sourceRef="Activity_Step1_SelfHelp" targetRef="Activity_Monitoring" />
+    <bpmn:sequenceFlow id="Flow_ToMonitor2" sourceRef="Activity_Step2_Psychotherapy" targetRef="Activity_Monitoring" />
+    <bpmn:sequenceFlow id="Flow_ToMonitor3" sourceRef="Activity_Step3_Pharmacotherapy" targetRef="Activity_Monitoring" />
+    <bpmn:sequenceFlow id="Flow_ToMonitor4" sourceRef="Activity_Step4_SupportGroups" targetRef="Activity_Monitoring" />
+
+    <bpmn:sequenceFlow id="Flow_Eval" sourceRef="Activity_Monitoring" targetRef="Gateway_TreatmentEffective" />
+    <bpmn:sequenceFlow id="Flow_Success" name="Yes" sourceRef="Gateway_TreatmentEffective" targetRef="EndEvent_TreatmentComplete" />
+    <bpmn:sequenceFlow id="Flow_Relapse" name="No (Adjust Step)" sourceRef="Gateway_TreatmentEffective" targetRef="Gateway_TreatmentStep" />
+
+  </bpmn:process>
+</bpmn:definitions>

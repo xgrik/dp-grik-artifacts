@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_02fe9dz" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.33.1">
+  <bpmn:process id="ChronicPainManagementProcess" name="Psychological Management of Chronic Pain" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_PatientEntry" name="Patient presents with pain symptoms">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    
+    <bpmn:task id="Task_GP_Exam" name="GP Examination and Diagnosis">
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+    </bpmn:task>
+    
+    <bpmn:exclusiveGateway id="Gateway_PainType" name="Pain Duration > 3 Months?">
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_Acute</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Chronic</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    
+    <bpmn:task id="Task_AcuteTreatment" name="Acute Pain Treatment">
+      <bpmn:incoming>Flow_Acute</bpmn:incoming>
+      <bpmn:outgoing>Flow_End_Acute</bpmn:outgoing>
+    </bpmn:task>
+    
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_PatientEntry" targetRef="Task_GP_Exam" />
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Task_GP_Exam" targetRef="Gateway_PainType" />
+    <bpmn:sequenceFlow id="Flow_Acute" name="No" sourceRef="Gateway_PainType" targetRef="Task_AcuteTreatment" />
+    
+    <bpmn:task id="Task_RiskStratification" name="Risk Stratification (Low, Mid, High)">
+      <bpmn:incoming>Flow_Chronic</bpmn:incoming>
+      <bpmn:outgoing>Flow_3</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="Flow_Chronic" name="Yes (Chronic)" sourceRef="Gateway_PainType" targetRef="Task_RiskStratification" />
+    
+    <bpmn:exclusiveGateway id="Gateway_RiskLevel" name="Risk Level?">
+      <bpmn:incoming>Flow_3</bpmn:incoming>
+      <bpmn:outgoing>Flow_LowRisk</bpmn:outgoing>
+      <bpmn:outgoing>Flow_HighRisk</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="Task_RiskStratification" targetRef="Gateway_RiskLevel" />
+    
+    <bpmn:task id="Task_Psychoeducation" name="Basic Psychoeducation (Low Risk)">
+      <bpmn:incoming>Flow_LowRisk</bpmn:incoming>
+      <bpmn:outgoing>Flow_4</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="Flow_LowRisk" name="Low Risk" sourceRef="Gateway_RiskLevel" targetRef="Task_Psychoeducation" />
+    
+    <bpmn:task id="Task_ClinicalPsych_Exam" name="Clinical Psychological Diagnostic Exam">
+      <bpmn:incoming>Flow_HighRisk</bpmn:incoming>
+      <bpmn:outgoing>Flow_5</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="Flow_HighRisk" name="Mid/High Risk" sourceRef="Gateway_RiskLevel" targetRef="Task_ClinicalPsych_Exam" />
+    
+    <bpmn:task id="Task_TherapyPlan" name="Indicate Specific Psychotherapy (EBM)">
+      <bpmn:incoming>Flow_5</bpmn:incoming>
+      <bpmn:outgoing>Flow_6</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="Flow_5" sourceRef="Task_ClinicalPsych_Exam" targetRef="Task_TherapyPlan" />
+    
+    <bpmn:parallelGateway id="Gateway_Interventions" name="Interventions">
+      <bpmn:incoming>Flow_6</bpmn:incoming>
+      <bpmn:outgoing>Flow_KBT</bpmn:outgoing>
+      <bpmn:outgoing>Flow_ACT</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:sequenceFlow id="Flow_6" sourceRef="Task_TherapyPlan" targetRef="Gateway_Interventions" />
+    
+    <bpmn:task id="Task_KBT" name="Cognitive Behavioral Therapy (KBT)">
+      <bpmn:incoming>Flow_KBT</bpmn:incoming>
+      <bpmn:outgoing>Flow_7</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_ACT" name="Acceptance and Commitment Therapy (ACT)">
+      <bpmn:incoming>Flow_ACT</bpmn:incoming>
+      <bpmn:outgoing>Flow_8</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="Flow_KBT" sourceRef="Gateway_Interventions" targetRef="Task_KBT" />
+    <bpmn:sequenceFlow id="Flow_ACT" sourceRef="Gateway_Interventions" targetRef="Task_ACT" />
+    
+    <bpmn:task id="Task_Evaluation" name="Regular Status Assessment">
+      <bpmn:incoming>Flow_7</bpmn:incoming>
+      <bpmn:incoming>Flow_8</bpmn:incoming>
+      <bpmn:incoming>Flow_4</bpmn:incoming>
+      <bpmn:outgoing>Flow_End</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="Flow_7" sourceRef="Task_KBT" targetRef="Task_Evaluation" />
+    <bpmn:sequenceFlow id="Flow_8" sourceRef="Task_ACT" targetRef="Task_Evaluation" />
+    <bpmn:sequenceFlow id="Flow_4" sourceRef="Task_Psychoeducation" targetRef="Task_Evaluation" />
+    
+    <bpmn:endEvent id="EndEvent_ManagementComplete" name="Management Complete / Continued Care">
+      <bpmn:incoming>Flow_End</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_End" sourceRef="Task_Evaluation" targetRef="EndEvent_ManagementComplete" />
+    
+    <bpmn:endEvent id="Flow_End_Acute" name="Acute Care End">
+      <bpmn:incoming>Task_AcuteTreatment</bpmn:incoming>
+    </bpmn:endEvent>
+  </bpmn:process>
+</bpmn:definitions>

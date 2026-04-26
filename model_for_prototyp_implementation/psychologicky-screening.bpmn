@@ -1,0 +1,602 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0muu2nd" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.33.1" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.22.0">
+  <bpmn:process id="psychologicky-skrining" name="Psychologicky skrining" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_1dx4o12</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="lekarske_posudenie" name="Lekárske posúdenie" camunda:formRef="lekar-dotaznik" camunda:formRefBinding="deployment">
+      <bpmn:incoming>Flow_1dx4o12</bpmn:incoming>
+      <bpmn:outgoing>Flow_0eu8lrt</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_1dx4o12" sourceRef="StartEvent_1" targetRef="lekarske_posudenie" />
+    <bpmn:userTask id="prijatie_pacienta" name="Zobrazenie údajov a prijatie pacienta psychológom" camunda:formRef="psycholog-approve" camunda:formRefBinding="deployment">
+      <bpmn:incoming>Flow_0eu8lrt</bpmn:incoming>
+      <bpmn:outgoing>Flow_1lxerq8</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_0eu8lrt" sourceRef="lekarske_posudenie" targetRef="prijatie_pacienta" />
+    <bpmn:userTask id="vstupny_screening" name="Vstupný screening pacienta - BDI, BAI,         CDT ,SF36">
+      <bpmn:incoming>Flow_04bbahm</bpmn:incoming>
+      <bpmn:outgoing>Flow_0kraqc7</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_107qmrx" name="Prijal psychológ pacienta ? ">
+      <bpmn:incoming>Flow_1lxerq8</bpmn:incoming>
+      <bpmn:outgoing>Flow_04bbahm</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1km42bb</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_1lxerq8" sourceRef="prijatie_pacienta" targetRef="Gateway_107qmrx" />
+    <bpmn:sequenceFlow id="Flow_04bbahm" name="áno" sourceRef="Gateway_107qmrx" targetRef="vstupny_screening">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${patientAccepted == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:endEvent id="Event_0xut09m">
+      <bpmn:incoming>Flow_1km42bb</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1km42bb" name="nie" sourceRef="Gateway_107qmrx" targetRef="Event_0xut09m">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${patientAccepted == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:userTask id="vyhodnotenie_cdt" name="Vyhodnotenie CDT psychológom">
+      <bpmn:incoming>Flow_0kraqc7</bpmn:incoming>
+      <bpmn:outgoing>Flow_0mop5xn</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_0kraqc7" sourceRef="vstupny_screening" targetRef="vyhodnotenie_cdt" />
+    <bpmn:exclusiveGateway id="Gateway_1b1a5zb" name="Je CDT vyhodnotené ako inklúzia ?">
+      <bpmn:incoming>Flow_0mop5xn</bpmn:incoming>
+      <bpmn:outgoing>Flow_137uuec</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0lo5tgb</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_0mop5xn" sourceRef="vyhodnotenie_cdt" targetRef="Gateway_1b1a5zb" />
+    <bpmn:serviceTask id="vypocitanie_vysledkov_skriningu" name="Vypočítanie výsledkov skríningu" camunda:class="sk.luciamurzova.bpcamunda.tasks.psychologyScreening.CalculateScreeningResultsDelegate">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="sourceVariableName">patientInitialScreeningForm</camunda:inputParameter>
+          <camunda:inputParameter name="bdiScoreVariableName">bdiScore</camunda:inputParameter>
+          <camunda:inputParameter name="baiScoreVariableName">baiScore</camunda:inputParameter>
+          <camunda:inputParameter name="bdiSeverityVariableName">bdiSeverity</camunda:inputParameter>
+          <camunda:inputParameter name="baiSeverityVariableName">baiSeverity</camunda:inputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_137uuec</bpmn:incoming>
+      <bpmn:outgoing>Flow_0cs664e</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_137uuec" name="áno" sourceRef="Gateway_1b1a5zb" targetRef="vypocitanie_vysledkov_skriningu">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${cdtEvaluationResult == "INKLUZIA"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:serviceTask id="informuj_pacienta_po_cdt" name="Informovanie pacienta a psychológa" camunda:class="sk.luciamurzova.bpcamunda.tasks.psychologyScreening.InformPatientDelegate">
+      <bpmn:incoming>Flow_0lo5tgb</bpmn:incoming>
+      <bpmn:outgoing>Flow_0ynjzi0</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0lo5tgb" name="nie" sourceRef="Gateway_1b1a5zb" targetRef="informuj_pacienta_po_cdt">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${cdtEvaluationResult == "EXKLUZIA"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:endEvent id="Event_0fyirr9">
+      <bpmn:incoming>Flow_0ynjzi0</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_0ynjzi0" sourceRef="informuj_pacienta_po_cdt" targetRef="Event_0fyirr9" />
+    <bpmn:parallelGateway id="Gateway_0a91sfi">
+      <bpmn:incoming>Flow_0cs664e</bpmn:incoming>
+      <bpmn:outgoing>Flow_0w9m9o1</bpmn:outgoing>
+      <bpmn:outgoing>Flow_14h9tt2</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:sequenceFlow id="Flow_0cs664e" sourceRef="vypocitanie_vysledkov_skriningu" targetRef="Gateway_0a91sfi" />
+    <bpmn:businessRuleTask id="Activity_17i3ajh" name="Vyhodnotenie BDI-II" camunda:resultVariable="bdiInterpretation" camunda:decisionRef="vyhodnotenie_bdi" camunda:mapDecisionResult="singleEntry">
+      <bpmn:extensionElements />
+      <bpmn:incoming>Flow_0w9m9o1</bpmn:incoming>
+      <bpmn:outgoing>Flow_0e4w78v</bpmn:outgoing>
+    </bpmn:businessRuleTask>
+    <bpmn:sequenceFlow id="Flow_0w9m9o1" sourceRef="Gateway_0a91sfi" targetRef="Activity_17i3ajh" />
+    <bpmn:businessRuleTask id="Activity_0vwqlgz" name="Vyhodnotenie BAI" camunda:resultVariable="baiInterpretation" camunda:decisionRef="vyhodnotenie_bai" camunda:mapDecisionResult="singleEntry">
+      <bpmn:incoming>Flow_14h9tt2</bpmn:incoming>
+      <bpmn:outgoing>Flow_1wukq3j</bpmn:outgoing>
+    </bpmn:businessRuleTask>
+    <bpmn:sequenceFlow id="Flow_14h9tt2" sourceRef="Gateway_0a91sfi" targetRef="Activity_0vwqlgz" />
+    <bpmn:parallelGateway id="Gateway_1rbm151">
+      <bpmn:incoming>Flow_1wukq3j</bpmn:incoming>
+      <bpmn:incoming>Flow_0e4w78v</bpmn:incoming>
+      <bpmn:outgoing>Flow_0un9y8b</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:sequenceFlow id="Flow_1wukq3j" sourceRef="Activity_0vwqlgz" targetRef="Gateway_1rbm151" />
+    <bpmn:sequenceFlow id="Flow_0e4w78v" sourceRef="Activity_17i3ajh" targetRef="Gateway_1rbm151" />
+    <bpmn:businessRuleTask id="Activity_0pez5wi" name="Vyhodnotenie pokračovania v štúdií" camunda:resultVariable="pokracovanieVStudiiResult" camunda:decisionRef="vyhodnotenie_pokracovania_v_studii" camunda:mapDecisionResult="singleResult">
+      <bpmn:incoming>Flow_0un9y8b</bpmn:incoming>
+      <bpmn:outgoing>Flow_0wi4iv4</bpmn:outgoing>
+    </bpmn:businessRuleTask>
+    <bpmn:sequenceFlow id="Flow_0un9y8b" sourceRef="Gateway_1rbm151" targetRef="Activity_0pez5wi" />
+    <bpmn:exclusiveGateway id="Gateway_1wlrrwr" name="Pokračuje pacient v štúdií ?">
+      <bpmn:incoming>Flow_0wi4iv4</bpmn:incoming>
+      <bpmn:outgoing>Flow_1as6sfu</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0d5tdkp</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_0wi4iv4" sourceRef="Activity_0pez5wi" targetRef="Gateway_1wlrrwr" />
+    <bpmn:userTask id="vygenerovanie_odporucania" name="Vygenerovanie klinického odporúčania">
+      <bpmn:incoming>Flow_1as6sfu</bpmn:incoming>
+      <bpmn:outgoing>Flow_11wlo7z</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_1as6sfu" name="áno" sourceRef="Gateway_1wlrrwr" targetRef="vygenerovanie_odporucania">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${pokracovanieVStudiiResult.pokracovanieVStudii == "Inklúzia pacienta"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:serviceTask id="Activity_0ugdv5m" name="Informovanie pacienta a psychológa" camunda:class="sk.luciamurzova.bpcamunda.tasks.psychologyScreening.InformPatientDelegate">
+      <bpmn:incoming>Flow_0d5tdkp</bpmn:incoming>
+      <bpmn:outgoing>Flow_11o5xzt</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0d5tdkp" name="nie" sourceRef="Gateway_1wlrrwr" targetRef="Activity_0ugdv5m">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${pokracovanieVStudiiResult.pokracovanieVStudii == "Exklúzia pacienta"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:endEvent id="Event_1kxupvg">
+      <bpmn:incoming>Flow_11o5xzt</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_11o5xzt" sourceRef="Activity_0ugdv5m" targetRef="Event_1kxupvg" />
+    <bpmn:userTask id="odsuhlasenie_ucasti" name="Odsúhlasenie účasti od pacienta">
+      <bpmn:incoming>Flow_11wlo7z</bpmn:incoming>
+      <bpmn:outgoing>Flow_0ux8kvm</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_11wlo7z" sourceRef="vygenerovanie_odporucania" targetRef="odsuhlasenie_ucasti" />
+    <bpmn:exclusiveGateway id="Gateway_1bc3g5e" name="Súhlasí pacient ? ">
+      <bpmn:incoming>Flow_0ux8kvm</bpmn:incoming>
+      <bpmn:outgoing>Flow_1ilp1w2</bpmn:outgoing>
+      <bpmn:outgoing>Flow_07dl4l1</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_0ux8kvm" sourceRef="odsuhlasenie_ucasti" targetRef="Gateway_1bc3g5e" />
+    <bpmn:userTask id="spustenie_terapeutickeho_procesu" name="Spustenie terapeutického procesu">
+      <bpmn:incoming>Flow_1ilp1w2</bpmn:incoming>
+      <bpmn:outgoing>Flow_0ypzhd7</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_1ilp1w2" name="áno" sourceRef="Gateway_1bc3g5e" targetRef="spustenie_terapeutickeho_procesu">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${suhlasOdPacienta== true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_07dl4l1" name="nie" sourceRef="Gateway_1bc3g5e" targetRef="Activity_136yu3s">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${suhlasOdPacienta== false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:userTask id="priebeh_sedeni" name="Zapisovanie poznámok zo sedení">
+      <bpmn:incoming>Flow_0ypzhd7</bpmn:incoming>
+      <bpmn:outgoing>Flow_0tnx84z</bpmn:outgoing>
+      <bpmn:multiInstanceLoopCharacteristics isSequential="true">
+        <bpmn:loopCardinality xsi:type="bpmn:tFormalExpression">${pocetOdporucanychSedeni}</bpmn:loopCardinality>
+      </bpmn:multiInstanceLoopCharacteristics>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_0ypzhd7" sourceRef="spustenie_terapeutickeho_procesu" targetRef="priebeh_sedeni" />
+    <bpmn:endEvent id="Event_01obqk9">
+      <bpmn:incoming>Flow_0bonl12</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:userTask id="vystupny_screening" name="Výstupný screening pacienta - BDI, BAI,SF36">
+      <bpmn:incoming>Flow_0tnx84z</bpmn:incoming>
+      <bpmn:outgoing>Flow_18v5aj4</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_0tnx84z" sourceRef="priebeh_sedeni" targetRef="vystupny_screening" />
+    <bpmn:serviceTask id="vypocitanie_vysledkov_final_skriningu" name="Vypočítanie výsledkov skríningu" camunda:class="sk.luciamurzova.bpcamunda.tasks.psychologyScreening.CalculateScreeningResultsDelegate">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="sourceVariableName">patientFinalScreeningForm</camunda:inputParameter>
+          <camunda:inputParameter name="bdiScoreVariableName">finalBdiScore</camunda:inputParameter>
+          <camunda:inputParameter name="baiScoreVariableName">finalBaiScore</camunda:inputParameter>
+          <camunda:inputParameter name="bdiSeverityVariableName">finalBdiSeverity</camunda:inputParameter>
+          <camunda:inputParameter name="baiSeverityVariableName">finalBaiSeverity</camunda:inputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_18v5aj4</bpmn:incoming>
+      <bpmn:outgoing>Flow_0jcr3uk</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_18v5aj4" sourceRef="vystupny_screening" targetRef="vypocitanie_vysledkov_final_skriningu" />
+    <bpmn:businessRuleTask id="Activity_1jmtqra" name="Vyhodnotenie BDI-II" camunda:resultVariable="finalBdiInterpretation" camunda:decisionRef="vyhodnotenie_bdi_final" camunda:mapDecisionResult="singleEntry">
+      <bpmn:incoming>Flow_0wtkl6u</bpmn:incoming>
+      <bpmn:outgoing>Flow_1ya4grl</bpmn:outgoing>
+    </bpmn:businessRuleTask>
+    <bpmn:businessRuleTask id="Activity_06v6qsu" name="Vyhodnotenie BAI" camunda:resultVariable="finalBaiInterpretation" camunda:decisionRef="vyhodnotenie_bai_final" camunda:mapDecisionResult="singleEntry">
+      <bpmn:incoming>Flow_1l4q259</bpmn:incoming>
+      <bpmn:outgoing>Flow_0blhjb6</bpmn:outgoing>
+    </bpmn:businessRuleTask>
+    <bpmn:parallelGateway id="Gateway_0fo5ox7">
+      <bpmn:incoming>Flow_0jcr3uk</bpmn:incoming>
+      <bpmn:outgoing>Flow_0wtkl6u</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1l4q259</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:sequenceFlow id="Flow_0jcr3uk" sourceRef="vypocitanie_vysledkov_final_skriningu" targetRef="Gateway_0fo5ox7" />
+    <bpmn:sequenceFlow id="Flow_0wtkl6u" sourceRef="Gateway_0fo5ox7" targetRef="Activity_1jmtqra" />
+    <bpmn:sequenceFlow id="Flow_1l4q259" sourceRef="Gateway_0fo5ox7" targetRef="Activity_06v6qsu" />
+    <bpmn:parallelGateway id="Gateway_1hhkbva">
+      <bpmn:incoming>Flow_0blhjb6</bpmn:incoming>
+      <bpmn:incoming>Flow_1ya4grl</bpmn:incoming>
+      <bpmn:outgoing>Flow_0b1qkh6</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:sequenceFlow id="Flow_0blhjb6" sourceRef="Activity_06v6qsu" targetRef="Gateway_1hhkbva" />
+    <bpmn:sequenceFlow id="Flow_1ya4grl" sourceRef="Activity_1jmtqra" targetRef="Gateway_1hhkbva" />
+    <bpmn:userTask id="zhrnutie_odoslanie_feedbacku" name="Zhrnutie a odoslanie feedbacku pacientovi">
+      <bpmn:incoming>Flow_0b1qkh6</bpmn:incoming>
+      <bpmn:outgoing>Flow_0g8ikv4</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_0b1qkh6" sourceRef="Gateway_1hhkbva" targetRef="zhrnutie_odoslanie_feedbacku" />
+    <bpmn:parallelGateway id="Gateway_0vz2zcx">
+      <bpmn:incoming>Flow_0g8ikv4</bpmn:incoming>
+      <bpmn:outgoing>Flow_1r7rj0a</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0woncad</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:sequenceFlow id="Flow_0g8ikv4" sourceRef="zhrnutie_odoslanie_feedbacku" targetRef="Gateway_0vz2zcx" />
+    <bpmn:userTask id="nahlad_zhrnutia" name="Náhľad do zhrnutia feedbacku">
+      <bpmn:incoming>Flow_1r7rj0a</bpmn:incoming>
+      <bpmn:outgoing>Flow_0fdy5y1</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="zapis_vysledku_final" name="Zapís výsledku do dokumentácie" camunda:class="sk.luciamurzova.bpcamunda.tasks.psychologyScreening.SaveResultDelegate">
+      <bpmn:incoming>Flow_0woncad</bpmn:incoming>
+      <bpmn:outgoing>Flow_16g9dhn</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_1r7rj0a" sourceRef="Gateway_0vz2zcx" targetRef="nahlad_zhrnutia" />
+    <bpmn:sequenceFlow id="Flow_0woncad" sourceRef="Gateway_0vz2zcx" targetRef="zapis_vysledku_final" />
+    <bpmn:parallelGateway id="Gateway_09megy6">
+      <bpmn:incoming>Flow_16g9dhn</bpmn:incoming>
+      <bpmn:incoming>Flow_0fdy5y1</bpmn:incoming>
+      <bpmn:outgoing>Flow_0gqjzi0</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:sequenceFlow id="Flow_16g9dhn" sourceRef="zapis_vysledku_final" targetRef="Gateway_09megy6" />
+    <bpmn:sequenceFlow id="Flow_0fdy5y1" sourceRef="nahlad_zhrnutia" targetRef="Gateway_09megy6" />
+    <bpmn:endEvent id="Event_1tpdrhg">
+      <bpmn:incoming>Flow_0gqjzi0</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_0gqjzi0" sourceRef="Gateway_09megy6" targetRef="Event_1tpdrhg" />
+    <bpmn:serviceTask id="zapis_vysledku" name="Zapís výsledku do dokumentácie" camunda:class="sk.luciamurzova.bpcamunda.tasks.psychologyScreening.SaveResultDelegate">
+      <bpmn:incoming>Flow_10yjc6n</bpmn:incoming>
+      <bpmn:outgoing>Flow_0bonl12</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0bonl12" sourceRef="zapis_vysledku" targetRef="Event_01obqk9" />
+    <bpmn:serviceTask id="Activity_136yu3s" name="Informovanie pacienta a psychológa" camunda:class="sk.luciamurzova.bpcamunda.tasks.psychologyScreening.InformPatientDelegate">
+      <bpmn:incoming>Flow_07dl4l1</bpmn:incoming>
+      <bpmn:outgoing>Flow_10yjc6n</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_10yjc6n" sourceRef="Activity_136yu3s" targetRef="zapis_vysledku" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="psychologicky-skrining">
+      <bpmndi:BPMNShape id="StartEvent_1_di" bpmnElement="StartEvent_1">
+        <dc:Bounds x="152" y="282" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0qzk6ve_di" bpmnElement="lekarske_posudenie">
+        <dc:Bounds x="240" y="260" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1f4dacf_di" bpmnElement="prijatie_pacienta">
+        <dc:Bounds x="410" y="260" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0tg4tx3_di" bpmnElement="vstupny_screening">
+        <dc:Bounds x="670" y="260" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_107qmrx_di" bpmnElement="Gateway_107qmrx" isMarkerVisible="true">
+        <dc:Bounds x="565" y="275" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="551" y="246" width="78" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0xut09m_di" bpmnElement="Event_0xut09m">
+        <dc:Bounds x="572" y="372" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1e3n8u5_di" bpmnElement="vyhodnotenie_cdt">
+        <dc:Bounds x="830" y="260" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1b1a5zb_di" bpmnElement="Gateway_1b1a5zb" isMarkerVisible="true">
+        <dc:Bounds x="995" y="275" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="978" y="220" width="84" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1xj4o6i_di" bpmnElement="vypocitanie_vysledkov_skriningu">
+        <dc:Bounds x="1100" y="260" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0q4qvkf_di" bpmnElement="informuj_pacienta_po_cdt">
+        <dc:Bounds x="970" y="390" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0fyirr9_di" bpmnElement="Event_0fyirr9">
+        <dc:Bounds x="1002" y="512" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0a91sfi_di" bpmnElement="Gateway_0a91sfi">
+        <dc:Bounds x="1255" y="275" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_17i3ajh_di" bpmnElement="Activity_17i3ajh">
+        <dc:Bounds x="1340" y="150" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0vwqlgz_di" bpmnElement="Activity_0vwqlgz">
+        <dc:Bounds x="1340" y="360" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1rbm151_di" bpmnElement="Gateway_1rbm151">
+        <dc:Bounds x="1485" y="275" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0pez5wi_di" bpmnElement="Activity_0pez5wi">
+        <dc:Bounds x="1590" y="260" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1wlrrwr_di" bpmnElement="Gateway_1wlrrwr" isMarkerVisible="true">
+        <dc:Bounds x="1745" y="275" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1775" y="267" width="89" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0fn3tyn_di" bpmnElement="vygenerovanie_odporucania">
+        <dc:Bounds x="1880" y="170" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0ugdv5m_di" bpmnElement="Activity_0ugdv5m">
+        <dc:Bounds x="1880" y="330" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1kxupvg_di" bpmnElement="Event_1kxupvg">
+        <dc:Bounds x="1912" y="442" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1eh31gd_di" bpmnElement="odsuhlasenie_ucasti">
+        <dc:Bounds x="2070" y="170" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1bc3g5e_di" bpmnElement="Gateway_1bc3g5e" isMarkerVisible="true">
+        <dc:Bounds x="2235" y="185" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2217" y="163" width="85" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1st2n5a_di" bpmnElement="spustenie_terapeutickeho_procesu">
+        <dc:Bounds x="2350" y="170" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1shm5gg_di" bpmnElement="priebeh_sedeni">
+        <dc:Bounds x="2520" y="170" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_01obqk9_di" bpmnElement="Event_01obqk9">
+        <dc:Bounds x="2512" y="312" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1s2rq6b_di" bpmnElement="vystupny_screening">
+        <dc:Bounds x="2690" y="170" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0io2f8h" bpmnElement="vypocitanie_vysledkov_final_skriningu">
+        <dc:Bounds x="2850" y="170" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0hszqmb" bpmnElement="Activity_1jmtqra">
+        <dc:Bounds x="3110" y="80" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_12mh2za" bpmnElement="Activity_06v6qsu">
+        <dc:Bounds x="3110" y="250" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0fo5ox7_di" bpmnElement="Gateway_0fo5ox7">
+        <dc:Bounds x="3015" y="185" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1hhkbva_di" bpmnElement="Gateway_1hhkbva">
+        <dc:Bounds x="3245" y="185" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0gbbjbf_di" bpmnElement="zhrnutie_odoslanie_feedbacku">
+        <dc:Bounds x="3370" y="170" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0vz2zcx_di" bpmnElement="Gateway_0vz2zcx">
+        <dc:Bounds x="3545" y="185" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1fg2161_di" bpmnElement="nahlad_zhrnutia">
+        <dc:Bounds x="3660" y="80" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_007mvhc_di" bpmnElement="zapis_vysledku_final">
+        <dc:Bounds x="3660" y="250" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_09megy6_di" bpmnElement="Gateway_09megy6">
+        <dc:Bounds x="3825" y="185" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1tpdrhg_di" bpmnElement="Event_1tpdrhg">
+        <dc:Bounds x="3942" y="192" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0rvfu12" bpmnElement="zapis_vysledku">
+        <dc:Bounds x="2370" y="290" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_12xdqho" bpmnElement="Activity_136yu3s">
+        <dc:Bounds x="2210" y="290" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1dx4o12_di" bpmnElement="Flow_1dx4o12">
+        <di:waypoint x="188" y="300" />
+        <di:waypoint x="240" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0eu8lrt_di" bpmnElement="Flow_0eu8lrt">
+        <di:waypoint x="340" y="300" />
+        <di:waypoint x="410" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1lxerq8_di" bpmnElement="Flow_1lxerq8">
+        <di:waypoint x="510" y="300" />
+        <di:waypoint x="565" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_04bbahm_di" bpmnElement="Flow_04bbahm">
+        <di:waypoint x="615" y="300" />
+        <di:waypoint x="670" y="300" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="633" y="282" width="19" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1km42bb_di" bpmnElement="Flow_1km42bb">
+        <di:waypoint x="590" y="325" />
+        <di:waypoint x="590" y="372" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="598" y="333" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0kraqc7_di" bpmnElement="Flow_0kraqc7">
+        <di:waypoint x="770" y="300" />
+        <di:waypoint x="830" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0mop5xn_di" bpmnElement="Flow_0mop5xn">
+        <di:waypoint x="930" y="300" />
+        <di:waypoint x="995" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_137uuec_di" bpmnElement="Flow_137uuec">
+        <di:waypoint x="1045" y="300" />
+        <di:waypoint x="1100" y="300" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1063" y="282" width="19" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0lo5tgb_di" bpmnElement="Flow_0lo5tgb">
+        <di:waypoint x="1020" y="325" />
+        <di:waypoint x="1020" y="390" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1028" y="355" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ynjzi0_di" bpmnElement="Flow_0ynjzi0">
+        <di:waypoint x="1020" y="470" />
+        <di:waypoint x="1020" y="512" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0cs664e_di" bpmnElement="Flow_0cs664e">
+        <di:waypoint x="1200" y="300" />
+        <di:waypoint x="1255" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0w9m9o1_di" bpmnElement="Flow_0w9m9o1">
+        <di:waypoint x="1280" y="275" />
+        <di:waypoint x="1280" y="190" />
+        <di:waypoint x="1340" y="190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_14h9tt2_di" bpmnElement="Flow_14h9tt2">
+        <di:waypoint x="1280" y="325" />
+        <di:waypoint x="1280" y="400" />
+        <di:waypoint x="1340" y="400" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1wukq3j_di" bpmnElement="Flow_1wukq3j">
+        <di:waypoint x="1440" y="400" />
+        <di:waypoint x="1510" y="400" />
+        <di:waypoint x="1510" y="325" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0e4w78v_di" bpmnElement="Flow_0e4w78v">
+        <di:waypoint x="1440" y="190" />
+        <di:waypoint x="1510" y="190" />
+        <di:waypoint x="1510" y="275" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0un9y8b_di" bpmnElement="Flow_0un9y8b">
+        <di:waypoint x="1535" y="300" />
+        <di:waypoint x="1590" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0wi4iv4_di" bpmnElement="Flow_0wi4iv4">
+        <di:waypoint x="1690" y="300" />
+        <di:waypoint x="1745" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1as6sfu_di" bpmnElement="Flow_1as6sfu">
+        <di:waypoint x="1770" y="275" />
+        <di:waypoint x="1770" y="210" />
+        <di:waypoint x="1880" y="210" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1776" y="223" width="19" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0d5tdkp_di" bpmnElement="Flow_0d5tdkp">
+        <di:waypoint x="1770" y="325" />
+        <di:waypoint x="1770" y="370" />
+        <di:waypoint x="1880" y="370" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1778" y="345" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_11o5xzt_di" bpmnElement="Flow_11o5xzt">
+        <di:waypoint x="1930" y="410" />
+        <di:waypoint x="1930" y="442" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_11wlo7z_di" bpmnElement="Flow_11wlo7z">
+        <di:waypoint x="1980" y="210" />
+        <di:waypoint x="2070" y="210" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ux8kvm_di" bpmnElement="Flow_0ux8kvm">
+        <di:waypoint x="2170" y="210" />
+        <di:waypoint x="2235" y="210" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ilp1w2_di" bpmnElement="Flow_1ilp1w2">
+        <di:waypoint x="2285" y="210" />
+        <di:waypoint x="2350" y="210" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2308" y="192" width="19" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_07dl4l1_di" bpmnElement="Flow_07dl4l1">
+        <di:waypoint x="2260" y="235" />
+        <di:waypoint x="2260" y="290" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2262" y="246" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ypzhd7_di" bpmnElement="Flow_0ypzhd7">
+        <di:waypoint x="2450" y="210" />
+        <di:waypoint x="2520" y="210" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0tnx84z_di" bpmnElement="Flow_0tnx84z">
+        <di:waypoint x="2620" y="210" />
+        <di:waypoint x="2690" y="210" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_18v5aj4_di" bpmnElement="Flow_18v5aj4">
+        <di:waypoint x="2790" y="210" />
+        <di:waypoint x="2850" y="210" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0jcr3uk_di" bpmnElement="Flow_0jcr3uk">
+        <di:waypoint x="2950" y="210" />
+        <di:waypoint x="3015" y="210" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0wtkl6u_di" bpmnElement="Flow_0wtkl6u">
+        <di:waypoint x="3040" y="185" />
+        <di:waypoint x="3040" y="120" />
+        <di:waypoint x="3110" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1l4q259_di" bpmnElement="Flow_1l4q259">
+        <di:waypoint x="3040" y="235" />
+        <di:waypoint x="3040" y="290" />
+        <di:waypoint x="3110" y="290" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0blhjb6_di" bpmnElement="Flow_0blhjb6">
+        <di:waypoint x="3210" y="290" />
+        <di:waypoint x="3270" y="290" />
+        <di:waypoint x="3270" y="235" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ya4grl_di" bpmnElement="Flow_1ya4grl">
+        <di:waypoint x="3210" y="120" />
+        <di:waypoint x="3270" y="120" />
+        <di:waypoint x="3270" y="185" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0b1qkh6_di" bpmnElement="Flow_0b1qkh6">
+        <di:waypoint x="3295" y="210" />
+        <di:waypoint x="3370" y="210" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0g8ikv4_di" bpmnElement="Flow_0g8ikv4">
+        <di:waypoint x="3470" y="210" />
+        <di:waypoint x="3545" y="210" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1r7rj0a_di" bpmnElement="Flow_1r7rj0a">
+        <di:waypoint x="3570" y="185" />
+        <di:waypoint x="3570" y="120" />
+        <di:waypoint x="3660" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0woncad_di" bpmnElement="Flow_0woncad">
+        <di:waypoint x="3570" y="235" />
+        <di:waypoint x="3570" y="290" />
+        <di:waypoint x="3660" y="290" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_16g9dhn_di" bpmnElement="Flow_16g9dhn">
+        <di:waypoint x="3760" y="290" />
+        <di:waypoint x="3850" y="290" />
+        <di:waypoint x="3850" y="235" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0fdy5y1_di" bpmnElement="Flow_0fdy5y1">
+        <di:waypoint x="3760" y="120" />
+        <di:waypoint x="3850" y="120" />
+        <di:waypoint x="3850" y="185" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0gqjzi0_di" bpmnElement="Flow_0gqjzi0">
+        <di:waypoint x="3875" y="210" />
+        <di:waypoint x="3942" y="210" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0bonl12_di" bpmnElement="Flow_0bonl12">
+        <di:waypoint x="2470" y="330" />
+        <di:waypoint x="2512" y="330" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_10yjc6n_di" bpmnElement="Flow_10yjc6n">
+        <di:waypoint x="2310" y="330" />
+        <di:waypoint x="2370" y="330" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

@@ -1,0 +1,1060 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+                  id="Definitions_1fnwx2w"
+                  targetNamespace="http://bpmn.io/schema/bpmn"
+                  xmlns:modeler="http://camunda.org/schema/modeler/1.0"
+                  exporter="Camunda Modeler"
+                  exporterVersion="5.33.1"
+                  modeler:executionPlatform="Camunda Platform"
+                  modeler:executionPlatformVersion="7.22.0">
+
+  <bpmn:process id="Process_0mxms9h" isExecutable="true" name="Agorafobia - Standardny diagnosticky a terapeuticky postup">
+
+    <!-- ==================== START EVENT ==================== -->
+    <bpmn:startEvent id="StartEvent_1" name="Pacient / populacia identifikovana pre intervenciu">
+      <bpmn:outgoing>Flow_Start_A1</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <!-- ==================== PHASE A: PREVENTION ==================== -->
+    <bpmn:userTask id="Task_A1_RiskFactors" name="A1: Identifikovat rizikove a protektivne faktory">
+      <bpmn:incoming>Flow_Start_A1</bpmn:incoming>
+      <bpmn:outgoing>Flow_A1_G01</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_01_RiskProfile" name="G01: Su pritomne rizikove faktory?">
+      <bpmn:incoming>Flow_A1_G01</bpmn:incoming>
+      <bpmn:outgoing>Flow_G01_Yes</bpmn:outgoing>
+      <bpmn:outgoing>Flow_G01_No</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="Task_A2_SelectProgram" name="A2: Vybrat typ preventivneho programu">
+      <bpmn:incoming>Flow_G01_Yes</bpmn:incoming>
+      <bpmn:outgoing>Flow_A2_G02</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_02_PrevType" name="G02: Typ preventivneho programu?">
+      <bpmn:incoming>Flow_A2_G02</bpmn:incoming>
+      <bpmn:outgoing>Flow_G02_Indicated</bpmn:outgoing>
+      <bpmn:outgoing>Flow_G02_Selective</bpmn:outgoing>
+      <bpmn:outgoing>Flow_G02_Universal</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="Task_A3a_Indicated" name="A3a: Realizovat indikovanу preventivny program">
+      <bpmn:incoming>Flow_G02_Indicated</bpmn:incoming>
+      <bpmn:outgoing>Flow_A3a_Join</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_A3b_Selective" name="A3b: Realizovat selektivny preventivny program">
+      <bpmn:incoming>Flow_G02_Selective</bpmn:incoming>
+      <bpmn:outgoing>Flow_A3b_Join</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_A3c_Universal" name="A3c: Realizovat univerzalny preventivny program">
+      <bpmn:incoming>Flow_G02_Universal</bpmn:incoming>
+      <bpmn:outgoing>Flow_A3c_Join</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_PrevJoin" name="G_PrevJoin: Zlucenie po prevencii">
+      <bpmn:incoming>Flow_A3a_Join</bpmn:incoming>
+      <bpmn:incoming>Flow_A3b_Join</bpmn:incoming>
+      <bpmn:incoming>Flow_A3c_Join</bpmn:incoming>
+      <bpmn:outgoing>Flow_PrevJoin_End</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:endEvent id="EndEvent_Prevention" name="Koniec: Preventivna intervencia dokoncena">
+      <bpmn:incoming>Flow_PrevJoin_End</bpmn:incoming>
+      <bpmn:incoming>Flow_G01_No</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <!-- ==================== PHASE B: SCREENING ==================== -->
+    <bpmn:startEvent id="StartEvent_Screening" name="Pacient prichadza do primarnej starostlivosti">
+      <bpmn:outgoing>Flow_StartB_B1</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <bpmn:userTask id="Task_B1_Screening" name="B1: Administrovat 4-otazkovy skrning uzkosti">
+      <bpmn:incoming>Flow_StartB_B1</bpmn:incoming>
+      <bpmn:outgoing>Flow_B1_B2</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:businessRuleTask id="Task_B2_EvalScreen" name="B2: Vyhodnotit vysledok skriningu">
+      <bpmn:incoming>Flow_B1_B2</bpmn:incoming>
+      <bpmn:outgoing>Flow_B2_G03</bpmn:outgoing>
+    </bpmn:businessRuleTask>
+
+    <bpmn:exclusiveGateway id="GW_03_ScreenResult" name="G03: Pozitivny skrning?">
+      <bpmn:incoming>Flow_B2_G03</bpmn:incoming>
+      <bpmn:outgoing>Flow_G03_Positive</bpmn:outgoing>
+      <bpmn:outgoing>Flow_G03_Negative</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:endEvent id="EndEvent_NegScreen" name="Koniec: Negativny skrning - rutinna starostlivost">
+      <bpmn:incoming>Flow_G03_Negative</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:userTask id="Task_B3_InitAssess" name="B3: Vykonat pociatocne klinicke posudenie">
+      <bpmn:incoming>Flow_G03_Positive</bpmn:incoming>
+      <bpmn:outgoing>Flow_B3_G04</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_04_Referral" name="G04: Odoslanie k specialistovi?">
+      <bpmn:incoming>Flow_B3_G04</bpmn:incoming>
+      <bpmn:outgoing>Flow_G04_Refer</bpmn:outgoing>
+      <bpmn:outgoing>Flow_G04_GPManage</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="Task_B4_RefInfo" name="B4: Poskytnout pisomne informacie o odoslaní pacientovi">
+      <bpmn:incoming>Flow_G04_Refer</bpmn:incoming>
+      <bpmn:outgoing>Flow_B4_B5</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_B5_InitiateRef" name="B5: Iniciovat specialisticke odoslanie">
+      <bpmn:incoming>Flow_B4_B5</bpmn:incoming>
+      <bpmn:outgoing>Flow_B5_G05</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_B_GPManage" name="B_GP: Manazovat pacienta v primarnej starostlivosti so specialistom">
+      <bpmn:incoming>Flow_G04_GPManage</bpmn:incoming>
+      <bpmn:outgoing>Flow_GPManage_G05</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_05_SelfRef" name="G05: Pacient odoslany VL alebo self-referral?">
+      <bpmn:incoming>Flow_B5_G05</bpmn:incoming>
+      <bpmn:incoming>Flow_GPManage_G05</bpmn:incoming>
+      <bpmn:outgoing>Flow_G05_GPRef</bpmn:outgoing>
+      <bpmn:outgoing>Flow_G05_SelfRef</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="Task_B6_NotifyGP" name="B6: Informovat vseobecneho lekara o self-referral">
+      <bpmn:incoming>Flow_G05_SelfRef</bpmn:incoming>
+      <bpmn:outgoing>Flow_B6_C1</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- ==================== PHASE C: DIAGNOSIS ==================== -->
+    <bpmn:userTask id="Task_C1_PsychExam" name="C1: Vykonat komplexne psychiatricke vysetrenie">
+      <bpmn:incoming>Flow_G05_GPRef</bpmn:incoming>
+      <bpmn:incoming>Flow_B6_C1</bpmn:incoming>
+      <bpmn:outgoing>Flow_C1_C2</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_C2_PsychoDiag" name="C2: Vykonat psychodiagnosticke vysetrenie">
+      <bpmn:incoming>Flow_C1_C2</bpmn:incoming>
+      <bpmn:outgoing>Flow_C2_C3</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_C3_SomaticExcl" name="C3: Vykonat somaticke vylucujuce vysetrenie (EKG, EEG, krvny tlak, krv, moc)">
+      <bpmn:incoming>Flow_C2_C3</bpmn:incoming>
+      <bpmn:outgoing>Flow_C3_G06</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_06_Somatic" name="G06: Vysledok somatickeho vylucenia?">
+      <bpmn:incoming>Flow_C3_G06</bpmn:incoming>
+      <bpmn:outgoing>Flow_G06_Excluded</bpmn:outgoing>
+      <bpmn:outgoing>Flow_G06_Primary</bpmn:outgoing>
+      <bpmn:outgoing>Flow_G06_Comorbid</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:endEvent id="EndEvent_SomaticPrimary" name="Koniec: Odoslanie na somaticku liecbu (primarná somaticka pricina)">
+      <bpmn:incoming>Flow_G06_Primary</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:userTask id="Task_C3b_SomaticParallel" name="C3b: Iniciovat paralelnu somaticku liecbu (komorbidita)">
+      <bpmn:incoming>Flow_G06_Comorbid</bpmn:incoming>
+      <bpmn:outgoing>Flow_C3b_C4</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_C4_Psychometric" name="C4: Administrovat diagnosticke psychometricke nastroje (PHQ-9, GAD-7, dotaznik strachu, SCL-90)">
+      <bpmn:incoming>Flow_G06_Excluded</bpmn:incoming>
+      <bpmn:incoming>Flow_C3b_C4</bpmn:incoming>
+      <bpmn:outgoing>Flow_C4_C5</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_C5_Suicidality" name="C5: Posoudit suicidalnu ideaciu (povinne pre vsetkych pacientov)">
+      <bpmn:incoming>Flow_C4_C5</bpmn:incoming>
+      <bpmn:outgoing>Flow_C5_G07</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_07_Suicidality" name="G07: Pritomna suicidalita?">
+      <bpmn:incoming>Flow_C5_G07</bpmn:incoming>
+      <bpmn:outgoing>Flow_G07_Present</bpmn:outgoing>
+      <bpmn:outgoing>Flow_G07_Absent</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:endEvent id="EndEvent_Emergency" name="Koniec: Aktivacia nudzoveho protokolu (SOP - sebaposkoozenie / samovrazda)">
+      <bpmn:incoming>Flow_G07_Present</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:exclusiveGateway id="GW_08_Neuro" name="G08: Podozrenie na neurologicky diferencial?">
+      <bpmn:incoming>Flow_G07_Absent</bpmn:incoming>
+      <bpmn:outgoing>Flow_G08_Yes</bpmn:outgoing>
+      <bpmn:outgoing>Flow_G08_No</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="Task_C_NeuroRef" name="C_Neuro: Odoslat na neurologicke diferencialne diagnosticke vysetrenie">
+      <bpmn:incoming>Flow_G08_Yes</bpmn:incoming>
+      <bpmn:outgoing>Flow_NeuroRef_C6</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_C6_DiffDiag" name="C6: Vykonat diferencialne diagnosticke posudenie (ICD-10 kriteria, Tab.5-6)">
+      <bpmn:incoming>Flow_G08_No</bpmn:incoming>
+      <bpmn:incoming>Flow_NeuroRef_C6</bpmn:incoming>
+      <bpmn:outgoing>Flow_C6_C7</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_C7_Psychophysio" name="C7: Posoudit psychofyziologicku reaktivitu (stresovy profil)">
+      <bpmn:incoming>Flow_C6_C7</bpmn:incoming>
+      <bpmn:outgoing>Flow_C7_G09</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_09_CompPsych" name="G09: Podozrenie na kognitívne poskodenie alebo poruchu osobnosti?">
+      <bpmn:incoming>Flow_C7_G09</bpmn:incoming>
+      <bpmn:outgoing>Flow_G09_Yes</bpmn:outgoing>
+      <bpmn:outgoing>Flow_G09_No</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="Task_C8_CompPsychExam" name="C8: Vykonat komplexne psychologicke vysetrenie (kognitívne / osobnostne)">
+      <bpmn:incoming>Flow_G09_Yes</bpmn:incoming>
+      <bpmn:outgoing>Flow_C8_G10</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_10_DiffOutcome" name="G10: Vysledok diferentialnej diagnostiky?">
+      <bpmn:incoming>Flow_G09_No</bpmn:incoming>
+      <bpmn:incoming>Flow_C8_G10</bpmn:incoming>
+      <bpmn:outgoing>Flow_G10_Confirmed</bpmn:outgoing>
+      <bpmn:outgoing>Flow_G10_Alternative</bpmn:outgoing>
+      <bpmn:outgoing>Flow_G10_Comorbid</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:endEvent id="EndEvent_AltDiag" name="Koniec: Presmerovanie na alternativnu diagnosticku / liecebnu cestu">
+      <bpmn:incoming>Flow_G10_Alternative</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:userTask id="Task_C9_Diagnosis" name="C9: Formulovat formalnu diagnostiku podla ICD-10 F40.0 (hlavna + komorbidne diagnozy)">
+      <bpmn:incoming>Flow_G10_Confirmed</bpmn:incoming>
+      <bpmn:incoming>Flow_G10_Comorbid</bpmn:incoming>
+      <bpmn:outgoing>Flow_C9_C10</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_C10_SelfHelpCap" name="C10: Posoudit kapacitu pacienta na svojpomocne materialy">
+      <bpmn:incoming>Flow_C9_C10</bpmn:incoming>
+      <bpmn:outgoing>Flow_C10_D1</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- ==================== PHASE D: TREATMENT PLANNING ==================== -->
+    <bpmn:userTask id="Task_D1_TreatDiscuss" name="D1: Prejednat moznosti liecby s pacientom">
+      <bpmn:incoming>Flow_C10_D1</bpmn:incoming>
+      <bpmn:outgoing>Flow_D1_D2</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_D2_TreatInfo" name="D2: Poskytnout pacientovi informacie o navrhovanej liecbe">
+      <bpmn:incoming>Flow_D1_D2</bpmn:incoming>
+      <bpmn:outgoing>Flow_D2_D3</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_D3_Consent" name="D3: Ziskat informovany suhlas pacienta">
+      <bpmn:incoming>Flow_D2_D3</bpmn:incoming>
+      <bpmn:outgoing>Flow_D3_F5a</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_F5a_Comorbidity" name="F5a: Posoudit komorbidne stavy a upravit liecebnu cestu">
+      <bpmn:incoming>Flow_D3_F5a</bpmn:incoming>
+      <bpmn:outgoing>Flow_F5a_G13</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_13_Depression" name="G13: Komorbidna depresia?">
+      <bpmn:incoming>Flow_F5a_G13</bpmn:incoming>
+      <bpmn:outgoing>Flow_G13_PrimaryDep</bpmn:outgoing>
+      <bpmn:outgoing>Flow_G13_Comorbid</bpmn:outgoing>
+      <bpmn:outgoing>Flow_G13_Subthreshold</bpmn:outgoing>
+      <bpmn:outgoing>Flow_G13_None</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="Task_DepFirst" name="D_Dep: Liecit primarne depresivnu poruchu podla prislusneho SDTP">
+      <bpmn:incoming>Flow_G13_PrimaryDep</bpmn:incoming>
+      <bpmn:outgoing>Flow_DepFirst_G14</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_BothSDTP" name="D_Both: Aplikovat SDTP pre obe diagnosticke jednotky (uzkost aj depresia)">
+      <bpmn:incoming>Flow_G13_Comorbid</bpmn:incoming>
+      <bpmn:outgoing>Flow_BothSDTP_G14</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_SubDisc" name="D_Sub: Prejednat s pacientom priority liecby (subklinicky priebeh)">
+      <bpmn:incoming>Flow_G13_Subthreshold</bpmn:incoming>
+      <bpmn:outgoing>Flow_SubDisc_G14</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_14_Alcohol" name="G14: Zneuzivanie alkoholu / zavislost?">
+      <bpmn:incoming>Flow_G13_None</bpmn:incoming>
+      <bpmn:incoming>Flow_DepFirst_G14</bpmn:incoming>
+      <bpmn:incoming>Flow_BothSDTP_G14</bpmn:incoming>
+      <bpmn:incoming>Flow_SubDisc_G14</bpmn:incoming>
+      <bpmn:outgoing>Flow_G14_Yes</bpmn:outgoing>
+      <bpmn:outgoing>Flow_G14_No</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="Task_AlcFirst" name="D_Alc: Odporucit liecbu zavislosti od alkoholu ako prioritu">
+      <bpmn:incoming>Flow_G14_Yes</bpmn:incoming>
+      <bpmn:outgoing>Flow_AlcFirst_G15</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_15_CogImpair" name="G15: Kognitívne poskodenie / porucha ucenia?">
+      <bpmn:incoming>Flow_G14_No</bpmn:incoming>
+      <bpmn:incoming>Flow_AlcFirst_G15</bpmn:incoming>
+      <bpmn:outgoing>Flow_G15_Mild</bpmn:outgoing>
+      <bpmn:outgoing>Flow_G15_Severe</bpmn:outgoing>
+      <bpmn:outgoing>Flow_G15_None</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="Task_MildAdapt" name="D_Mild: Upravit sposob poskytovania liecby (mirne kognitívne poskodenie)">
+      <bpmn:incoming>Flow_G15_Mild</bpmn:incoming>
+      <bpmn:outgoing>Flow_MildAdapt_D4</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_SevereConsult" name="D_Severe: Konzultovat specialistu pre individualne odporucania (stredne az tazke poskodenie)">
+      <bpmn:incoming>Flow_G15_Severe</bpmn:incoming>
+      <bpmn:outgoing>Flow_SevereConsult_D4</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_D4_TherapPlan" name="D4: Formulovat individualny terapeuticky plan (EBM-zalozeny, stupnova starostlivost)">
+      <bpmn:incoming>Flow_G15_None</bpmn:incoming>
+      <bpmn:incoming>Flow_MildAdapt_D4</bpmn:incoming>
+      <bpmn:incoming>Flow_SevereConsult_D4</bpmn:incoming>
+      <bpmn:outgoing>Flow_D4_D5</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_D5_Hosp" name="D5: Rozhodnut o potrebe hospitalizacie">
+      <bpmn:incoming>Flow_D4_D5</bpmn:incoming>
+      <bpmn:outgoing>Flow_D5_G11</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_11_Hosp" name="G11: Hospitalizacia potrebna?">
+      <bpmn:incoming>Flow_D5_G11</bpmn:incoming>
+      <bpmn:outgoing>Flow_G11_Yes</bpmn:outgoing>
+      <bpmn:outgoing>Flow_G11_No</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:endEvent id="EndEvent_Inpatient" name="Koniec: Odoslanie na ustavnu / hospitalizacnu starostlivost (externy proces)">
+      <bpmn:incoming>Flow_G11_Yes</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:exclusiveGateway id="GW_12_Outpatient" name="G12: Pacient schopny a ochotny navstivit ambulanciu?">
+      <bpmn:incoming>Flow_G11_No</bpmn:incoming>
+      <bpmn:outgoing>Flow_G12_Yes</bpmn:outgoing>
+      <bpmn:outgoing>Flow_G12_No</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- ==================== PHASE E: TREATMENT DELIVERY ==================== -->
+    <bpmn:userTask id="Task_E1_Psychoed" name="E1: Realizovat psychoedukáciu (porucha, stresova reakcia, bludny kruh uzkosti)">
+      <bpmn:incoming>Flow_G12_Yes</bpmn:incoming>
+      <bpmn:incoming>Flow_G12_No</bpmn:incoming>
+      <bpmn:outgoing>Flow_E1_G16</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_16_StepEntry" name="G16: Vstupny stupen stupnovej starostlivosti?">
+      <bpmn:incoming>Flow_E1_G16</bpmn:incoming>
+      <bpmn:outgoing>Flow_G16_Step1</bpmn:outgoing>
+      <bpmn:outgoing>Flow_G16_Step2</bpmn:outgoing>
+      <bpmn:outgoing>Flow_G16_Step3</bpmn:outgoing>
+      <bpmn:outgoing>Flow_G16_Step4</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- Step 1 -->
+    <bpmn:userTask id="Task_E2_SelfHelp" name="E2: Pacient realizuje svojpomocne techniky a zmenu zivotneho stylu (Krok 1)">
+      <bpmn:incoming>Flow_G16_Step1</bpmn:incoming>
+      <bpmn:outgoing>Flow_E2_F1</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- Step 2 gateway -->
+    <bpmn:exclusiveGateway id="GW_17_Step2Modal" name="G17: Modalita psychologickej terapie (Krok 2)?">
+      <bpmn:incoming>Flow_G16_Step2</bpmn:incoming>
+      <bpmn:outgoing>Flow_G17_SelfSupport</bpmn:outgoing>
+      <bpmn:outgoing>Flow_G17_KBT</bpmn:outgoing>
+      <bpmn:outgoing>Flow_G17_IKBT</bpmn:outgoing>
+      <bpmn:outgoing>Flow_G17_Relax</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:exclusiveGateway id="GW_20_EBMAvail" name="G20: EBM pristupy dostupne a terapeut certifikovany?">
+      <bpmn:incoming>Flow_G17_KBT</bpmn:incoming>
+      <bpmn:outgoing>Flow_G20_Yes</bpmn:outgoing>
+      <bpmn:outgoing>Flow_G20_NoAvail</bpmn:outgoing>
+      <bpmn:outgoing>Flow_G20_PatPref</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:exclusiveGateway id="GW_21_CertCheck" name="G21: Terapeut ma certifikat CPС pre specificku psychoterapiu agorafobie?">
+      <bpmn:incoming>Flow_G20_Yes</bpmn:incoming>
+      <bpmn:outgoing>Flow_G21_Certified</bpmn:outgoing>
+      <bpmn:outgoing>Flow_G21_AltCert</bpmn:outgoing>
+      <bpmn:outgoing>Flow_G21_NoCert</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="Task_E3_SelfSupport" name="E3: Realizovat svojpomocnu terapiu s podporou terapeuta (KBT kniha/pracovny zosit, Krok 2a)">
+      <bpmn:incoming>Flow_G17_SelfSupport</bpmn:incoming>
+      <bpmn:outgoing>Flow_E3_Step2Join</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_E4_KBT" name="E4: Realizovat kognitívno-behavioralnu terapiu - tvarou v tvar (12-15 sedení, Krok 2b)">
+      <bpmn:incoming>Flow_G21_Certified</bpmn:incoming>
+      <bpmn:outgoing>Flow_E4_CogRestr</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_E10_CogRestr" name="E10: Realizovat kognitivnu restrukturalizaciu a behavioralne experimenty">
+      <bpmn:incoming>Flow_E4_CogRestr</bpmn:incoming>
+      <bpmn:outgoing>Flow_E10_E11</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_E11_Exposure" name="E11: Konstruovat a realizovat expozicnu hierarchiu (externé a interné podnety)">
+      <bpmn:incoming>Flow_E10_E11</bpmn:incoming>
+      <bpmn:outgoing>Flow_E11_E12</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_E12_RemoveSafety" name="E12: Odstranit zabezpecovacie a vyhybave spravania">
+      <bpmn:incoming>Flow_E11_E12</bpmn:incoming>
+      <bpmn:outgoing>Flow_E12_E13</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_E13_ProbSolve" name="E13: Realizovat intervenciu riesenia problemov (partnerske, pracovne, socialne)">
+      <bpmn:incoming>Flow_E12_E13</bpmn:incoming>
+      <bpmn:outgoing>Flow_E13_KBTJoin</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_AltCertTherapy" name="E4b: Realizovat alternativnu certifikovanu psychoterapiu (individualne zdovodnenie)">
+      <bpmn:incoming>Flow_G21_AltCert</bpmn:incoming>
+      <bpmn:outgoing>Flow_AltCert_Step2Join</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_NoCertEscalate" name="E4c: Eskalovat - vyhladat certifikovaneho terapeuta alebo aplikovat SPI modalitu">
+      <bpmn:incoming>Flow_G21_NoCert</bpmn:incoming>
+      <bpmn:outgoing>Flow_NoCert_Step2Join</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_AltEBM" name="E4d: Realizovat alternativny psychoterapeuticky pristup (KBT nedostupna) s informovanim pacienta">
+      <bpmn:incoming>Flow_G20_NoAvail</bpmn:incoming>
+      <bpmn:incoming>Flow_G20_PatPref</bpmn:incoming>
+      <bpmn:outgoing>Flow_AltEBM_Step2Join</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:serviceTask id="SvcTask_IKBT" name="E5: Poskytovat internetovu KBT (I-KBT) cez digitalnu platformu (Krok 2 - alternativa)">
+      <bpmn:incoming>Flow_G17_IKBT</bpmn:incoming>
+      <bpmn:incoming>Flow_G12_No</bpmn:incoming>
+      <bpmn:outgoing>Flow_IKBT_Step2Join</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:userTask id="Task_E6_Relax" name="E6: Realizovat aplikovanu relaxacnu terapiu (12-15 sedení, Krok 2c)">
+      <bpmn:incoming>Flow_G17_Relax</bpmn:incoming>
+      <bpmn:outgoing>Flow_E6_Step2Join</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_Step2Join" name="G_Step2Join: Zlucenie po Kroku 2">
+      <bpmn:incoming>Flow_E3_Step2Join</bpmn:incoming>
+      <bpmn:incoming>Flow_E13_KBTJoin</bpmn:incoming>
+      <bpmn:incoming>Flow_AltCert_Step2Join</bpmn:incoming>
+      <bpmn:incoming>Flow_NoCert_Step2Join</bpmn:incoming>
+      <bpmn:incoming>Flow_AltEBM_Step2Join</bpmn:incoming>
+      <bpmn:incoming>Flow_IKBT_Step2Join</bpmn:incoming>
+      <bpmn:incoming>Flow_E6_Step2Join</bpmn:incoming>
+      <bpmn:outgoing>Flow_Step2Join_G18</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- Steps 2+3 combination gateway -->
+    <bpmn:inclusiveGateway id="GW_18_Combine" name="G18: Kombinovat Kroky 2 a 3 (psychoterapia + farmakoterapia)?">
+      <bpmn:incoming>Flow_Step2Join_G18</bpmn:incoming>
+      <bpmn:incoming>Flow_G16_Step3</bpmn:incoming>
+      <bpmn:outgoing>Flow_G18_Step2Only</bpmn:outgoing>
+      <bpmn:outgoing>Flow_G18_Step3Only</bpmn:outgoing>
+      <bpmn:outgoing>Flow_G18_Both</bpmn:outgoing>
+    </bpmn:inclusiveGateway>
+
+    <bpmn:userTask id="Task_E7_Pharma" name="E7: Podavat farmakoterapiu podla prislusneho SDTP - Panicka porucha (Krok 3)">
+      <bpmn:incoming>Flow_G18_Step3Only</bpmn:incoming>
+      <bpmn:incoming>Flow_G18_Both</bpmn:incoming>
+      <bpmn:outgoing>Flow_E7_TreatJoin</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_E8_SupportGroup" name="E8: Facilitovat ucast v podpornej skupine (Krok 4)">
+      <bpmn:incoming>Flow_G16_Step4</bpmn:incoming>
+      <bpmn:outgoing>Flow_E8_TreatJoin</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_TreatJoin" name="G_TreatJoin: Zlucenie liecebnych ciest">
+      <bpmn:incoming>Flow_G18_Step2Only</bpmn:incoming>
+      <bpmn:incoming>Flow_E7_TreatJoin</bpmn:incoming>
+      <bpmn:incoming>Flow_E8_TreatJoin</bpmn:incoming>
+      <bpmn:incoming>Flow_E2_F1</bpmn:incoming>
+      <bpmn:outgoing>Flow_TreatJoin_F1</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- ==================== PHASE F: MONITORING ==================== -->
+    <bpmn:userTask id="Task_F1_Monitor" name="F1: Administrovat nastroje monitorovania liecby (PHQ-9, GAD-7, dotaznik mobility)">
+      <bpmn:incoming>Flow_TreatJoin_F1</bpmn:incoming>
+      <bpmn:outgoing>Flow_F1_HIS</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:serviceTask id="SvcTask_HIS" name="HIS: Zaznamenat klinické rozhodnutie a vysledky monitorovania do zdravotnej dokumentacie">
+      <bpmn:incoming>Flow_F1_HIS</bpmn:incoming>
+      <bpmn:outgoing>Flow_HIS_G22</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:businessRuleTask id="Task_G22_Threshold" name="G22-BRT: Vyhodnotit skore monitorovacich nastrojov voci klinickym prahom">
+      <bpmn:incoming>Flow_HIS_G22</bpmn:incoming>
+      <bpmn:outgoing>Flow_G22_Improve</bpmn:outgoing>
+      <bpmn:outgoing>Flow_G22_Stagnate</bpmn:outgoing>
+    </bpmn:businessRuleTask>
+
+    <bpmn:userTask id="Task_F4_StatusAssess" name="F4: Vykonat pravidelne ambulantne posúdenie stavu pacienta">
+      <bpmn:incoming>Flow_G22_Improve</bpmn:incoming>
+      <bpmn:outgoing>Flow_F4_G23</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_F2_TreatResponse" name="F2: Vyhodnotit terapeutickú odpoved a rozhodnut o eskalacii">
+      <bpmn:incoming>Flow_G22_Stagnate</bpmn:incoming>
+      <bpmn:outgoing>Flow_F2_G19</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_19_Escalation" name="G19: Rozhodnutie o eskalacii liecby?">
+      <bpmn:incoming>Flow_F2_G19</bpmn:incoming>
+      <bpmn:outgoing>Flow_G19_Continue</bpmn:outgoing>
+      <bpmn:outgoing>Flow_G19_Escalate</bpmn:outgoing>
+      <bpmn:outgoing>Flow_G19_Combine</bpmn:outgoing>
+      <bpmn:outgoing>Flow_G19_Severe</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="Task_F3_DocDecision" name="F3: Dokumentovat klinicke rozhodnutie a zdovodnenie v zdravotnej dokumentacii">
+      <bpmn:incoming>Flow_G19_Continue</bpmn:incoming>
+      <bpmn:outgoing>Flow_F3_F4</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_23_SocialNeeds" name="G23: Pacient potrebuje socialnu / vzdelavaciu / zamestnanecku podporu?">
+      <bpmn:incoming>Flow_F4_G23</bpmn:incoming>
+      <bpmn:incoming>Flow_F3_F4</bpmn:incoming>
+      <bpmn:outgoing>Flow_G23_Yes</bpmn:outgoing>
+      <bpmn:outgoing>Flow_G23_No</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="Task_SocialRef" name="F5b: Odporucit socialnu podporu (svojpomocne skupiny, rehabilitacne / zamestnanecke sluzby)">
+      <bpmn:incoming>Flow_G23_Yes</bpmn:incoming>
+      <bpmn:outgoing>Flow_SocialRef_SuicCheck</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- Recurring suicidality check during treatment -->
+    <bpmn:userTask id="Task_SuicCheck" name="C5b: Opakované posudenie suicidalnej ideacie (priebezne pocas liecby)">
+      <bpmn:incoming>Flow_G23_No</bpmn:incoming>
+      <bpmn:incoming>Flow_SocialRef_SuicCheck</bpmn:incoming>
+      <bpmn:outgoing>Flow_SuicCheck_G07b</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_07b_SuicTreat" name="G07b: Pritomna suicidalita pocas liecby?">
+      <bpmn:incoming>Flow_SuicCheck_G07b</bpmn:incoming>
+      <bpmn:outgoing>Flow_G07b_Present</bpmn:outgoing>
+      <bpmn:outgoing>Flow_G07b_Absent</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:endEvent id="EndEvent_Emergency2" name="Koniec: Aktivacia nudzoveho protokolu pocas liecby (SOP)">
+      <bpmn:incoming>Flow_G07b_Present</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:userTask id="Task_E14_Relapse" name="E14: Pripravit pacienta na samostatny zivot a prevenciu relapsu">
+      <bpmn:incoming>Flow_G07b_Absent</bpmn:incoming>
+      <bpmn:outgoing>Flow_E14_G24</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_24_Completion" name="G24: Ukoncenie liecby a pripravenost na prevenciu relapsu?">
+      <bpmn:incoming>Flow_E14_G24</bpmn:incoming>
+      <bpmn:outgoing>Flow_G24_Achieved</bpmn:outgoing>
+      <bpmn:outgoing>Flow_G24_Maintenance</bpmn:outgoing>
+      <bpmn:outgoing>Flow_G24_Relapse</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- Escalation loops -->
+    <bpmn:userTask id="Task_EscalateStep" name="E_Esc: Eskalovat na dalsi stupen stupnovej starostlivosti">
+      <bpmn:incoming>Flow_G19_Escalate</bpmn:incoming>
+      <bpmn:outgoing>Flow_EscalateStep_G16</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_CombineSteps" name="E_Comb: Kombinovat psychoterapiu a farmakoterapiu (Kroky 2+3)">
+      <bpmn:incoming>Flow_G19_Combine</bpmn:incoming>
+      <bpmn:outgoing>Flow_CombineSteps_G18</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_ReassessHosp" name="D5b: Prehodnotit rozhodnutie o hospitalizacii (tazky priebeh, suicidalita)">
+      <bpmn:incoming>Flow_G19_Severe</bpmn:incoming>
+      <bpmn:outgoing>Flow_ReassessHosp_G11b</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_11b_HospLoop" name="G11b: Hospitalizacia potrebna po prehodnotení?">
+      <bpmn:incoming>Flow_ReassessHosp_G11b</bpmn:incoming>
+      <bpmn:outgoing>Flow_G11b_Yes</bpmn:outgoing>
+      <bpmn:outgoing>Flow_G11b_No</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:endEvent id="EndEvent_Inpatient2" name="Koniec: Odoslanie na ustavnu starostlivost (sekundarny vstup)">
+      <bpmn:incoming>Flow_G11b_Yes</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <!-- Maintenance -->
+    <bpmn:userTask id="Task_Maintenance" name="F4b: Naplanovovat udrziacie monitorovacie navstevy (prevencia relapsu)">
+      <bpmn:incoming>Flow_G24_Maintenance</bpmn:incoming>
+      <bpmn:outgoing>Flow_Maintenance_F1</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- Relapse re-entry -->
+    <bpmn:userTask id="Task_RelapseReentry" name="E_Rel: Znovu vstupovat do liecebneho planu na primeranom stupni (relaps)">
+      <bpmn:incoming>Flow_G24_Relapse</bpmn:incoming>
+      <bpmn:outgoing>Flow_RelapseReentry_G16</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- Acute emergency path -->
+    <bpmn:startEvent id="StartEvent_Acute" name="Akutny stav pacienta">
+      <bpmn:outgoing>Flow_Acute_E9</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <bpmn:userTask id="Task_E9_Emergency" name="E9: Poskytnout akutnu nudzovu starostlivost (lekár RZP)">
+      <bpmn:incoming>Flow_Acute_E9</bpmn:incoming>
+      <bpmn:outgoing>Flow_E9_End</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:endEvent id="EndEvent_AcuteStabilized" name="Koniec: Akutny stav stabilizovany - navrat do liecebneho procesu">
+      <bpmn:incoming>Flow_E9_End</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <!-- Final discharge end event -->
+    <bpmn:endEvent id="EndEvent_Discharge" name="Koniec: Prepustenie pacienta s planom prevencie relapsu">
+      <bpmn:incoming>Flow_G24_Achieved</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <!-- ==================== SEQUENCE FLOWS ==================== -->
+    <!-- Prevention phase -->
+    <bpmn:sequenceFlow id="Flow_Start_A1" sourceRef="StartEvent_1" targetRef="Task_A1_RiskFactors" />
+    <bpmn:sequenceFlow id="Flow_A1_G01" sourceRef="Task_A1_RiskFactors" targetRef="GW_01_RiskProfile" />
+    <bpmn:sequenceFlow id="Flow_G01_Yes" name="Rizikove faktory pritomne" sourceRef="GW_01_RiskProfile" targetRef="Task_A2_SelectProgram" />
+    <bpmn:sequenceFlow id="Flow_G01_No" name="Ziadne vyznamne rizikove faktory" sourceRef="GW_01_RiskProfile" targetRef="EndEvent_Prevention" />
+    <bpmn:sequenceFlow id="Flow_A2_G02" sourceRef="Task_A2_SelectProgram" targetRef="GW_02_PrevType" />
+    <bpmn:sequenceFlow id="Flow_G02_Indicated" name="Indikovana prevencia (subklinicke symptomy)" sourceRef="GW_02_PrevType" targetRef="Task_A3a_Indicated" />
+    <bpmn:sequenceFlow id="Flow_G02_Selective" name="Selektivna prevencia (vysoko rizikove osoby)" sourceRef="GW_02_PrevType" targetRef="Task_A3b_Selective" />
+    <bpmn:sequenceFlow id="Flow_G02_Universal" name="Univerzalna prevencia (cela populacia)" sourceRef="GW_02_PrevType" targetRef="Task_A3c_Universal" />
+    <bpmn:sequenceFlow id="Flow_A3a_Join" sourceRef="Task_A3a_Indicated" targetRef="GW_PrevJoin" />
+    <bpmn:sequenceFlow id="Flow_A3b_Join" sourceRef="Task_A3b_Selective" targetRef="GW_PrevJoin" />
+    <bpmn:sequenceFlow id="Flow_A3c_Join" sourceRef="Task_A3c_Universal" targetRef="GW_PrevJoin" />
+    <bpmn:sequenceFlow id="Flow_PrevJoin_End" sourceRef="GW_PrevJoin" targetRef="EndEvent_Prevention" />
+
+    <!-- Screening phase -->
+    <bpmn:sequenceFlow id="Flow_StartB_B1" sourceRef="StartEvent_Screening" targetRef="Task_B1_Screening" />
+    <bpmn:sequenceFlow id="Flow_B1_B2" sourceRef="Task_B1_Screening" targetRef="Task_B2_EvalScreen" />
+    <bpmn:sequenceFlow id="Flow_B2_G03" sourceRef="Task_B2_EvalScreen" targetRef="GW_03_ScreenResult" />
+    <bpmn:sequenceFlow id="Flow_G03_Positive" name="Pozitivny skrning - podozrenie na uzkostnu poruchu" sourceRef="GW_03_ScreenResult" targetRef="Task_B3_InitAssess" />
+    <bpmn:sequenceFlow id="Flow_G03_Negative" name="Negativny skrning - ziadne uzkostne indikatory" sourceRef="GW_03_ScreenResult" targetRef="EndEvent_NegScreen" />
+    <bpmn:sequenceFlow id="Flow_B3_G04" sourceRef="Task_B3_InitAssess" targetRef="GW_04_Referral" />
+    <bpmn:sequenceFlow id="Flow_G04_Refer" name="Okamzite odoslanie k specialistovi" sourceRef="GW_04_Referral" targetRef="Task_B4_RefInfo" />
+    <bpmn:sequenceFlow id="Flow_G04_GPManage" name="Manazovat v primárnej starostlivosti so specialistom" sourceRef="GW_04_Referral" targetRef="Task_B_GPManage" />
+    <bpmn:sequenceFlow id="Flow_B4_B5" sourceRef="Task_B4_RefInfo" targetRef="Task_B5_InitiateRef" />
+    <bpmn:sequenceFlow id="Flow_B5_G05" sourceRef="Task_B5_InitiateRef" targetRef="GW_05_SelfRef" />
+    <bpmn:sequenceFlow id="Flow_GPManage_G05" sourceRef="Task_B_GPManage" targetRef="GW_05_SelfRef" />
+    <bpmn:sequenceFlow id="Flow_G05_GPRef" name="Pacient odoslany vseobecnym lekarom" sourceRef="GW_05_SelfRef" targetRef="Task_C1_PsychExam" />
+    <bpmn:sequenceFlow id="Flow_G05_SelfRef" name="Pacient prisiel na vlastnu iniciatívu (self-referral)" sourceRef="GW_05_SelfRef" targetRef="Task_B6_NotifyGP" />
+    <bpmn:sequenceFlow id="Flow_B6_C1" sourceRef="Task_B6_NotifyGP" targetRef="Task_C1_PsychExam" />
+
+    <!-- Diagnostic phase -->
+    <bpmn:sequenceFlow id="Flow_C1_C2" sourceRef="Task_C1_PsychExam" targetRef="Task_C2_PsychoDiag" />
+    <bpmn:sequenceFlow id="Flow_C2_C3" sourceRef="Task_C2_PsychoDiag" targetRef="Task_C3_SomaticExcl" />
+    <bpmn:sequenceFlow id="Flow_C3_G06" sourceRef="Task_C3_SomaticExcl" targetRef="GW_06_Somatic" />
+    <bpmn:sequenceFlow id="Flow_G06_Excluded" name="Somaticka pricina vylucena" sourceRef="GW_06_Somatic" targetRef="Task_C4_Psychometric" />
+    <bpmn:sequenceFlow id="Flow_G06_Primary" name="Somaticka pricina je primarná diagnoza" sourceRef="GW_06_Somatic" targetRef="EndEvent_SomaticPrimary" />
+    <bpmn:sequenceFlow id="Flow_G06_Comorbid" name="Somatická komorbidita - pokracovat v psychiatrickom vysetreni" sourceRef="GW_06_Somatic" targetRef="Task_C3b_SomaticParallel" />
+    <bpmn:sequenceFlow id="Flow_C3b_C4" sourceRef="Task_C3b_SomaticParallel" targetRef="Task_C4_Psychometric" />
+    <bpmn:sequenceFlow id="Flow_C4_C5" sourceRef="Task_C4_Psychometric" targetRef="Task_C5_Suicidality" />
+    <bpmn:sequenceFlow id="Flow_C5_G07" sourceRef="Task_C5_Suicidality" targetRef="GW_07_Suicidality" />
+    <bpmn:sequenceFlow id="Flow_G07_Present" name="Suicidalita pritomna - aktivovat SOP" sourceRef="GW_07_Suicidality" targetRef="EndEvent_Emergency" />
+    <bpmn:sequenceFlow id="Flow_G07_Absent" name="Suicidalita nepritomna - pokracovat v diagnostike" sourceRef="GW_07_Suicidality" targetRef="GW_08_Neuro" />
+    <bpmn:sequenceFlow id="Flow_G08_Yes" name="Neurologicky diferencial podozrivaný" sourceRef="GW_08_Neuro" targetRef="Task_C_NeuroRef" />
+    <bpmn:sequenceFlow id="Flow_G08_No" name="Neurologicky diferencial neindikovaný" sourceRef="GW_08_Neuro" targetRef="Task_C6_DiffDiag" />
+    <bpmn:sequenceFlow id="Flow_NeuroRef_C6" sourceRef="Task_C_NeuroRef" targetRef="Task_C6_DiffDiag" />
+    <bpmn:sequenceFlow id="Flow_C6_C7" sourceRef="Task_C6_DiffDiag" targetRef="Task_C7_Psychophysio" />
+    <bpmn:sequenceFlow id="Flow_C7_G09" sourceRef="Task_C7_Psychophysio" targetRef="GW_09_CompPsych" />
+    <bpmn:sequenceFlow id="Flow_G09_Yes" name="Podozrenie na kognitívne / osobnostne poskodenie potvrdene" sourceRef="GW_09_CompPsych" targetRef="Task_C8_CompPsychExam" />
+    <bpmn:sequenceFlow id="Flow_G09_No" name="Ziadne podozrenie na kognitívne alebo osobnostné poskodenie" sourceRef="GW_09_CompPsych" targetRef="GW_10_DiffOutcome" />
+    <bpmn:sequenceFlow id="Flow_C8_G10" sourceRef="Task_C8_CompPsychExam" targetRef="GW_10_DiffOutcome" />
+    <bpmn:sequenceFlow id="Flow_G10_Confirmed" name="Agorafobia potvrdena (ICD-10 F40.0)" sourceRef="GW_10_DiffOutcome" targetRef="Task_C9_Diagnosis" />
+    <bpmn:sequenceFlow id="Flow_G10_Alternative" name="Alternativna primarna diagnoza - presmerovat" sourceRef="GW_10_DiffOutcome" targetRef="EndEvent_AltDiag" />
+    <bpmn:sequenceFlow id="Flow_G10_Comorbid" name="Agorafobia s komorbidnou poruchou" sourceRef="GW_10_DiffOutcome" targetRef="Task_C9_Diagnosis" />
+    <bpmn:sequenceFlow id="Flow_C9_C10" sourceRef="Task_C9_Diagnosis" targetRef="Task_C10_SelfHelpCap" />
+    <bpmn:sequenceFlow id="Flow_C10_D1" sourceRef="Task_C10_SelfHelpCap" targetRef="Task_D1_TreatDiscuss" />
+
+    <!-- Treatment planning -->
+    <bpmn:sequenceFlow id="Flow_D1_D2" sourceRef="Task_D1_TreatDiscuss" targetRef="Task_D2_TreatInfo" />
+    <bpmn:sequenceFlow id="Flow_D2_D3" sourceRef="Task_D2_TreatInfo" targetRef="Task_D3_Consent" />
+    <bpmn:sequenceFlow id="Flow_D3_F5a" sourceRef="Task_D3_Consent" targetRef="Task_F5a_Comorbidity" />
+    <bpmn:sequenceFlow id="Flow_F5a_G13" sourceRef="Task_F5a_Comorbidity" targetRef="GW_13_Depression" />
+    <bpmn:sequenceFlow id="Flow_G13_PrimaryDep" name="Primarna depresivna porucha s uzkostnymi symptomami" sourceRef="GW_13_Depression" targetRef="Task_DepFirst" />
+    <bpmn:sequenceFlow id="Flow_G13_Comorbid" name="Komorbidna uzkostna aj depresivna porucha (obe splnaju ICD-10)" sourceRef="GW_13_Depression" targetRef="Task_BothSDTP" />
+    <bpmn:sequenceFlow id="Flow_G13_Subthreshold" name="Subklinicke uzkostne a depresivne symptomy (nesplnaju ICD-10 kriteria)" sourceRef="GW_13_Depression" targetRef="Task_SubDisc" />
+    <bpmn:sequenceFlow id="Flow_G13_None" name="Ziadna depresivna komorbidita" sourceRef="GW_13_Depression" targetRef="GW_14_Alcohol" />
+    <bpmn:sequenceFlow id="Flow_DepFirst_G14" sourceRef="Task_DepFirst" targetRef="GW_14_Alcohol" />
+    <bpmn:sequenceFlow id="Flow_BothSDTP_G14" sourceRef="Task_BothSDTP" targetRef="GW_14_Alcohol" />
+    <bpmn:sequenceFlow id="Flow_SubDisc_G14" sourceRef="Task_SubDisc" targetRef="GW_14_Alcohol" />
+    <bpmn:sequenceFlow id="Flow_G14_Yes" name="Skodlive uzivanie alkoholu alebo zavislost pritomna" sourceRef="GW_14_Alcohol" targetRef="Task_AlcFirst" />
+    <bpmn:sequenceFlow id="Flow_G14_No" name="Ziadne zneuzivanie alkoholu ani zavislost" sourceRef="GW_14_Alcohol" targetRef="GW_15_CogImpair" />
+    <bpmn:sequenceFlow id="Flow_AlcFirst_G15" sourceRef="Task_AlcFirst" targetRef="GW_15_CogImpair" />
+    <bpmn:sequenceFlow id="Flow_G15_Mild" name="Mirne kognitívne poskodenie alebo porucha ucenia" sourceRef="GW_15_CogImpair" targetRef="Task_MildAdapt" />
+    <bpmn:sequenceFlow id="Flow_G15_Severe" name="Stredne az tazke kognitívne poskodenie alebo porucha ucenia" sourceRef="GW_15_CogImpair" targetRef="Task_SevereConsult" />
+    <bpmn:sequenceFlow id="Flow_G15_None" name="Ziadne kognitívne poskodenie ani porucha ucenia" sourceRef="GW_15_CogImpair" targetRef="Task_D4_TherapPlan" />
+    <bpmn:sequenceFlow id="Flow_MildAdapt_D4" sourceRef="Task_MildAdapt" targetRef="Task_D4_TherapPlan" />
+    <bpmn:sequenceFlow id="Flow_SevereConsult_D4" sourceRef="Task_SevereConsult" targetRef="Task_D4_TherapPlan" />
+    <bpmn:sequenceFlow id="Flow_D4_D5" sourceRef="Task_D4_TherapPlan" targetRef="Task_D5_Hosp" />
+    <bpmn:sequenceFlow id="Flow_D5_G11" sourceRef="Task_D5_Hosp" targetRef="GW_11_Hosp" />
+    <bpmn:sequenceFlow id="Flow_G11_Yes" name="Hospitalizacia indikovana" sourceRef="GW_11_Hosp" targetRef="EndEvent_Inpatient" />
+    <bpmn:sequenceFlow id="Flow_G11_No" name="Ambulantna starostlivost postacujuca" sourceRef="GW_11_Hosp" targetRef="GW_12_Outpatient" />
+    <bpmn:sequenceFlow id="Flow_G12_Yes" name="Pacient schopny a ochotny navstivit ambulanciu" sourceRef="GW_12_Outpatient" targetRef="Task_E1_Psychoed" />
+    <bpmn:sequenceFlow id="Flow_G12_No" name="Pacient neschopny alebo neochotný navstivit ambulanciu - vzdialena liecba" sourceRef="GW_12_Outpatient" targetRef="SvcTask_IKBT" />
+
+    <!-- Treatment delivery -->
+    <bpmn:sequenceFlow id="Flow_E1_G16" sourceRef="Task_E1_Psychoed" targetRef="GW_16_StepEntry" />
+    <bpmn:sequenceFlow id="Flow_G16_Step1" name="Krok 1 - Svojpomocne techniky (mirne symptomy)" sourceRef="GW_16_StepEntry" targetRef="Task_E2_SelfHelp" />
+    <bpmn:sequenceFlow id="Flow_G16_Step2" name="Krok 2 - Psychologicka terapia (mirne az stredne symptomy)" sourceRef="GW_16_StepEntry" targetRef="GW_17_Step2Modal" />
+    <bpmn:sequenceFlow id="Flow_G16_Step3" name="Krok 3 - Farmakoterapia indikovana" sourceRef="GW_16_StepEntry" targetRef="GW_18_Combine" />
+    <bpmn:sequenceFlow id="Flow_G16_Step4" name="Krok 4 - Podporna skupina ako primarna alebo doplnkova volba" sourceRef="GW_16_StepEntry" targetRef="Task_E8_SupportGroup" />
+    <bpmn:sequenceFlow id="Flow_G17_SelfSupport" name="Svojpomocna terapia s podporou terapeuta (2a)" sourceRef="GW_17_Step2Modal" targetRef="Task_E3_SelfSupport" />
+    <bpmn:sequenceFlow id="Flow_G17_KBT" name="Kognitívno-behaviorálna terapia tvarou v tvar (2b)" sourceRef="GW_17_Step2Modal" targetRef="GW_20_EBMAvail" />
+    <bpmn:sequenceFlow id="Flow_G17_IKBT" name="Internetova KBT - I-KBT (2 - alternativa)" sourceRef="GW_17_Step2Modal" targetRef="SvcTask_IKBT" />
+    <bpmn:sequenceFlow id="Flow_G17_Relax" name="Aplikovana relaxacna terapia (2c)" sourceRef="GW_17_Step2Modal" targetRef="Task_E6_Relax" />
+    <bpmn:sequenceFlow id="Flow_G20_Yes" name="EBM pristup dostupny a terapeut certifikovany" sourceRef="GW_20_EBMAvail" targetRef="GW_21_CertCheck" />
+    <bpmn:sequenceFlow id="Flow_G20_NoAvail" name="EBM pristup nedostupny - alternativna terapia" sourceRef="GW_20_EBMAvail" targetRef="Task_AltEBM" />
+    <bpmn:sequenceFlow id="Flow_G20_PatPref" name="Preferencie pacienta pre alternativny pristup" sourceRef="GW_20_EBMAvail" targetRef="Task_AltEBM" />
+    <bpmn:sequenceFlow id="Flow_G21_Certified" name="Terapeut ma platny certifikat CPС pre agorafobie" sourceRef="GW_21_CertCheck" targetRef="Task_E4_KBT" />
+    <bpmn:sequenceFlow id="Flow_G21_AltCert" name="Terapeut ma alternativny certifikat - individualne zdovodnenie" sourceRef="GW_21_CertCheck" targetRef="Task_AltCertTherapy" />
+    <bpmn:sequenceFlow id="Flow_G21_NoCert" name="Ziadny certifikat - eskalovat alebo aplikovat SPI" sourceRef="GW_21_CertCheck" targetRef="Task_NoCertEscalate" />
+    <bpmn:sequenceFlow id="Flow_E4_CogRestr" sourceRef="Task_E4_KBT" targetRef="Task_E10_CogRestr" />
+    <bpmn:sequenceFlow id="Flow_E10_E11" sourceRef="Task_E10_CogRestr" targetRef="Task_E11_Exposure" />
+    <bpmn:sequenceFlow id="Flow_E11_E12" sourceRef="Task_E11_Exposure" targetRef="Task_E12_RemoveSafety" />
+    <bpmn:sequenceFlow id="Flow_E12_E13" sourceRef="Task_E12_RemoveSafety" targetRef="Task_E13_ProbSolve" />
+    <bpmn:sequenceFlow id="Flow_E13_KBTJoin" sourceRef="Task_E13_ProbSolve" targetRef="GW_Step2Join" />
+    <bpmn:sequenceFlow id="Flow_E3_Step2Join" sourceRef="Task_E3_SelfSupport" targetRef="GW_Step2Join" />
+    <bpmn:sequenceFlow id="Flow_AltCert_Step2Join" sourceRef="Task_AltCertTherapy" targetRef="GW_Step2Join" />
+    <bpmn:sequenceFlow id="Flow_NoCert_Step2Join" sourceRef="Task_NoCertEscalate" targetRef="GW_Step2Join" />
+    <bpmn:sequenceFlow id="Flow_AltEBM_Step2Join" sourceRef="Task_AltEBM" targetRef="GW_Step2Join" />
+    <bpmn:sequenceFlow id="Flow_IKBT_Step2Join" sourceRef="SvcTask_IKBT" targetRef="GW_Step2Join" />
+    <bpmn:sequenceFlow id="Flow_E6_Step2Join" sourceRef="Task_E6_Relax" targetRef="GW_Step2Join" />
+    <bpmn:sequenceFlow id="Flow_Step2Join_G18" sourceRef="GW_Step2Join" targetRef="GW_18_Combine" />
+    <bpmn:sequenceFlow id="Flow_G18_Step2Only" name="Iba psychoterapia - farmakoterapia nie je indikovana" sourceRef="GW_18_Combine" targetRef="GW_TreatJoin" />
+    <bpmn:sequenceFlow id="Flow_G18_Step3Only" name="Iba farmakoterapia - psychoterapia nie je indikovana" sourceRef="GW_18_Combine" targetRef="Task_E7_Pharma" />
+    <bpmn:sequenceFlow id="Flow_G18_Both" name="Kombinácia psychoterapie aj farmakoterapie (Kroky 2+3)" sourceRef="GW_18_Combine" targetRef="Task_E7_Pharma" />
+    <bpmn:sequenceFlow id="Flow_E7_TreatJoin" sourceRef="Task_E7_Pharma" targetRef="GW_TreatJoin" />
+    <bpmn:sequenceFlow id="Flow_E8_TreatJoin" sourceRef="Task_E8_SupportGroup" targetRef="GW_TreatJoin" />
+    <bpmn:sequenceFlow id="Flow_E2_F1" sourceRef="Task_E2_SelfHelp" targetRef="GW_TreatJoin" />
+    <bpmn:sequenceFlow id="Flow_TreatJoin_F1" sourceRef="GW_TreatJoin" targetRef="Task_F1_Monitor" />
+
+    <!-- Monitoring -->
+    <bpmn:sequenceFlow id="Flow_F1_HIS" sourceRef="Task_F1_Monitor" targetRef="SvcTask_HIS" />
+    <bpmn:sequenceFlow id="Flow_HIS_G22" sourceRef="SvcTask_HIS" targetRef="Task_G22_Threshold" />
+    <bpmn:sequenceFlow id="Flow_G22_Improve" name="Skore indikuje zlepsenie - pokracovat v liecbe" sourceRef="Task_G22_Threshold" targetRef="Task_F4_StatusAssess" />
+    <bpmn:sequenceFlow id="Flow_G22_Stagnate" name="Skore indikuje stagnáciu alebo zhoršenie" sourceRef="Task_G22_Threshold" targetRef="Task_F2_TreatResponse" />
+    <bpmn:sequenceFlow id="Flow_F4_G23" sourceRef="Task_F4_StatusAssess" targetRef="GW_23_SocialNeeds" />
+    <bpmn:sequenceFlow id="Flow_F2_G19" sourceRef="Task_F2_TreatResponse" targetRef="GW_19_Escalation" />
+    <bpmn:sequenceFlow id="Flow_G19_Continue" name="Dostatok terapeutickej odpovede - pokracovat" sourceRef="GW_19_Escalation" targetRef="Task_F3_DocDecision" />
+    <bpmn:sequenceFlow id="Flow_G19_Escalate" name="Nedostatocna odpoved - eskalovat na dalsi stupen" sourceRef="GW_19_Escalation" targetRef="Task_EscalateStep" />
+    <bpmn:sequenceFlow id="Flow_G19_Combine" name="Ciastocna odpoved - kombinovat kroky 2 a 3" sourceRef="GW_19_Escalation" targetRef="Task_CombineSteps" />
+    <bpmn:sequenceFlow id="Flow_G19_Severe" name="Tazky priebeh - prehodnotit hospitalizaciu" sourceRef="GW_19_Escalation" targetRef="Task_ReassessHosp" />
+    <bpmn:sequenceFlow id="Flow_F3_F4" sourceRef="Task_F3_DocDecision" targetRef="GW_23_SocialNeeds" />
+    <bpmn:sequenceFlow id="Flow_G23_Yes" name="Pacient potrebuje socialnu alebo zamestnanecku podporu" sourceRef="GW_23_SocialNeeds" targetRef="Task_SocialRef" />
+    <bpmn:sequenceFlow id="Flow_G23_No" name="Ziadna doplnkova socialna podpora potrebna" sourceRef="GW_23_SocialNeeds" targetRef="Task_SuicCheck" />
+    <bpmn:sequenceFlow id="Flow_SocialRef_SuicCheck" sourceRef="Task_SocialRef" targetRef="Task_SuicCheck" />
+    <bpmn:sequenceFlow id="Flow_SuicCheck_G07b" sourceRef="Task_SuicCheck" targetRef="GW_07b_SuicTreat" />
+    <bpmn:sequenceFlow id="Flow_G07b_Present" name="Suicidalita zistena pocas liecby - SOP" sourceRef="GW_07b_SuicTreat" targetRef="EndEvent_Emergency2" />
+    <bpmn:sequenceFlow id="Flow_G07b_Absent" name="Ziadna suicidalita - pokracovat v liecbe" sourceRef="GW_07b_SuicTreat" targetRef="Task_E14_Relapse" />
+    <bpmn:sequenceFlow id="Flow_E14_G24" sourceRef="Task_E14_Relapse" targetRef="GW_24_Completion" />
+    <bpmn:sequenceFlow id="Flow_G24_Achieved" name="Terapeuticke ciele dosiahnuté - prepustenie" sourceRef="GW_24_Completion" targetRef="EndEvent_Discharge" />
+    <bpmn:sequenceFlow id="Flow_G24_Maintenance" name="Ciastocna odpoved - udziovacie monitorovanie" sourceRef="GW_24_Completion" targetRef="Task_Maintenance" />
+    <bpmn:sequenceFlow id="Flow_G24_Relapse" name="Relaps detegovany - znovu vstup do liecby" sourceRef="GW_24_Completion" targetRef="Task_RelapseReentry" />
+    <bpmn:sequenceFlow id="Flow_Maintenance_F1" sourceRef="Task_Maintenance" targetRef="Task_F1_Monitor" />
+    <bpmn:sequenceFlow id="Flow_EscalateStep_G16" sourceRef="Task_EscalateStep" targetRef="GW_16_StepEntry" />
+    <bpmn:sequenceFlow id="Flow_CombineSteps_G18" sourceRef="Task_CombineSteps" targetRef="GW_18_Combine" />
+    <bpmn:sequenceFlow id="Flow_ReassessHosp_G11b" sourceRef="Task_ReassessHosp" targetRef="GW_11b_HospLoop" />
+    <bpmn:sequenceFlow id="Flow_G11b_Yes" name="Hospitalizacia indikovana po prehodnoteni" sourceRef="GW_11b_HospLoop" targetRef="EndEvent_Inpatient2" />
+    <bpmn:sequenceFlow id="Flow_G11b_No" name="Ambulantna starostlivost dostacujuca - pokracovat" sourceRef="GW_11b_HospLoop" targetRef="Task_F1_Monitor" />
+    <bpmn:sequenceFlow id="Flow_RelapseReentry_G16" sourceRef="Task_RelapseReentry" targetRef="GW_16_StepEntry" />
+
+    <!-- Acute path -->
+    <bpmn:sequenceFlow id="Flow_Acute_E9" sourceRef="StartEvent_Acute" targetRef="Task_E9_Emergency" />
+    <bpmn:sequenceFlow id="Flow_E9_End" sourceRef="Task_E9_Emergency" targetRef="EndEvent_AcuteStabilized" />
+
+  </bpmn:process>
+
+  <!-- ==================== BPMN DI ==================== -->
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_0mxms9h">
+
+      <!-- START EVENTS -->
+      <bpmndi:BPMNShape id="StartEvent_1_di" bpmnElement="StartEvent_1"><dc:Bounds x="82" y="362" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="StartEvent_Screening_di" bpmnElement="StartEvent_Screening"><dc:Bounds x="82" y="762" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="StartEvent_Acute_di" bpmnElement="StartEvent_Acute"><dc:Bounds x="82" y="1462" width="36" height="36" /></bpmndi:BPMNShape>
+
+      <!-- PHASE A: PREVENTION -->
+      <bpmndi:BPMNShape id="Task_A1_RiskFactors_di" bpmnElement="Task_A1_RiskFactors"><dc:Bounds x="170" y="340" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_01_RiskProfile_di" bpmnElement="GW_01_RiskProfile" isMarkerVisible="true"><dc:Bounds x="345" y="355" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_A2_SelectProgram_di" bpmnElement="Task_A2_SelectProgram"><dc:Bounds x="450" y="340" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_02_PrevType_di" bpmnElement="GW_02_PrevType" isMarkerVisible="true"><dc:Bounds x="625" y="355" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_A3a_Indicated_di" bpmnElement="Task_A3a_Indicated"><dc:Bounds x="730" y="240" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_A3b_Selective_di" bpmnElement="Task_A3b_Selective"><dc:Bounds x="730" y="340" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_A3c_Universal_di" bpmnElement="Task_A3c_Universal"><dc:Bounds x="730" y="440" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_PrevJoin_di" bpmnElement="GW_PrevJoin" isMarkerVisible="true"><dc:Bounds x="905" y="355" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_Prevention_di" bpmnElement="EndEvent_Prevention"><dc:Bounds x="1012" y="362" width="36" height="36" /></bpmndi:BPMNShape>
+
+      <!-- PHASE B: SCREENING -->
+      <bpmndi:BPMNShape id="Task_B1_Screening_di" bpmnElement="Task_B1_Screening"><dc:Bounds x="170" y="740" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_B2_EvalScreen_di" bpmnElement="Task_B2_EvalScreen"><dc:Bounds x="340" y="740" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_03_ScreenResult_di" bpmnElement="GW_03_ScreenResult" isMarkerVisible="true"><dc:Bounds x="515" y="755" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_NegScreen_di" bpmnElement="EndEvent_NegScreen"><dc:Bounds x="622" y="702" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_B3_InitAssess_di" bpmnElement="Task_B3_InitAssess"><dc:Bounds x="620" y="740" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_04_Referral_di" bpmnElement="GW_04_Referral" isMarkerVisible="true"><dc:Bounds x="795" y="755" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_B4_RefInfo_di" bpmnElement="Task_B4_RefInfo"><dc:Bounds x="900" y="700" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_B5_InitiateRef_di" bpmnElement="Task_B5_InitiateRef"><dc:Bounds x="1070" y="700" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_B_GPManage_di" bpmnElement="Task_B_GPManage"><dc:Bounds x="900" y="800" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_05_SelfRef_di" bpmnElement="GW_05_SelfRef" isMarkerVisible="true"><dc:Bounds x="1245" y="755" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_B6_NotifyGP_di" bpmnElement="Task_B6_NotifyGP"><dc:Bounds x="1350" y="800" width="120" height="80" /></bpmndi:BPMNShape>
+
+      <!-- PHASE C: DIAGNOSIS -->
+      <bpmndi:BPMNShape id="Task_C1_PsychExam_di" bpmnElement="Task_C1_PsychExam"><dc:Bounds x="1530" y="740" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_C2_PsychoDiag_di" bpmnElement="Task_C2_PsychoDiag"><dc:Bounds x="1700" y="740" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_C3_SomaticExcl_di" bpmnElement="Task_C3_SomaticExcl"><dc:Bounds x="1870" y="740" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_06_Somatic_di" bpmnElement="GW_06_Somatic" isMarkerVisible="true"><dc:Bounds x="2045" y="755" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_SomaticPrimary_di" bpmnElement="EndEvent_SomaticPrimary"><dc:Bounds x="2152" y="692" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_C3b_SomaticParallel_di" bpmnElement="Task_C3b_SomaticParallel"><dc:Bounds x="2140" y="800" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_C4_Psychometric_di" bpmnElement="Task_C4_Psychometric"><dc:Bounds x="2310" y="740" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_C5_Suicidality_di" bpmnElement="Task_C5_Suicidality"><dc:Bounds x="2480" y="740" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_07_Suicidality_di" bpmnElement="GW_07_Suicidality" isMarkerVisible="true"><dc:Bounds x="2655" y="755" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_Emergency_di" bpmnElement="EndEvent_Emergency"><dc:Bounds x="2762" y="692" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_08_Neuro_di" bpmnElement="GW_08_Neuro" isMarkerVisible="true"><dc:Bounds x="2655" y="855" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_C_NeuroRef_di" bpmnElement="Task_C_NeuroRef"><dc:Bounds x="2760" y="840" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_C6_DiffDiag_di" bpmnElement="Task_C6_DiffDiag"><dc:Bounds x="2940" y="840" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_C7_Psychophysio_di" bpmnElement="Task_C7_Psychophysio"><dc:Bounds x="3110" y="840" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_09_CompPsych_di" bpmnElement="GW_09_CompPsych" isMarkerVisible="true"><dc:Bounds x="3285" y="855" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_C8_CompPsychExam_di" bpmnElement="Task_C8_CompPsychExam"><dc:Bounds x="3390" y="940" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_10_DiffOutcome_di" bpmnElement="GW_10_DiffOutcome" isMarkerVisible="true"><dc:Bounds x="3560" y="855" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_AltDiag_di" bpmnElement="EndEvent_AltDiag"><dc:Bounds x="3667" y="792" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_C9_Diagnosis_di" bpmnElement="Task_C9_Diagnosis"><dc:Bounds x="3660" y="860" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_C10_SelfHelpCap_di" bpmnElement="Task_C10_SelfHelpCap"><dc:Bounds x="3830" y="860" width="120" height="80" /></bpmndi:BPMNShape>
+
+      <!-- PHASE D: TREATMENT PLANNING -->
+      <bpmndi:BPMNShape id="Task_D1_TreatDiscuss_di" bpmnElement="Task_D1_TreatDiscuss"><dc:Bounds x="4000" y="860" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_D2_TreatInfo_di" bpmnElement="Task_D2_TreatInfo"><dc:Bounds x="4170" y="860" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_D3_Consent_di" bpmnElement="Task_D3_Consent"><dc:Bounds x="4340" y="860" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_F5a_Comorbidity_di" bpmnElement="Task_F5a_Comorbidity"><dc:Bounds x="4510" y="860" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_13_Depression_di" bpmnElement="GW_13_Depression" isMarkerVisible="true"><dc:Bounds x="4685" y="875" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_DepFirst_di" bpmnElement="Task_DepFirst"><dc:Bounds x="4790" y="760" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_BothSDTP_di" bpmnElement="Task_BothSDTP"><dc:Bounds x="4790" y="860" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_SubDisc_di" bpmnElement="Task_SubDisc"><dc:Bounds x="4790" y="960" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_14_Alcohol_di" bpmnElement="GW_14_Alcohol" isMarkerVisible="true"><dc:Bounds x="4965" y="875" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_AlcFirst_di" bpmnElement="Task_AlcFirst"><dc:Bounds x="5070" y="960" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_15_CogImpair_di" bpmnElement="GW_15_CogImpair" isMarkerVisible="true"><dc:Bounds x="5245" y="875" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_MildAdapt_di" bpmnElement="Task_MildAdapt"><dc:Bounds x="5350" y="760" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_SevereConsult_di" bpmnElement="Task_SevereConsult"><dc:Bounds x="5350" y="960" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_D4_TherapPlan_di" bpmnElement="Task_D4_TherapPlan"><dc:Bounds x="5530" y="860" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_D5_Hosp_di" bpmnElement="Task_D5_Hosp"><dc:Bounds x="5700" y="860" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_11_Hosp_di" bpmnElement="GW_11_Hosp" isMarkerVisible="true"><dc:Bounds x="5875" y="875" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_Inpatient_di" bpmnElement="EndEvent_Inpatient"><dc:Bounds x="5982" y="812" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_12_Outpatient_di" bpmnElement="GW_12_Outpatient" isMarkerVisible="true"><dc:Bounds x="5875" y="975" width="50" height="50" /></bpmndi:BPMNShape>
+
+      <!-- PHASE E: TREATMENT DELIVERY -->
+      <bpmndi:BPMNShape id="Task_E1_Psychoed_di" bpmnElement="Task_E1_Psychoed"><dc:Bounds x="6000" y="960" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_16_StepEntry_di" bpmnElement="GW_16_StepEntry" isMarkerVisible="true"><dc:Bounds x="6175" y="975" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_E2_SelfHelp_di" bpmnElement="Task_E2_SelfHelp"><dc:Bounds x="6280" y="840" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_17_Step2Modal_di" bpmnElement="GW_17_Step2Modal" isMarkerVisible="true"><dc:Bounds x="6280" y="975" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_E8_SupportGroup_di" bpmnElement="Task_E8_SupportGroup"><dc:Bounds x="6280" y="1100" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_E3_SelfSupport_di" bpmnElement="Task_E3_SelfSupport"><dc:Bounds x="6450" y="840" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_20_EBMAvail_di" bpmnElement="GW_20_EBMAvail" isMarkerVisible="true"><dc:Bounds x="6450" y="975" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_E6_Relax_di" bpmnElement="Task_E6_Relax"><dc:Bounds x="6450" y="1100" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_21_CertCheck_di" bpmnElement="GW_21_CertCheck" isMarkerVisible="true"><dc:Bounds x="6620" y="975" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_AltEBM_di" bpmnElement="Task_AltEBM"><dc:Bounds x="6620" y="1100" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_E4_KBT_di" bpmnElement="Task_E4_KBT"><dc:Bounds x="6730" y="840" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_AltCertTherapy_di" bpmnElement="Task_AltCertTherapy"><dc:Bounds x="6730" y="960" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_NoCertEscalate_di" bpmnElement="Task_NoCertEscalate"><dc:Bounds x="6730" y="1060" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_E10_CogRestr_di" bpmnElement="Task_E10_CogRestr"><dc:Bounds x="6900" y="840" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_E11_Exposure_di" bpmnElement="Task_E11_Exposure"><dc:Bounds x="7070" y="840" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_E12_RemoveSafety_di" bpmnElement="Task_E12_RemoveSafety"><dc:Bounds x="7240" y="840" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_E13_ProbSolve_di" bpmnElement="Task_E13_ProbSolve"><dc:Bounds x="7410" y="840" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="SvcTask_IKBT_di" bpmnElement="SvcTask_IKBT"><dc:Bounds x="6280" y="1200" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_Step2Join_di" bpmnElement="GW_Step2Join" isMarkerVisible="true"><dc:Bounds x="7580" y="875" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_18_Combine_di" bpmnElement="GW_18_Combine"><dc:Bounds x="7700" y="875" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_E7_Pharma_di" bpmnElement="Task_E7_Pharma"><dc:Bounds x="7810" y="960" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_TreatJoin_di" bpmnElement="GW_TreatJoin" isMarkerVisible="true"><dc:Bounds x="7995" y="875" width="50" height="50" /></bpmndi:BPMNShape>
+
+      <!-- PHASE F: MONITORING -->
+      <bpmndi:BPMNShape id="Task_F1_Monitor_di" bpmnElement="Task_F1_Monitor"><dc:Bounds x="8100" y="860" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="SvcTask_HIS_di" bpmnElement="SvcTask_HIS"><dc:Bounds x="8270" y="860" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_G22_Threshold_di" bpmnElement="Task_G22_Threshold"><dc:Bounds x="8440" y="860" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_F4_StatusAssess_di" bpmnElement="Task_F4_StatusAssess"><dc:Bounds x="8610" y="780" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_F2_TreatResponse_di" bpmnElement="Task_F2_TreatResponse"><dc:Bounds x="8610" y="960" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_19_Escalation_di" bpmnElement="GW_19_Escalation" isMarkerVisible="true"><dc:Bounds x="8785" y="975" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_F3_DocDecision_di" bpmnElement="Task_F3_DocDecision"><dc:Bounds x="8890" y="1060" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_EscalateStep_di" bpmnElement="Task_EscalateStep"><dc:Bounds x="8890" y="960" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_CombineSteps_di" bpmnElement="Task_CombineSteps"><dc:Bounds x="8890" y="860" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ReassessHosp_di" bpmnElement="Task_ReassessHosp"><dc:Bounds x="8890" y="760" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_11b_HospLoop_di" bpmnElement="GW_11b_HospLoop" isMarkerVisible="true"><dc:Bounds x="9060" y="775" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_Inpatient2_di" bpmnElement="EndEvent_Inpatient2"><dc:Bounds x="9167" y="712" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_23_SocialNeeds_di" bpmnElement="GW_23_SocialNeeds" isMarkerVisible="true"><dc:Bounds x="8785" y="795" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_SocialRef_di" bpmnElement="Task_SocialRef"><dc:Bounds x="8890" y="680" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_SuicCheck_di" bpmnElement="Task_SuicCheck"><dc:Bounds x="9060" y="680" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_07b_SuicTreat_di" bpmnElement="GW_07b_SuicTreat" isMarkerVisible="true"><dc:Bounds x="9235" y="695" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_Emergency2_di" bpmnElement="EndEvent_Emergency2"><dc:Bounds x="9342" y="632" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_E14_Relapse_di" bpmnElement="Task_E14_Relapse"><dc:Bounds x="9340" y="700" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_24_Completion_di" bpmnElement="GW_24_Completion" isMarkerVisible="true"><dc:Bounds x="9515" y="715" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_Discharge_di" bpmnElement="EndEvent_Discharge"><dc:Bounds x="9622" y="722" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Maintenance_di" bpmnElement="Task_Maintenance"><dc:Bounds x="9510" y="840" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_RelapseReentry_di" bpmnElement="Task_RelapseReentry"><dc:Bounds x="9510" y="960" width="120" height="80" /></bpmndi:BPMNShape>
+
+      <!-- ACUTE PATH -->
+      <bpmndi:BPMNShape id="Task_E9_Emergency_di" bpmnElement="Task_E9_Emergency"><dc:Bounds x="170" y="1440" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_AcuteStabilized_di" bpmnElement="EndEvent_AcuteStabilized"><dc:Bounds x="342" y="1462" width="36" height="36" /></bpmndi:BPMNShape>
+
+      <!-- ==================== SEQUENCE FLOW EDGES ==================== -->
+      <!-- Prevention -->
+      <bpmndi:BPMNEdge id="Flow_Start_A1_di" bpmnElement="Flow_Start_A1"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="118" y="380"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="170" y="380"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_A1_G01_di" bpmnElement="Flow_A1_G01"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="290" y="380"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="345" y="380"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G01_Yes_di" bpmnElement="Flow_G01_Yes"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="395" y="380"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="450" y="380"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G01_No_di" bpmnElement="Flow_G01_No"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="370" y="355"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="370" y="300"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1030" y="300"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1030" y="362"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_A2_G02_di" bpmnElement="Flow_A2_G02"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="570" y="380"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="625" y="380"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G02_Indicated_di" bpmnElement="Flow_G02_Indicated"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="650" y="355"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="650" y="280"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="730" y="280"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G02_Selective_di" bpmnElement="Flow_G02_Selective"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="675" y="380"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="730" y="380"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G02_Universal_di" bpmnElement="Flow_G02_Universal"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="650" y="405"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="650" y="480"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="730" y="480"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_A3a_Join_di" bpmnElement="Flow_A3a_Join"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="850" y="280"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="930" y="280"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="930" y="355"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_A3b_Join_di" bpmnElement="Flow_A3b_Join"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="850" y="380"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="905" y="380"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_A3c_Join_di" bpmnElement="Flow_A3c_Join"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="850" y="480"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="930" y="480"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="930" y="405"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_PrevJoin_End_di" bpmnElement="Flow_PrevJoin_End"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="955" y="380"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1012" y="380"/></bpmndi:BPMNEdge>
+      <!-- Screening -->
+      <bpmndi:BPMNEdge id="Flow_StartB_B1_di" bpmnElement="Flow_StartB_B1"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="118" y="780"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="170" y="780"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_B1_B2_di" bpmnElement="Flow_B1_B2"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="290" y="780"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="340" y="780"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_B2_G03_di" bpmnElement="Flow_B2_G03"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="460" y="780"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="515" y="780"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G03_Positive_di" bpmnElement="Flow_G03_Positive"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="565" y="780"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="620" y="780"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G03_Negative_di" bpmnElement="Flow_G03_Negative"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="540" y="755"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="540" y="720"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="622" y="720"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_B3_G04_di" bpmnElement="Flow_B3_G04"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="740" y="780"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="795" y="780"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G04_Refer_di" bpmnElement="Flow_G04_Refer"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="820" y="755"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="820" y="740"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="900" y="740"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G04_GPManage_di" bpmnElement="Flow_G04_GPManage"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="820" y="805"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="820" y="840"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="900" y="840"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_B4_B5_di" bpmnElement="Flow_B4_B5"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1020" y="740"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1070" y="740"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_B5_G05_di" bpmnElement="Flow_B5_G05"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1190" y="740"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1270" y="740"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1270" y="755"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_GPManage_G05_di" bpmnElement="Flow_GPManage_G05"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1020" y="840"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1270" y="840"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1270" y="805"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G05_GPRef_di" bpmnElement="Flow_G05_GPRef"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1295" y="780"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1530" y="780"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G05_SelfRef_di" bpmnElement="Flow_G05_SelfRef"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1270" y="805"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1270" y="840"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1350" y="840"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_B6_C1_di" bpmnElement="Flow_B6_C1"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1470" y="840"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1590" y="840"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1590" y="820"/></bpmndi:BPMNEdge>
+      <!-- Diagnosis -->
+      <bpmndi:BPMNEdge id="Flow_C1_C2_di" bpmnElement="Flow_C1_C2"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1650" y="780"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1700" y="780"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_C2_C3_di" bpmnElement="Flow_C2_C3"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1820" y="780"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1870" y="780"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_C3_G06_di" bpmnElement="Flow_C3_G06"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1990" y="780"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2045" y="780"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G06_Excluded_di" bpmnElement="Flow_G06_Excluded"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2095" y="780"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2310" y="780"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G06_Primary_di" bpmnElement="Flow_G06_Primary"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2070" y="755"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2070" y="710"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2152" y="710"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G06_Comorbid_di" bpmnElement="Flow_G06_Comorbid"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2070" y="805"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2070" y="840"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2140" y="840"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_C3b_C4_di" bpmnElement="Flow_C3b_C4"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2260" y="840"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2370" y="840"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2370" y="820"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_C4_C5_di" bpmnElement="Flow_C4_C5"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2430" y="780"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2480" y="780"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_C5_G07_di" bpmnElement="Flow_C5_G07"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2600" y="780"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2655" y="780"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G07_Present_di" bpmnElement="Flow_G07_Present"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2680" y="755"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2680" y="710"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2762" y="710"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G07_Absent_di" bpmnElement="Flow_G07_Absent"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2680" y="805"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2680" y="855"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G08_Yes_di" bpmnElement="Flow_G08_Yes"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2705" y="880"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2760" y="880"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G08_No_di" bpmnElement="Flow_G08_No"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2680" y="905"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2680" y="960"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2940" y="960"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2940" y="920"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_NeuroRef_C6_di" bpmnElement="Flow_NeuroRef_C6"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2880" y="880"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2940" y="880"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_C6_C7_di" bpmnElement="Flow_C6_C7"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3060" y="880"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3110" y="880"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_C7_G09_di" bpmnElement="Flow_C7_G09"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3230" y="880"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3285" y="880"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G09_Yes_di" bpmnElement="Flow_G09_Yes"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3310" y="905"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3310" y="980"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3390" y="980"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G09_No_di" bpmnElement="Flow_G09_No"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3335" y="880"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3560" y="880"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_C8_G10_di" bpmnElement="Flow_C8_G10"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3510" y="980"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3585" y="980"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3585" y="905"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G10_Confirmed_di" bpmnElement="Flow_G10_Confirmed"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3610" y="880"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3660" y="900"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G10_Alternative_di" bpmnElement="Flow_G10_Alternative"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3585" y="855"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3585" y="810"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3667" y="810"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G10_Comorbid_di" bpmnElement="Flow_G10_Comorbid"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3610" y="900"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3660" y="920"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_C9_C10_di" bpmnElement="Flow_C9_C10"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3780" y="900"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3830" y="900"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_C10_D1_di" bpmnElement="Flow_C10_D1"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3950" y="900"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4000" y="900"/></bpmndi:BPMNEdge>
+      <!-- Treatment Planning -->
+      <bpmndi:BPMNEdge id="Flow_D1_D2_di" bpmnElement="Flow_D1_D2"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4120" y="900"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4170" y="900"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_D2_D3_di" bpmnElement="Flow_D2_D3"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4290" y="900"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4340" y="900"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_D3_F5a_di" bpmnElement="Flow_D3_F5a"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4460" y="900"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4510" y="900"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_F5a_G13_di" bpmnElement="Flow_F5a_G13"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4630" y="900"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4685" y="900"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G13_PrimaryDep_di" bpmnElement="Flow_G13_PrimaryDep"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4710" y="875"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4710" y="800"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4790" y="800"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G13_Comorbid_di" bpmnElement="Flow_G13_Comorbid"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4735" y="900"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4790" y="900"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G13_Subthreshold_di" bpmnElement="Flow_G13_Subthreshold"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4710" y="925"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4710" y="1000"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4790" y="1000"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G13_None_di" bpmnElement="Flow_G13_None"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4735" y="900"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4990" y="900"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_DepFirst_G14_di" bpmnElement="Flow_DepFirst_G14"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4910" y="800"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4990" y="800"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4990" y="875"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_BothSDTP_G14_di" bpmnElement="Flow_BothSDTP_G14"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4910" y="900"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4965" y="900"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_SubDisc_G14_di" bpmnElement="Flow_SubDisc_G14"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4910" y="1000"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4990" y="1000"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4990" y="925"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G14_Yes_di" bpmnElement="Flow_G14_Yes"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4990" y="925"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4990" y="1000"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5070" y="1000"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G14_No_di" bpmnElement="Flow_G14_No"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5015" y="900"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5245" y="900"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AlcFirst_G15_di" bpmnElement="Flow_AlcFirst_G15"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5190" y="1000"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5270" y="1000"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5270" y="925"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G15_Mild_di" bpmnElement="Flow_G15_Mild"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5270" y="875"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5270" y="800"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5350" y="800"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G15_Severe_di" bpmnElement="Flow_G15_Severe"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5270" y="925"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5270" y="1000"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5350" y="1000"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G15_None_di" bpmnElement="Flow_G15_None"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5295" y="900"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5530" y="900"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_MildAdapt_D4_di" bpmnElement="Flow_MildAdapt_D4"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5470" y="800"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5590" y="800"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5590" y="860"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_SevereConsult_D4_di" bpmnElement="Flow_SevereConsult_D4"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5470" y="1000"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5590" y="1000"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5590" y="940"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_D4_D5_di" bpmnElement="Flow_D4_D5"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5650" y="900"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5700" y="900"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_D5_G11_di" bpmnElement="Flow_D5_G11"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5820" y="900"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5875" y="900"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G11_Yes_di" bpmnElement="Flow_G11_Yes"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5900" y="875"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5900" y="830"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5982" y="830"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G11_No_di" bpmnElement="Flow_G11_No"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5900" y="925"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5900" y="975"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G12_Yes_di" bpmnElement="Flow_G12_Yes"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5925" y="1000"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6000" y="1000"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G12_No_di" bpmnElement="Flow_G12_No"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5900" y="1025"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5900" y="1240"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6280" y="1240"/></bpmndi:BPMNEdge>
+      <!-- Treatment Delivery -->
+      <bpmndi:BPMNEdge id="Flow_E1_G16_di" bpmnElement="Flow_E1_G16"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6120" y="1000"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6175" y="1000"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G16_Step1_di" bpmnElement="Flow_G16_Step1"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6200" y="975"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6200" y="880"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6280" y="880"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G16_Step2_di" bpmnElement="Flow_G16_Step2"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6225" y="1000"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6280" y="1000"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G16_Step3_di" bpmnElement="Flow_G16_Step3"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6200" y="1025"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6200" y="1140"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7725" y="1140"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7725" y="925"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G16_Step4_di" bpmnElement="Flow_G16_Step4"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6200" y="1025"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6200" y="1140"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6340" y="1140"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6340" y="1180"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G17_SelfSupport_di" bpmnElement="Flow_G17_SelfSupport"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6305" y="975"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6305" y="920"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6450" y="920"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G17_KBT_di" bpmnElement="Flow_G17_KBT"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6330" y="1000"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6450" y="1000"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G17_IKBT_di" bpmnElement="Flow_G17_IKBT"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6305" y="1025"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6305" y="1200"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G17_Relax_di" bpmnElement="Flow_G17_Relax"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6305" y="1025"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6305" y="1140"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6510" y="1140"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G20_Yes_di" bpmnElement="Flow_G20_Yes"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6500" y="1000"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6620" y="1000"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G20_NoAvail_di" bpmnElement="Flow_G20_NoAvail"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6475" y="1025"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6475" y="1140"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6680" y="1140"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G20_PatPref_di" bpmnElement="Flow_G20_PatPref"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6475" y="1025"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6475" y="1160"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6690" y="1160"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6690" y="1180"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G21_Certified_di" bpmnElement="Flow_G21_Certified"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6645" y="975"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6645" y="880"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6730" y="880"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G21_AltCert_di" bpmnElement="Flow_G21_AltCert"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6670" y="1000"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6730" y="1000"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G21_NoCert_di" bpmnElement="Flow_G21_NoCert"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6645" y="1025"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6645" y="1100"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6730" y="1100"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_E4_CogRestr_di" bpmnElement="Flow_E4_CogRestr"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6850" y="880"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6900" y="880"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_E10_E11_di" bpmnElement="Flow_E10_E11"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7020" y="880"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7070" y="880"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_E11_E12_di" bpmnElement="Flow_E11_E12"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7190" y="880"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7240" y="880"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_E12_E13_di" bpmnElement="Flow_E12_E13"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7360" y="880"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7410" y="880"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_E13_KBTJoin_di" bpmnElement="Flow_E13_KBTJoin"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7530" y="880"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7580" y="900"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_E3_Step2Join_di" bpmnElement="Flow_E3_Step2Join"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6570" y="880"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7605" y="880"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7605" y="875"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AltCert_Step2Join_di" bpmnElement="Flow_AltCert_Step2Join"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6850" y="1000"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7605" y="1000"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7605" y="925"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_NoCert_Step2Join_di" bpmnElement="Flow_NoCert_Step2Join"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6850" y="1100"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7605" y="1100"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7605" y="925"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AltEBM_Step2Join_di" bpmnElement="Flow_AltEBM_Step2Join"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6740" y="1140"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7605" y="1140"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7605" y="925"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_IKBT_Step2Join_di" bpmnElement="Flow_IKBT_Step2Join"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6400" y="1240"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7605" y="1240"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7605" y="925"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_E6_Step2Join_di" bpmnElement="Flow_E6_Step2Join"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6570" y="1140"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7605" y="1140"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7605" y="925"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Step2Join_G18_di" bpmnElement="Flow_Step2Join_G18"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7630" y="900"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7700" y="900"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G18_Step2Only_di" bpmnElement="Flow_G18_Step2Only"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7750" y="900"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8020" y="900"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G18_Step3Only_di" bpmnElement="Flow_G18_Step3Only"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7725" y="925"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7725" y="1000"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7810" y="1000"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G18_Both_di" bpmnElement="Flow_G18_Both"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7750" y="900"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7810" y="1000"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_E7_TreatJoin_di" bpmnElement="Flow_E7_TreatJoin"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7930" y="1000"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8020" y="1000"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8020" y="925"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_E8_TreatJoin_di" bpmnElement="Flow_E8_TreatJoin"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6400" y="1140"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8020" y="1140"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8020" y="925"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_E2_F1_di" bpmnElement="Flow_E2_F1"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6400" y="880"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8020" y="880"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8020" y="900"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_TreatJoin_F1_di" bpmnElement="Flow_TreatJoin_F1"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8045" y="900"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8100" y="900"/></bpmndi:BPMNEdge>
+      <!-- Monitoring -->
+      <bpmndi:BPMNEdge id="Flow_F1_HIS_di" bpmnElement="Flow_F1_HIS"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8220" y="900"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8270" y="900"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_HIS_G22_di" bpmnElement="Flow_HIS_G22"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8390" y="900"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8440" y="900"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G22_Improve_di" bpmnElement="Flow_G22_Improve"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8500" y="860"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8500" y="820"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8610" y="820"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G22_Stagnate_di" bpmnElement="Flow_G22_Stagnate"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8500" y="940"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8500" y="1000"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8610" y="1000"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_F4_G23_di" bpmnElement="Flow_F4_G23"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8730" y="820"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8810" y="820"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_F2_G19_di" bpmnElement="Flow_F2_G19"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8730" y="1000"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8785" y="1000"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G19_Continue_di" bpmnElement="Flow_G19_Continue"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8810" y="1025"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8810" y="1100"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8890" y="1100"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G19_Escalate_di" bpmnElement="Flow_G19_Escalate"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8835" y="1000"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8890" y="1000"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G19_Combine_di" bpmnElement="Flow_G19_Combine"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8810" y="975"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8810" y="900"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8890" y="900"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G19_Severe_di" bpmnElement="Flow_G19_Severe"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8810" y="975"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8810" y="800"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8890" y="800"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_F3_F4_di" bpmnElement="Flow_F3_F4"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="9010" y="1100"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8810" y="1100"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8810" y="845"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G23_Yes_di" bpmnElement="Flow_G23_Yes"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8810" y="795"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8810" y="720"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8890" y="720"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G23_No_di" bpmnElement="Flow_G23_No"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8835" y="820"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="9060" y="720"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_SocialRef_SuicCheck_di" bpmnElement="Flow_SocialRef_SuicCheck"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="9010" y="720"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="9060" y="720"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_SuicCheck_G07b_di" bpmnElement="Flow_SuicCheck_G07b"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="9180" y="720"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="9235" y="720"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G07b_Present_di" bpmnElement="Flow_G07b_Present"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="9260" y="695"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="9260" y="650"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="9342" y="650"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G07b_Absent_di" bpmnElement="Flow_G07b_Absent"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="9285" y="720"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="9340" y="740"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_E14_G24_di" bpmnElement="Flow_E14_G24"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="9460" y="740"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="9515" y="740"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G24_Achieved_di" bpmnElement="Flow_G24_Achieved"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="9565" y="740"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="9622" y="740"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G24_Maintenance_di" bpmnElement="Flow_G24_Maintenance"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="9540" y="765"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="9540" y="840"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G24_Relapse_di" bpmnElement="Flow_G24_Relapse"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="9540" y="765"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="9540" y="960"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Maintenance_F1_di" bpmnElement="Flow_Maintenance_F1"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="9510" y="880"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8160" y="880"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8160" y="860"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_EscalateStep_G16_di" bpmnElement="Flow_EscalateStep_G16"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="9010" y="1000"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6200" y="1000"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_CombineSteps_G18_di" bpmnElement="Flow_CombineSteps_G18"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="9010" y="900"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7725" y="900"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ReassessHosp_G11b_di" bpmnElement="Flow_ReassessHosp_G11b"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="9010" y="800"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="9060" y="800"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G11b_Yes_di" bpmnElement="Flow_G11b_Yes"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="9085" y="775"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="9085" y="730"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="9167" y="730"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_G11b_No_di" bpmnElement="Flow_G11b_No"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="9110" y="800"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8160" y="800"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8160" y="860"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_RelapseReentry_G16_di" bpmnElement="Flow_RelapseReentry_G16"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="9510" y="1000"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6200" y="1000"/></bpmndi:BPMNEdge>
+      <!-- Acute -->
+      <bpmndi:BPMNEdge id="Flow_Acute_E9_di" bpmnElement="Flow_Acute_E9"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="118" y="1480"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="170" y="1480"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_E9_End_di" bpmnElement="Flow_E9_End"><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="290" y="1480"/><di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="342" y="1480"/></bpmndi:BPMNEdge>
+
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

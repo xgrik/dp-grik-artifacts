@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_PTSD_Process" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.33.1">
+  <bpmn:process id="Process_PTSD_Management" name="PTSD Clinical Management Process" isExecutable="true" camunda:historyTimeToLive="P30D">
+    <bpmn:startEvent id="StartEvent_PatientEntry" name="Patient presents with trauma symptoms">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    
+    <bpmn:userTask id="Activity_PsychiatricExam" name="Psychiatric Examination" camunda:candidateGroups="psychiatrist">
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+    </bpmn:userTask>
+    
+    <bpmn:userTask id="Activity_SomaticExam" name="Somatic Examination (Exclude physical illness)">
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_3</bpmn:outgoing>
+    </bpmn:userTask>
+    
+    <bpmn:userTask id="Activity_PsychologicalEval" name="Psychodiagnostic Evaluation (PHQ-9/GAD-7)" camunda:candidateGroups="clinical_psychologist">
+      <bpmn:incoming>Flow_3</bpmn:incoming>
+      <bpmn:outgoing>Flow_4</bpmn:outgoing>
+    </bpmn:userTask>
+    
+    <bpmn:exclusiveGateway id="Gateway_Diagnosis" name="Diagnosis Confirmed?">
+      <bpmn:incoming>Flow_4</bpmn:incoming>
+      <bpmn:outgoing>Flow_PTSD_Yes</bpmn:outgoing>
+      <bpmn:outgoing>Flow_PTSD_No</bpmn:outgoing>
+      <bpmn:outgoing>Flow_ActiveMonitor</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    
+    <bpmn:endEvent id="EndEvent_NoPTSD" name="Referred to Differential Diagnosis">
+      <bpmn:incoming>Flow_PTSD_No</bpmn:incoming>
+    </bpmn:endEvent>
+    
+    <bpmn:userTask id="Activity_ActiveMonitoring" name="Active Monitoring (Symptons &lt; 4 weeks)">
+      <bpmn:incoming>Flow_ActiveMonitor</bpmn:incoming>
+      <bpmn:outgoing>Flow_MonitoringEnd</bpmn:outgoing>
+    </bpmn:userTask>
+    
+    <bpmn:userTask id="Activity_TherapeuticPlan" name="Develop Individual Therapeutic Plan">
+      <bpmn:incoming>Flow_PTSD_Yes</bpmn:incoming>
+      <bpmn:outgoing>Flow_5</bpmn:outgoing>
+    </bpmn:userTask>
+    
+    <bpmn:exclusiveGateway id="Gateway_TreatmentPath" name="Treatment Availability/Preference?">
+      <bpmn:incoming>Flow_5</bpmn:incoming>
+      <bpmn:outgoing>Flow_Primary</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Alternative</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    
+    <bpmn:userTask id="Activity_CBT_EMDR" name="Trauma-focused CBT or EMDR (6-12 Sessions)">
+      <bpmn:incoming>Flow_Primary</bpmn:incoming>
+      <bpmn:outgoing>Flow_6</bpmn:outgoing>
+    </bpmn:userTask>
+    
+    <bpmn:userTask id="Activity_Pharmacotherapy" name="Pharmacotherapy / Non-trauma Psychotherapy">
+      <bpmn:incoming>Flow_Alternative</bpmn:incoming>
+      <bpmn:outgoing>Flow_6</bpmn:outgoing>
+    </bpmn:userTask>
+    
+    <bpmn:userTask id="Activity_OngoingMonitoring" name="Ongoing Clinical Monitoring &amp; Evaluation">
+      <bpmn:incoming>Flow_6</bpmn:incoming>
+      <bpmn:outgoing>Flow_7</bpmn:outgoing>
+    </bpmn:userTask>
+    
+    <bpmn:endEvent id="EndEvent_TreatmentComplete" name="Treatment Completed / Follow-up Planned">
+      <bpmn:incoming>Flow_7</bpmn:incoming>
+      <bpmn:incoming>Flow_MonitoringEnd</bpmn:incoming>
+    </bpmn:endEvent>
+    
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_PatientEntry" targetRef="Activity_PsychiatricExam" />
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Activity_PsychiatricExam" targetRef="Activity_SomaticExam" />
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="Activity_SomaticExam" targetRef="Activity_PsychologicalEval" />
+    <bpmn:sequenceFlow id="Flow_4" sourceRef="Activity_PsychologicalEval" targetRef="Gateway_Diagnosis" />
+    <bpmn:sequenceFlow id="Flow_PTSD_No" name="No" sourceRef="Gateway_Diagnosis" targetRef="EndEvent_NoPTSD" />
+    <bpmn:sequenceFlow id="Flow_ActiveMonitor" name="Mild/Short-term" sourceRef="Gateway_Diagnosis" targetRef="Activity_ActiveMonitoring" />
+    <bpmn:sequenceFlow id="Flow_PTSD_Yes" name="Yes (PTSD)" sourceRef="Gateway_Diagnosis" targetRef="Activity_TherapeuticPlan" />
+    <bpmn:sequenceFlow id="Flow_5" sourceRef="Activity_TherapeuticPlan" targetRef="Gateway_TreatmentPath" />
+    <bpmn:sequenceFlow id="Flow_Primary" name="CBT/EMDR Available" sourceRef="Gateway_TreatmentPath" targetRef="Activity_CBT_EMDR" />
+    <bpmn:sequenceFlow id="Flow_Alternative" name="Other Preference" sourceRef="Gateway_TreatmentPath" targetRef="Activity_Pharmacotherapy" />
+    <bpmn:sequenceFlow id="Flow_6" sourceRef="Activity_CBT_EMDR" targetRef="Activity_OngoingMonitoring" />
+    <bpmn:sequenceFlow id="Flow_7" sourceRef="Activity_OngoingMonitoring" targetRef="EndEvent_TreatmentComplete" />
+    <bpmn:sequenceFlow id="Flow_MonitoringEnd" sourceRef="Activity_ActiveMonitoring" targetRef="EndEvent_TreatmentComplete" />
+  </bpmn:process>
+</bpmn:definitions>

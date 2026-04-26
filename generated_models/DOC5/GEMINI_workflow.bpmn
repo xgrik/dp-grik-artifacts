@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_0cwasaq" targetNamespace="http://bpmn.io/schema/bpmn" xmlns:modeler="http://camunda.org/schema/modeler/1.0" exporter="Camunda Modeler" exporterVersion="5.33.1" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.22.0">
+  <bpmn:process id="Process_0hbbe8d" name="Management of Adult Patient with Depressive Disorder" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1" name="Suspected Depressive Disorder Identified">
+      <bpmn:outgoing>Flow_StartToScreening</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="Task_InitialScreening" name="Perform Initial Screening" camunda:candidateGroups="GP">
+      <bpmn:incoming>Flow_StartToScreening</bpmn:incoming>
+      <bpmn:outgoing>Flow_ScreeningToSuicideRisk</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Task_IdentifySuicideRisk" name="Identify Suicide and Self-Harm Risk" camunda:candidateGroups="GP_Specialist">
+      <bpmn:incoming>Flow_ScreeningToSuicideRisk</bpmn:incoming>
+      <bpmn:outgoing>Flow_SuicideRiskToGateway</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_SuicideRisk" name="High Suicide Risk Identified?">
+      <bpmn:incoming>Flow_SuicideRiskToGateway</bpmn:incoming>
+      <bpmn:outgoing>Flow_HighSuicideRisk</bpmn:outgoing>
+      <bpmn:outgoing>Flow_LowSuicideRisk</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="Task_CrisisIntervention" name="Execute Crisis Intervention and Hospitalization" camunda:candidateGroups="Psychiatrist">
+      <bpmn:incoming>Flow_HighSuicideRisk</bpmn:incoming>
+      <bpmn:outgoing>Flow_CrisisToEnd</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="EndEvent_Crisis" name="Emergency Care Transitioned">
+      <bpmn:incoming>Flow_CrisisToEnd</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:userTask id="Task_IdentifySyndrome" name="Identify Disorder Syndrome" camunda:candidateGroups="GP">
+      <bpmn:incoming>Flow_LowSuicideRisk</bpmn:incoming>
+      <bpmn:outgoing>Flow_SyndromeToCompetency</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_CompetencyCheck" name="Practitioner Competent for Mental State Assessment?">
+      <bpmn:incoming>Flow_SyndromeToCompetency</bpmn:incoming>
+      <bpmn:outgoing>Flow_ReferralRequired</bpmn:outgoing>
+      <bpmn:outgoing>Flow_CompetencyVerified</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="Task_ReferToSpecialist" name="Refer to Clinical Psychologist or Psychiatrist" camunda:candidateGroups="GP">
+      <bpmn:incoming>Flow_ReferralRequired</bpmn:incoming>
+      <bpmn:outgoing>Flow_ReferralToDiag</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Task_Psychodiagnostics" name="Perform Psychodiagnostic Examination" camunda:candidateGroups="Clinical_Psychologist">
+      <bpmn:incoming>Flow_ReferralToDiag</bpmn:incoming>
+      <bpmn:incoming>Flow_CompetencyVerified</bpmn:incoming>
+      <bpmn:outgoing>Flow_DiagToAssessment</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Task_StandardizedQuestionnaires" name="Administer Standardized Questionnaires (PHQ-9/BDI-II)" camunda:candidateGroups="Clinician">
+      <bpmn:incoming>Flow_DiagToAssessment</bpmn:incoming>
+      <bpmn:outgoing>Flow_AssessmentToRule</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:businessRuleTask id="Task_DetermineSeverity" name="Determine Depression Severity and Stepped Care Level" camunda:decisionRef="Decision_SeverityScoring">
+      <bpmn:incoming>Flow_AssessmentToRule</bpmn:incoming>
+      <bpmn:incoming>Flow_InadequateResponse</bpmn:incoming>
+      <bpmn:outgoing>Flow_RuleToSelection</bpmn:outgoing>
+    </bpmn:businessRuleTask>
+    <bpmn:exclusiveGateway id="Gateway_TreatmentSelection" name="Select Treatment Step">
+      <bpmn:incoming>Flow_RuleToSelection</bpmn:incoming>
+      <bpmn:outgoing>Flow_RouteStep1</bpmn:outgoing>
+      <bpmn:outgoing>Flow_RouteStep2</bpmn:outgoing>
+      <bpmn:outgoing>Flow_RouteStep3</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="Task_Step1_ActiveMonitoring" name="Provide Active Monitoring and Psychoeducation" camunda:candidateGroups="Healthcare_Worker">
+      <bpmn:incoming>Flow_RouteStep1</bpmn:incoming>
+      <bpmn:outgoing>Flow_Step1ToEval</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="Task_Step2_IKBT" name="Administer Computerized CBT (IKBT) and Self-Help" camunda:type="external" camunda:topic="ikbt_service">
+      <bpmn:incoming>Flow_RouteStep2</bpmn:incoming>
+      <bpmn:outgoing>Flow_Step2ToEval</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="Task_Step3_Intensive" name="Provide High-Intensity Therapy and Pharmacotherapy" camunda:candidateGroups="Specialist">
+      <bpmn:incoming>Flow_RouteStep3</bpmn:incoming>
+      <bpmn:outgoing>Flow_Step3ToEval</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_TreatmentEvaluation" name="Treatment Effective after Monitoring Period?">
+      <bpmn:incoming>Flow_Step1ToEval</bpmn:incoming>
+      <bpmn:incoming>Flow_Step2ToEval</bpmn:incoming>
+      <bpmn:incoming>Flow_Step3ToEval</bpmn:incoming>
+      <bpmn:outgoing>Flow_ImprovedRemission</bpmn:outgoing>
+      <bpmn:outgoing>Flow_InadequateResponse</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="EndEvent_Remission" name="Remission and Maintenance Phase Achieved">
+      <bpmn:incoming>Flow_ImprovedRemission</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_StartToScreening" sourceRef="StartEvent_1" targetRef="Task_InitialScreening" />
+    <bpmn:sequenceFlow id="Flow_ScreeningToSuicideRisk" sourceRef="Task_InitialScreening" targetRef="Task_IdentifySuicideRisk" />
+    <bpmn:sequenceFlow id="Flow_SuicideRiskToGateway" sourceRef="Task_IdentifySuicideRisk" targetRef="Gateway_SuicideRisk" />
+    <bpmn:sequenceFlow id="Flow_HighSuicideRisk" name="High Risk Identified" sourceRef="Gateway_SuicideRisk" targetRef="Task_CrisisIntervention" />
+    <bpmn:sequenceFlow id="Flow_LowSuicideRisk" name="Low / Managed Risk" sourceRef="Gateway_SuicideRisk" targetRef="Task_IdentifySyndrome" />
+    <bpmn:sequenceFlow id="Flow_CrisisToEnd" sourceRef="Task_CrisisIntervention" targetRef="EndEvent_Crisis" />
+    <bpmn:sequenceFlow id="Flow_SyndromeToCompetency" sourceRef="Task_IdentifySyndrome" targetRef="Gateway_CompetencyCheck" />
+    <bpmn:sequenceFlow id="Flow_ReferralRequired" name="Specialist Referral Needed" sourceRef="Gateway_CompetencyCheck" targetRef="Task_ReferToSpecialist" />
+    <bpmn:sequenceFlow id="Flow_CompetencyVerified" name="Practitioner Competent" sourceRef="Gateway_CompetencyCheck" targetRef="Task_Psychodiagnostics" />
+    <bpmn:sequenceFlow id="Flow_ReferralToDiag" sourceRef="Task_ReferToSpecialist" targetRef="Task_Psychodiagnostics" />
+    <bpmn:sequenceFlow id="Flow_DiagToAssessment" sourceRef="Task_Psychodiagnostics" targetRef="Task_StandardizedQuestionnaires" />
+    <bpmn:sequenceFlow id="Flow_AssessmentToRule" sourceRef="Task_StandardizedQuestionnaires" targetRef="Task_DetermineSeverity" />
+    <bpmn:sequenceFlow id="Flow_RuleToSelection" sourceRef="Task_DetermineSeverity" targetRef="Gateway_TreatmentSelection" />
+    <bpmn:sequenceFlow id="Flow_RouteStep1" name="Subclinical / Initial (Step 1)" sourceRef="Gateway_TreatmentSelection" targetRef="Task_Step1_ActiveMonitoring" />
+    <bpmn:sequenceFlow id="Flow_RouteStep2" name="Mild / Moderate (Step 2)" sourceRef="Gateway_TreatmentSelection" targetRef="Task_Step2_IKBT" />
+    <bpmn:sequenceFlow id="Flow_RouteStep3" name="Moderate / Severe (Step 3)" sourceRef="Gateway_TreatmentSelection" targetRef="Task_Step3_Intensive" />
+    <bpmn:sequenceFlow id="Flow_Step1ToEval" sourceRef="Task_Step1_ActiveMonitoring" targetRef="Gateway_TreatmentEvaluation" />
+    <bpmn:sequenceFlow id="Flow_Step2ToEval" sourceRef="Task_Step2_IKBT" targetRef="Gateway_TreatmentEvaluation" />
+    <bpmn:sequenceFlow id="Flow_Step3ToEval" sourceRef="Task_Step3_Intensive" targetRef="Gateway_TreatmentEvaluation" />
+    <bpmn:sequenceFlow id="Flow_ImprovedRemission" name="Improved / Remitted" sourceRef="Gateway_TreatmentEvaluation" targetRef="EndEvent_Remission" />
+    <bpmn:sequenceFlow id="Flow_InadequateResponse" name="Symptoms Persistent" sourceRef="Gateway_TreatmentEvaluation" targetRef="Task_DetermineSeverity" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_0hbbe8d">
+      <bpmndi:BPMNShape id="StartEvent_1_di" bpmnElement="StartEvent_1">
+        <dc:Bounds x="152" y="162" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="127" y="205" width="87" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_InitialScreening_di" bpmnElement="Task_InitialScreening">
+        <dc:Bounds x="240" y="140" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_IdentifySuicideRisk_di" bpmnElement="Task_IdentifySuicideRisk">
+        <dc:Bounds x="380" y="140" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_SuicideRisk_di" bpmnElement="Gateway_SuicideRisk" isMarkerVisible="true">
+        <dc:Bounds x="525" y="155" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="506" y="125" width="88" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_CrisisIntervention_di" bpmnElement="Task_CrisisIntervention">
+        <dc:Bounds x="620" y="260" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_Crisis_di" bpmnElement="EndEvent_Crisis">
+        <dc:Bounds x="762" y="282" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_IdentifySyndrome_di" bpmnElement="Task_IdentifySyndrome">
+        <dc:Bounds x="620" y="140" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_CompetencyCheck_di" bpmnElement="Gateway_CompetencyCheck" isMarkerVisible="true">
+        <dc:Bounds x="765" y="155" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ReferToSpecialist_di" bpmnElement="Task_ReferToSpecialist">
+        <dc:Bounds x="860" y="40" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Psychodiagnostics_di" bpmnElement="Task_Psychodiagnostics">
+        <dc:Bounds x="1010" y="140" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_StandardizedQuestionnaires_di" bpmnElement="Task_StandardizedQuestionnaires">
+        <dc:Bounds x="1160" y="140" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_DetermineSeverity_di" bpmnElement="Task_DetermineSeverity">
+        <dc:Bounds x="1310" y="140" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_TreatmentSelection_di" bpmnElement="Gateway_TreatmentSelection" isMarkerVisible="true">
+        <dc:Bounds x="1465" y="155" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Step1_ActiveMonitoring_di" bpmnElement="Task_Step1_ActiveMonitoring">
+        <dc:Bounds x="1570" y="40" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Step2_IKBT_di" bpmnElement="Task_Step2_IKBT">
+        <dc:Bounds x="1570" y="140" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Step3_Intensive_di" bpmnElement="Task_Step3_Intensive">
+        <dc:Bounds x="1570" y="240" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_TreatmentEvaluation_di" bpmnElement="Gateway_TreatmentEvaluation" isMarkerVisible="true">
+        <dc:Bounds x="1735" y="155" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_Remission_di" bpmnElement="EndEvent_Remission">
+        <dc:Bounds x="1852" y="162" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_StartToScreening_di" bpmnElement="Flow_StartToScreening">
+        <di:waypoint x="188" y="180" />
+        <di:waypoint x="240" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ScreeningToSuicideRisk_di" bpmnElement="Flow_ScreeningToSuicideRisk">
+        <di:waypoint x="340" y="180" />
+        <di:waypoint x="380" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_SuicideRiskToGateway_di" bpmnElement="Flow_SuicideRiskToGateway">
+        <di:waypoint x="480" y="180" />
+        <di:waypoint x="525" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_HighSuicideRisk_di" bpmnElement="Flow_HighSuicideRisk">
+        <di:waypoint x="550" y="205" />
+        <di:waypoint x="550" y="300" />
+        <di:waypoint x="620" y="300" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="555" y="250" width="50" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_LowSuicideRisk_di" bpmnElement="Flow_LowSuicideRisk">
+        <di:waypoint x="575" y="180" />
+        <di:waypoint x="620" y="180" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="557" y="146" width="76" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_CrisisToEnd_di" bpmnElement="Flow_CrisisToEnd">
+        <di:waypoint x="720" y="300" />
+        <di:waypoint x="762" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_SyndromeToCompetency_di" bpmnElement="Flow_SyndromeToCompetency">
+        <di:waypoint x="720" y="180" />
+        <di:waypoint x="765" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ReferralRequired_di" bpmnElement="Flow_ReferralRequired">
+        <di:waypoint x="790" y="155" />
+        <di:waypoint x="790" y="80" />
+        <di:waypoint x="860" y="80" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="781" y="46" width="88" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_CompetencyVerified_di" bpmnElement="Flow_CompetencyVerified">
+        <di:waypoint x="815" y="180" />
+        <di:waypoint x="1010" y="180" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="885" y="146" width="56" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ReferralToDiag_di" bpmnElement="Flow_ReferralToDiag">
+        <di:waypoint x="960" y="80" />
+        <di:waypoint x="985" y="80" />
+        <di:waypoint x="985" y="180" />
+        <di:waypoint x="1010" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_DiagToAssessment_di" bpmnElement="Flow_DiagToAssessment">
+        <di:waypoint x="1110" y="180" />
+        <di:waypoint x="1160" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AssessmentToRule_di" bpmnElement="Flow_AssessmentToRule">
+        <di:waypoint x="1260" y="180" />
+        <di:waypoint x="1310" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_RuleToSelection_di" bpmnElement="Flow_RuleToSelection">
+        <di:waypoint x="1410" y="180" />
+        <di:waypoint x="1465" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_RouteStep1_di" bpmnElement="Flow_RouteStep1">
+        <di:waypoint x="1490" y="155" />
+        <di:waypoint x="1490" y="80" />
+        <di:waypoint x="1570" y="80" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1482" y="46" width="76" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_RouteStep2_di" bpmnElement="Flow_RouteStep2">
+        <di:waypoint x="1515" y="180" />
+        <di:waypoint x="1570" y="180" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1501" y="146" width="78" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_RouteStep3_di" bpmnElement="Flow_RouteStep3">
+        <di:waypoint x="1490" y="205" />
+        <di:waypoint x="1490" y="280" />
+        <di:waypoint x="1570" y="280" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1481" y="246" width="78" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Step1ToEval_di" bpmnElement="Flow_Step1ToEval">
+        <di:waypoint x="1670" y="80" />
+        <di:waypoint x="1710" y="80" />
+        <di:waypoint x="1710" y="180" />
+        <di:waypoint x="1735" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Step2ToEval_di" bpmnElement="Flow_Step2ToEval">
+        <di:waypoint x="1670" y="180" />
+        <di:waypoint x="1735" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Step3ToEval_di" bpmnElement="Flow_Step3ToEval">
+        <di:waypoint x="1670" y="280" />
+        <di:waypoint x="1710" y="280" />
+        <di:waypoint x="1710" y="180" />
+        <di:waypoint x="1735" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ImprovedRemission_di" bpmnElement="Flow_ImprovedRemission">
+        <di:waypoint x="1785" y="180" />
+        <di:waypoint x="1852" y="180" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1794" y="146" width="51" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_InadequateResponse_di" bpmnElement="Flow_InadequateResponse">
+        <di:waypoint x="1760" y="205" />
+        <di:waypoint x="1760" y="340" />
+        <di:waypoint x="1360" y="340" />
+        <di:waypoint x="1360" y="220" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1534" y="306" width="51" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

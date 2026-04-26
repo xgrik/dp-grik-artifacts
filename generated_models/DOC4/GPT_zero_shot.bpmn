@@ -1,0 +1,392 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+                  id="Definitions_02fe9dz"
+                  targetNamespace="http://bpmn.io/schema/bpmn"
+                  xmlns:modeler="http://camunda.org/schema/modeler/1.0"
+                  exporter="Camunda Modeler"
+                  exporterVersion="5.33.1"
+                  modeler:executionPlatform="Camunda Platform"
+                  modeler:executionPlatformVersion="7.22.0">
+
+  <bpmn:process id="Process_PTSD_Management" name="PTSD: Screening, Assessment, Treatment and Follow-up" isExecutable="true">
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="Lane_Patient" name="Patient">
+        <bpmn:flowNodeRef>StartEvent_Referral</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_PresentWithComplaints</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ProvideConsentAndPreferences</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_Completed</bpmn:flowNodeRef>
+      </bpmn:lane>
+
+      <bpmn:lane id="Lane_PrimaryCare" name="Primary Care (General Practitioner)">
+        <bpmn:flowNodeRef>Task_InitialAssessment</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_PTSD_OrientationScreen</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_SuspectedPTSD</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ReferToSpecialist</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_NoPTSD</bpmn:flowNodeRef>
+      </bpmn:lane>
+
+      <bpmn:lane id="Lane_Specialist" name="Specialist Care (Psychiatrist / Clinical Psychologist)">
+        <bpmn:flowNodeRef>Task_ComprehensiveAssessment</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_AssessRisk</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_AcuteRisk</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_DifferentialDiagnosisAndComorbidities</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_DevelopTreatmentPlan</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_PsychoeducationAndFamilySupport</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_InitiateTreatment</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_MonitorAndFollowUp</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_ResponseAdequate</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_AdjustOrEscalateTreatment</bpmn:flowNodeRef>
+      </bpmn:lane>
+
+      <bpmn:lane id="Lane_Emergency" name="Emergency / Inpatient Care">
+        <bpmn:flowNodeRef>Task_EmergencyInterventionOrHospitalization</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_AcuteManaged</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:startEvent id="StartEvent_Referral" name="Start">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <bpmn:userTask id="Task_PresentWithComplaints" name="Present to care / report symptoms">
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_InitialAssessment" name="Initial assessment and care coordination">
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_3</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_PTSD_OrientationScreen" name="Orientation PTSD screening (primary care questions)">
+      <bpmn:incoming>Flow_3</bpmn:incoming>
+      <bpmn:outgoing>Flow_4</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="Gateway_SuspectedPTSD" name="Suspected PTSD?">
+      <bpmn:incoming>Flow_4</bpmn:incoming>
+      <bpmn:outgoing>Flow_Yes_Suspected</bpmn:outgoing>
+      <bpmn:outgoing>Flow_No_Suspected</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:endEvent id="EndEvent_NoPTSD" name="End (PTSD not suspected)">
+      <bpmn:incoming>Flow_No_Suspected</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:userTask id="Task_ReferToSpecialist" name="Refer for psychiatric / psychological / somatic evaluation as needed">
+      <bpmn:incoming>Flow_Yes_Suspected</bpmn:incoming>
+      <bpmn:outgoing>Flow_5</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_ComprehensiveAssessment" name="Comprehensive assessment (somatic + mental state + psychosocial)">
+      <bpmn:incoming>Flow_5</bpmn:incoming>
+      <bpmn:outgoing>Flow_6</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_AssessRisk" name="Assess risk: suicidality, self-harm, aggression">
+      <bpmn:incoming>Flow_6</bpmn:incoming>
+      <bpmn:outgoing>Flow_7</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="Gateway_AcuteRisk" name="Acute risk present?">
+      <bpmn:incoming>Flow_7</bpmn:incoming>
+      <bpmn:outgoing>Flow_Yes_AcuteRisk</bpmn:outgoing>
+      <bpmn:outgoing>Flow_No_AcuteRisk</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:serviceTask id="Task_EmergencyInterventionOrHospitalization" name="Emergency intervention / hospitalization decision and admission" camunda:type="external">
+      <bpmn:incoming>Flow_Yes_AcuteRisk</bpmn:incoming>
+      <bpmn:outgoing>Flow_8</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:endEvent id="EndEvent_AcuteManaged" name="End (acute risk managed)">
+      <bpmn:incoming>Flow_8</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:userTask id="Task_DifferentialDiagnosisAndComorbidities" name="Differential diagnosis and comorbidity assessment">
+      <bpmn:incoming>Flow_No_AcuteRisk</bpmn:incoming>
+      <bpmn:outgoing>Flow_9</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_ProvideConsentAndPreferences" name="Provide informed consent and treatment preferences">
+      <bpmn:incoming>Flow_9</bpmn:incoming>
+      <bpmn:outgoing>Flow_10</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_DevelopTreatmentPlan" name="Develop individualized treatment plan">
+      <bpmn:incoming>Flow_10</bpmn:incoming>
+      <bpmn:outgoing>Flow_11</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_PsychoeducationAndFamilySupport" name="Psychoeducation + support for family/caregivers">
+      <bpmn:incoming>Flow_11</bpmn:incoming>
+      <bpmn:outgoing>Flow_12</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_InitiateTreatment" name="Initiate evidence-based treatment (psychotherapy and/or pharmacotherapy)">
+      <bpmn:incoming>Flow_12</bpmn:incoming>
+      <bpmn:outgoing>Flow_13</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_MonitorAndFollowUp" name="Regular monitoring and follow-up evaluation">
+      <bpmn:incoming>Flow_13</bpmn:incoming>
+      <bpmn:outgoing>Flow_14</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="Gateway_ResponseAdequate" name="Adequate response / stabilization?">
+      <bpmn:incoming>Flow_14</bpmn:incoming>
+      <bpmn:outgoing>Flow_Yes_Response</bpmn:outgoing>
+      <bpmn:outgoing>Flow_No_Response</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:endEvent id="EndEvent_Completed" name="End (care stabilized / completed)">
+      <bpmn:incoming>Flow_Yes_Response</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:userTask id="Task_AdjustOrEscalateTreatment" name="Adjust treatment / escalate care (specialist review, additional interventions)">
+      <bpmn:incoming>Flow_No_Response</bpmn:incoming>
+      <bpmn:outgoing>Flow_15</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- Loop back to monitoring -->
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_Referral" targetRef="Task_PresentWithComplaints" />
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Task_PresentWithComplaints" targetRef="Task_InitialAssessment" />
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="Task_InitialAssessment" targetRef="Task_PTSD_OrientationScreen" />
+    <bpmn:sequenceFlow id="Flow_4" sourceRef="Task_PTSD_OrientationScreen" targetRef="Gateway_SuspectedPTSD" />
+    <bpmn:sequenceFlow id="Flow_Yes_Suspected" name="Yes" sourceRef="Gateway_SuspectedPTSD" targetRef="Task_ReferToSpecialist" />
+    <bpmn:sequenceFlow id="Flow_No_Suspected" name="No" sourceRef="Gateway_SuspectedPTSD" targetRef="EndEvent_NoPTSD" />
+    <bpmn:sequenceFlow id="Flow_5" sourceRef="Task_ReferToSpecialist" targetRef="Task_ComprehensiveAssessment" />
+    <bpmn:sequenceFlow id="Flow_6" sourceRef="Task_ComprehensiveAssessment" targetRef="Task_AssessRisk" />
+    <bpmn:sequenceFlow id="Flow_7" sourceRef="Task_AssessRisk" targetRef="Gateway_AcuteRisk" />
+    <bpmn:sequenceFlow id="Flow_Yes_AcuteRisk" name="Yes" sourceRef="Gateway_AcuteRisk" targetRef="Task_EmergencyInterventionOrHospitalization" />
+    <bpmn:sequenceFlow id="Flow_No_AcuteRisk" name="No" sourceRef="Gateway_AcuteRisk" targetRef="Task_DifferentialDiagnosisAndComorbidities" />
+    <bpmn:sequenceFlow id="Flow_8" sourceRef="Task_EmergencyInterventionOrHospitalization" targetRef="EndEvent_AcuteManaged" />
+    <bpmn:sequenceFlow id="Flow_9" sourceRef="Task_DifferentialDiagnosisAndComorbidities" targetRef="Task_ProvideConsentAndPreferences" />
+    <bpmn:sequenceFlow id="Flow_10" sourceRef="Task_ProvideConsentAndPreferences" targetRef="Task_DevelopTreatmentPlan" />
+    <bpmn:sequenceFlow id="Flow_11" sourceRef="Task_DevelopTreatmentPlan" targetRef="Task_PsychoeducationAndFamilySupport" />
+    <bpmn:sequenceFlow id="Flow_12" sourceRef="Task_PsychoeducationAndFamilySupport" targetRef="Task_InitiateTreatment" />
+    <bpmn:sequenceFlow id="Flow_13" sourceRef="Task_InitiateTreatment" targetRef="Task_MonitorAndFollowUp" />
+    <bpmn:sequenceFlow id="Flow_14" sourceRef="Task_MonitorAndFollowUp" targetRef="Gateway_ResponseAdequate" />
+    <bpmn:sequenceFlow id="Flow_Yes_Response" name="Yes" sourceRef="Gateway_ResponseAdequate" targetRef="EndEvent_Completed" />
+    <bpmn:sequenceFlow id="Flow_No_Response" name="No" sourceRef="Gateway_ResponseAdequate" targetRef="Task_AdjustOrEscalateTreatment" />
+    <bpmn:sequenceFlow id="Flow_15" sourceRef="Task_AdjustOrEscalateTreatment" targetRef="Task_MonitorAndFollowUp" />
+
+  </bpmn:process>
+
+  <!-- BPMN-DI -->
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_PTSD_Management">
+
+      <!-- Lanes -->
+      <bpmndi:BPMNShape id="Lane_Patient_di" bpmnElement="Lane_Patient">
+        <dc:Bounds x="120" y="80" width="1600" height="160" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_PrimaryCare_di" bpmnElement="Lane_PrimaryCare">
+        <dc:Bounds x="120" y="240" width="1600" height="170" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Specialist_di" bpmnElement="Lane_Specialist">
+        <dc:Bounds x="120" y="410" width="1600" height="220" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Emergency_di" bpmnElement="Lane_Emergency">
+        <dc:Bounds x="120" y="630" width="1600" height="150" />
+      </bpmndi:BPMNShape>
+
+      <!-- Nodes -->
+      <bpmndi:BPMNShape id="StartEvent_Referral_di" bpmnElement="StartEvent_Referral">
+        <dc:Bounds x="170" y="130" width="36" height="36" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_PresentWithComplaints_di" bpmnElement="Task_PresentWithComplaints">
+        <dc:Bounds x="260" y="110" width="220" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_InitialAssessment_di" bpmnElement="Task_InitialAssessment">
+        <dc:Bounds x="520" y="285" width="250" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_PTSD_OrientationScreen_di" bpmnElement="Task_PTSD_OrientationScreen">
+        <dc:Bounds x="810" y="285" width="280" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_SuspectedPTSD_di" bpmnElement="Gateway_SuspectedPTSD" isMarkerVisible="true">
+        <dc:Bounds x="1135" y="300" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="EndEvent_NoPTSD_di" bpmnElement="EndEvent_NoPTSD">
+        <dc:Bounds x="1320" y="305" width="36" height="36" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_ReferToSpecialist_di" bpmnElement="Task_ReferToSpecialist">
+        <dc:Bounds x="1230" y="285" width="280" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_ComprehensiveAssessment_di" bpmnElement="Task_ComprehensiveAssessment">
+        <dc:Bounds x="1550" y="455" width="260" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_AssessRisk_di" bpmnElement="Task_AssessRisk">
+        <dc:Bounds x="1840" y="455" width="260" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_AcuteRisk_di" bpmnElement="Gateway_AcuteRisk" isMarkerVisible="true">
+        <dc:Bounds x="2130" y="470" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_EmergencyInterventionOrHospitalization_di" bpmnElement="Task_EmergencyInterventionOrHospitalization">
+        <dc:Bounds x="2310" y="665" width="320" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="EndEvent_AcuteManaged_di" bpmnElement="EndEvent_AcuteManaged">
+        <dc:Bounds x="2670" y="687" width="36" height="36" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_DifferentialDiagnosisAndComorbidities_di" bpmnElement="Task_DifferentialDiagnosisAndComorbidities">
+        <dc:Bounds x="2310" y="455" width="300" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_ProvideConsentAndPreferences_di" bpmnElement="Task_ProvideConsentAndPreferences">
+        <dc:Bounds x="2640" y="110" width="310" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_DevelopTreatmentPlan_di" bpmnElement="Task_DevelopTreatmentPlan">
+        <dc:Bounds x="2640" y="455" width="280" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_PsychoeducationAndFamilySupport_di" bpmnElement="Task_PsychoeducationAndFamilySupport">
+        <dc:Bounds x="2960" y="455" width="300" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_InitiateTreatment_di" bpmnElement="Task_InitiateTreatment">
+        <dc:Bounds x="3300" y="455" width="320" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_MonitorAndFollowUp_di" bpmnElement="Task_MonitorAndFollowUp">
+        <dc:Bounds x="3660" y="455" width="300" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_ResponseAdequate_di" bpmnElement="Gateway_ResponseAdequate" isMarkerVisible="true">
+        <dc:Bounds x="3995" y="470" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="EndEvent_Completed_di" bpmnElement="EndEvent_Completed">
+        <dc:Bounds x="4180" y="130" width="36" height="36" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_AdjustOrEscalateTreatment_di" bpmnElement="Task_AdjustOrEscalateTreatment">
+        <dc:Bounds x="4130" y="455" width="320" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- Edges -->
+      <bpmndi:BPMNEdge id="Flow_1_di" bpmnElement="Flow_1">
+        <di:waypoint x="206" y="148" />
+        <di:waypoint x="260" y="150" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_2_di" bpmnElement="Flow_2">
+        <di:waypoint x="480" y="150" />
+        <di:waypoint x="520" y="325" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_3_di" bpmnElement="Flow_3">
+        <di:waypoint x="770" y="325" />
+        <di:waypoint x="810" y="325" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_4_di" bpmnElement="Flow_4">
+        <di:waypoint x="1090" y="325" />
+        <di:waypoint x="1135" y="325" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_Yes_Suspected_di" bpmnElement="Flow_Yes_Suspected">
+        <di:waypoint x="1185" y="325" />
+        <di:waypoint x="1230" y="325" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_No_Suspected_di" bpmnElement="Flow_No_Suspected">
+        <di:waypoint x="1160" y="350" />
+        <di:waypoint x="1338" y="341" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_5_di" bpmnElement="Flow_5">
+        <di:waypoint x="1510" y="325" />
+        <di:waypoint x="1550" y="495" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_6_di" bpmnElement="Flow_6">
+        <di:waypoint x="1810" y="495" />
+        <di:waypoint x="1840" y="495" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_7_di" bpmnElement="Flow_7">
+        <di:waypoint x="2100" y="495" />
+        <di:waypoint x="2130" y="495" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_Yes_AcuteRisk_di" bpmnElement="Flow_Yes_AcuteRisk">
+        <di:waypoint x="2155" y="520" />
+        <di:waypoint x="2470" y="665" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_No_AcuteRisk_di" bpmnElement="Flow_No_AcuteRisk">
+        <di:waypoint x="2180" y="495" />
+        <di:waypoint x="2310" y="495" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_8_di" bpmnElement="Flow_8">
+        <di:waypoint x="2630" y="705" />
+        <di:waypoint x="2670" y="705" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_9_di" bpmnElement="Flow_9">
+        <di:waypoint x="2610" y="495" />
+        <di:waypoint x="2640" y="150" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_10_di" bpmnElement="Flow_10">
+        <di:waypoint x="2950" y="150" />
+        <di:waypoint x="2640" y="495" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_11_di" bpmnElement="Flow_11">
+        <di:waypoint x="2920" y="495" />
+        <di:waypoint x="2960" y="495" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_12_di" bpmnElement="Flow_12">
+        <di:waypoint x="3260" y="495" />
+        <di:waypoint x="3300" y="495" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_13_di" bpmnElement="Flow_13">
+        <di:waypoint x="3620" y="495" />
+        <di:waypoint x="3660" y="495" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_14_di" bpmnElement="Flow_14">
+        <di:waypoint x="3960" y="495" />
+        <di:waypoint x="3995" y="495" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_Yes_Response_di" bpmnElement="Flow_Yes_Response">
+        <di:waypoint x="4045" y="495" />
+        <di:waypoint x="4180" y="148" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_No_Response_di" bpmnElement="Flow_No_Response">
+        <di:waypoint x="4020" y="520" />
+        <di:waypoint x="4130" y="495" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_15_di" bpmnElement="Flow_15">
+        <di:waypoint x="4450" y="495" />
+        <di:waypoint x="3810" y="535" />
+      </bpmndi:BPMNEdge>
+
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+
+</bpmn:definitions>

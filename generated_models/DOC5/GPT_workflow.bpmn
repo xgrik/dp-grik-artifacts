@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_0cwasaq" targetNamespace="http://bpmn.io/schema/bpmn" xmlns:modeler="http://camunda.org/schema/modeler/1.0" exporter="Camunda Modeler" exporterVersion="5.33.1" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.22.0">
+  <bpmn:process id="Process_0hbbe8d" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1" name="Start" />
+    <bpmn:userTask id="UserTask_Screening" name="Perform initial depression screening" />
+    <bpmn:exclusiveGateway id="Gateway_SuspectedDepression" name="Suspected depression?" />
+    <bpmn:endEvent id="EndEvent_NoDepression" name="End (No depression pathway)" />
+    <bpmn:userTask id="UserTask_IdentifySyndromeRisk" name="Identify depressive syndrome and suicide risk" />
+    <bpmn:businessRuleTask id="BusinessRule_AssessCompetence" name="Assess competence to evaluate mental status" />
+    <bpmn:exclusiveGateway id="Gateway_CompetentToAssess" name="Competent to assess mental status?" />
+    <bpmn:userTask id="UserTask_ReferToSpecialist" name="Refer patient to mental health specialist" />
+    <bpmn:exclusiveGateway id="Gateway_ReferralByNonGP" name="Referral initiated by non-GP specialist?" />
+    <bpmn:userTask id="UserTask_InformGP" name="Inform general practitioner about referral" />
+    <bpmn:userTask id="UserTask_ComprehensiveAssessment" name="Conduct comprehensive psychological assessment" />
+    <bpmn:userTask id="UserTask_AdministerQuestionnaires" name="Administer standardized depression questionnaires" />
+    <bpmn:exclusiveGateway id="Gateway_ExtendedTestingIndicated" name="Extended psychological testing indicated?" />
+    <bpmn:userTask id="UserTask_ExtendedTesting" name="Perform extended psychological testing" />
+    <bpmn:businessRuleTask id="BusinessRule_ClassifySeverityRisk" name="Classify depression severity and risk level" />
+    <bpmn:exclusiveGateway id="Gateway_SeverityRiskClassification" name="Severity / risk classification" />
+    <bpmn:businessRuleTask id="BusinessRule_SelectSteppedCare" name="Select appropriate stepped-care level" />
+    <bpmn:exclusiveGateway id="Gateway_SteppedCareLevel" name="Selected stepped-care level?" />
+    <bpmn:userTask id="UserTask_Psychoeducation" name="Provide psychoeducation to the patient" />
+    <bpmn:userTask id="UserTask_ActiveMonitoring" name="Initiate active monitoring (follow-up planned)" />
+    <bpmn:exclusiveGateway id="Gateway_AttendedFollowUp" name="Patient attended scheduled follow-up?" />
+    <bpmn:userTask id="UserTask_ContactAfterMissedFollowUp" name="Contact patient after missed follow-up" />
+    <bpmn:userTask id="UserTask_Psychotherapy" name="Deliver psychotherapeutic intervention" />
+    <bpmn:userTask id="UserTask_Reassess" name="Reassess patient during treatment" />
+    <bpmn:exclusiveGateway id="Gateway_AdequateResponse" name="Adequate response to current treatment?" />
+    <bpmn:endEvent id="EndEvent_Completed" name="End (Care pathway completed)" />
+
+    <bpmn:sequenceFlow id="Flow_01" sourceRef="StartEvent_1" targetRef="UserTask_Screening" />
+    <bpmn:sequenceFlow id="Flow_02" sourceRef="UserTask_Screening" targetRef="Gateway_SuspectedDepression" />
+    <bpmn:sequenceFlow id="Flow_03_DepressionYes" name="Depression suspected" sourceRef="Gateway_SuspectedDepression" targetRef="UserTask_IdentifySyndromeRisk" />
+    <bpmn:sequenceFlow id="Flow_04_DepressionNo" name="Depression not suspected" sourceRef="Gateway_SuspectedDepression" targetRef="EndEvent_NoDepression" />
+
+    <bpmn:sequenceFlow id="Flow_05" sourceRef="UserTask_IdentifySyndromeRisk" targetRef="BusinessRule_AssessCompetence" />
+    <bpmn:sequenceFlow id="Flow_06" sourceRef="BusinessRule_AssessCompetence" targetRef="Gateway_CompetentToAssess" />
+    <bpmn:sequenceFlow id="Flow_07_CompetentYes" name="Competent" sourceRef="Gateway_CompetentToAssess" targetRef="UserTask_ComprehensiveAssessment" />
+    <bpmn:sequenceFlow id="Flow_08_CompetentNo" name="Not competent" sourceRef="Gateway_CompetentToAssess" targetRef="UserTask_ReferToSpecialist" />
+
+    <bpmn:sequenceFlow id="Flow_09" sourceRef="UserTask_ReferToSpecialist" targetRef="Gateway_ReferralByNonGP" />
+    <bpmn:sequenceFlow id="Flow_10_ReferralByNonGPYes" name="Referral by specialist" sourceRef="Gateway_ReferralByNonGP" targetRef="UserTask_InformGP" />
+    <bpmn:sequenceFlow id="Flow_11_ReferralByNonGPNo" name="Referral by GP" sourceRef="Gateway_ReferralByNonGP" targetRef="UserTask_ComprehensiveAssessment" />
+    <bpmn:sequenceFlow id="Flow_12" sourceRef="UserTask_InformGP" targetRef="UserTask_ComprehensiveAssessment" />
+
+    <bpmn:sequenceFlow id="Flow_13" sourceRef="UserTask_ComprehensiveAssessment" targetRef="UserTask_AdministerQuestionnaires" />
+    <bpmn:sequenceFlow id="Flow_14" sourceRef="UserTask_AdministerQuestionnaires" targetRef="Gateway_ExtendedTestingIndicated" />
+    <bpmn:sequenceFlow id="Flow_15_ExtTestingYes" name="Indicated" sourceRef="Gateway_ExtendedTestingIndicated" targetRef="UserTask_ExtendedTesting" />
+    <bpmn:sequenceFlow id="Flow_16_ExtTestingNo" name="Not indicated" sourceRef="Gateway_ExtendedTestingIndicated" targetRef="BusinessRule_ClassifySeverityRisk" />
+    <bpmn:sequenceFlow id="Flow_17" sourceRef="UserTask_ExtendedTesting" targetRef="BusinessRule_ClassifySeverityRisk" />
+
+    <bpmn:sequenceFlow id="Flow_18" sourceRef="BusinessRule_ClassifySeverityRisk" targetRef="Gateway_SeverityRiskClassification" />
+    <bpmn:sequenceFlow id="Flow_19_Mild" name="Mild" sourceRef="Gateway_SeverityRiskClassification" targetRef="BusinessRule_SelectSteppedCare" />
+    <bpmn:sequenceFlow id="Flow_20_Moderate" name="Moderate" sourceRef="Gateway_SeverityRiskClassification" targetRef="BusinessRule_SelectSteppedCare" />
+    <bpmn:sequenceFlow id="Flow_21_Severe" name="Severe / high risk" sourceRef="Gateway_SeverityRiskClassification" targetRef="BusinessRule_SelectSteppedCare" />
+
+    <bpmn:sequenceFlow id="Flow_22" sourceRef="BusinessRule_SelectSteppedCare" targetRef="Gateway_SteppedCareLevel" />
+    <bpmn:sequenceFlow id="Flow_23_Step1" name="Step 1" sourceRef="Gateway_SteppedCareLevel" targetRef="UserTask_Psychoeducation" />
+    <bpmn:sequenceFlow id="Flow_24_Step2_3" name="Step 2-3" sourceRef="Gateway_SteppedCareLevel" targetRef="UserTask_Psychotherapy" />
+    <bpmn:sequenceFlow id="Flow_25_Step4" name="Step 4" sourceRef="Gateway_SteppedCareLevel" targetRef="UserTask_Psychotherapy" />
+
+    <bpmn:sequenceFlow id="Flow_26" sourceRef="UserTask_Psychoeducation" targetRef="UserTask_ActiveMonitoring" />
+    <bpmn:sequenceFlow id="Flow_27" sourceRef="UserTask_ActiveMonitoring" targetRef="Gateway_AttendedFollowUp" />
+    <bpmn:sequenceFlow id="Flow_28_AttendedYes" name="Attended" sourceRef="Gateway_AttendedFollowUp" targetRef="UserTask_Reassess" />
+    <bpmn:sequenceFlow id="Flow_29_AttendedNo" name="Did not attend" sourceRef="Gateway_AttendedFollowUp" targetRef="UserTask_ContactAfterMissedFollowUp" />
+    <bpmn:sequenceFlow id="Flow_30" sourceRef="UserTask_ContactAfterMissedFollowUp" targetRef="UserTask_ActiveMonitoring" />
+
+    <bpmn:sequenceFlow id="Flow_31" sourceRef="UserTask_Psychotherapy" targetRef="UserTask_Reassess" />
+    <bpmn:sequenceFlow id="Flow_32" sourceRef="UserTask_Reassess" targetRef="Gateway_AdequateResponse" />
+    <bpmn:sequenceFlow id="Flow_33_ResponseYes" name="Adequate response" sourceRef="Gateway_AdequateResponse" targetRef="EndEvent_Completed" />
+    <bpmn:sequenceFlow id="Flow_34_ResponseNo" name="Inadequate response / escalate" sourceRef="Gateway_AdequateResponse" targetRef="BusinessRule_SelectSteppedCare" />
+  </bpmn:process>
+
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_0hbbe8d">
+      <bpmndi:BPMNShape id="StartEvent_1_di" bpmnElement="StartEvent_1">
+        <dc:Bounds x="182" y="162" width="36" height="36" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_Screening_di" bpmnElement="UserTask_Screening">
+        <dc:Bounds x="260" y="140" width="220" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_SuspectedDepression_di" bpmnElement="Gateway_SuspectedDepression" isMarkerVisible="true">
+        <dc:Bounds x="520" y="155" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="EndEvent_NoDepression_di" bpmnElement="EndEvent_NoDepression">
+        <dc:Bounds x="680" y="262" width="36" height="36" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_IdentifySyndromeRisk_di" bpmnElement="UserTask_IdentifySyndromeRisk">
+        <dc:Bounds x="620" y="120" width="260" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="BusinessRule_AssessCompetence_di" bpmnElement="BusinessRule_AssessCompetence">
+        <dc:Bounds x="920" y="120" width="260" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_CompetentToAssess_di" bpmnElement="Gateway_CompetentToAssess" isMarkerVisible="true">
+        <dc:Bounds x="1220" y="145" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_ReferToSpecialist_di" bpmnElement="UserTask_ReferToSpecialist">
+        <dc:Bounds x="1320" y="260" width="280" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_ReferralByNonGP_di" bpmnElement="Gateway_ReferralByNonGP" isMarkerVisible="true">
+        <dc:Bounds x="1640" y="275" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_InformGP_di" bpmnElement="UserTask_InformGP">
+        <dc:Bounds x="1740" y="380" width="280" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_ComprehensiveAssessment_di" bpmnElement="UserTask_ComprehensiveAssessment">
+        <dc:Bounds x="1320" y="120" width="300" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_AdministerQuestionnaires_di" bpmnElement="UserTask_AdministerQuestionnaires">
+        <dc:Bounds x="1660" y="120" width="320" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_ExtendedTestingIndicated_di" bpmnElement="Gateway_ExtendedTestingIndicated" isMarkerVisible="true">
+        <dc:Bounds x="2020" y="145" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_ExtendedTesting_di" bpmnElement="UserTask_ExtendedTesting">
+        <dc:Bounds x="2140" y="40" width="300" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="BusinessRule_ClassifySeverityRisk_di" bpmnElement="BusinessRule_ClassifySeverityRisk">
+        <dc:Bounds x="2140" y="200" width="320" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_SeverityRiskClassification_di" bpmnElement="Gateway_SeverityRiskClassification" isMarkerVisible="true">
+        <dc:Bounds x="2500" y="215" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="BusinessRule_SelectSteppedCare_di" bpmnElement="BusinessRule_SelectSteppedCare">
+        <dc:Bounds x="2590" y="200" width="320" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_SteppedCareLevel_di" bpmnElement="Gateway_SteppedCareLevel" isMarkerVisible="true">
+        <dc:Bounds x="2950" y="215" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_Psychoeducation_di" bpmnElement="UserTask_Psychoeducation">
+        <dc:Bounds x="3090" y="60" width="300" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_ActiveMonitoring_di" bpmnElement="UserTask_ActiveMonitoring">
+        <dc:Bounds x="3430" y="60" width="320" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_AttendedFollowUp_di" bpmnElement="Gateway_AttendedFollowUp" isMarkerVisible="true">
+        <dc:Bounds x="3790" y="75" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_ContactAfterMissedFollowUp_di" bpmnElement="UserTask_ContactAfterMissedFollowUp">
+        <dc:Bounds x="3960" y="160" width="320" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_Psychotherapy_di" bpmnElement="UserTask_Psychotherapy">
+        <dc:Bounds x="3090" y="320" width="320" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_Reassess_di" bpmnElement="UserTask_Reassess">
+        <dc:Bounds x="3430" y="260" width="300" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_AdequateResponse_di" bpmnElement="Gateway_AdequateResponse" isMarkerVisible="true">
+        <dc:Bounds x="3790" y="275" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="EndEvent_Completed_di" bpmnElement="EndEvent_Completed">
+        <dc:Bounds x="4100" y="282" width="36" height="36" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNEdge id="Flow_01_di" bpmnElement="Flow_01">
+        <di:waypoint x="218" y="180" />
+        <di:waypoint x="260" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_02_di" bpmnElement="Flow_02">
+        <di:waypoint x="480" y="180" />
+        <di:waypoint x="520" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_03_DepressionYes_di" bpmnElement="Flow_03_DepressionYes">
+        <di:waypoint x="570" y="180" />
+        <di:waypoint x="620" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_04_DepressionNo_di" bpmnElement="Flow_04_DepressionNo">
+        <di:waypoint x="545" y="205" />
+        <di:waypoint x="545" y="280" />
+        <di:waypoint x="680" y="280" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_05_di" bpmnElement="Flow_05">
+        <di:waypoint x="880" y="160" />
+        <di:waypoint x="920" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_06_di" bpmnElement="Flow_06">
+        <di:waypoint x="1180" y="160" />
+        <di:waypoint x="1220" y="170" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_07_CompetentYes_di" bpmnElement="Flow_07_CompetentYes">
+        <di:waypoint x="1270" y="170" />
+        <di:waypoint x="1320" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_08_CompetentNo_di" bpmnElement="Flow_08_CompetentNo">
+        <di:waypoint x="1245" y="195" />
+        <di:waypoint x="1245" y="300" />
+        <di:waypoint x="1320" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_09_di" bpmnElement="Flow_09">
+        <di:waypoint x="1600" y="300" />
+        <di:waypoint x="1640" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_10_ReferralByNonGPYes_di" bpmnElement="Flow_10_ReferralByNonGPYes">
+        <di:waypoint x="1665" y="325" />
+        <di:waypoint x="1665" y="420" />
+        <di:waypoint x="1740" y="420" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_11_ReferralByNonGPNo_di" bpmnElement="Flow_11_ReferralByNonGPNo">
+        <di:waypoint x="1690" y="300" />
+        <di:waypoint x="1690" y="160" />
+        <di:waypoint x="1620" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_12_di" bpmnElement="Flow_12">
+        <di:waypoint x="2020" y="420" />
+        <di:waypoint x="2020" y="160" />
+        <di:waypoint x="1620" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_13_di" bpmnElement="Flow_13">
+        <di:waypoint x="1620" y="160" />
+        <di:waypoint x="1660" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_14_di" bpmnElement="Flow_14">
+        <di:waypoint x="1980" y="160" />
+        <di:waypoint x="2020" y="170" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_15_ExtTestingYes_di" bpmnElement="Flow_15_ExtTestingYes">
+        <di:waypoint x="2045" y="145" />
+        <di:waypoint x="2045" y="80" />
+        <di:waypoint x="2140" y="80" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_16_ExtTestingNo_di" bpmnElement="Flow_16_ExtTestingNo">
+        <di:waypoint x="2070" y="170" />
+        <di:waypoint x="2140" y="240" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_17_di" bpmnElement="Flow_17">
+        <di:waypoint x="2440" y="80" />
+        <di:waypoint x="2460" y="240" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_18_di" bpmnElement="Flow_18">
+        <di:waypoint x="2460" y="240" />
+        <di:waypoint x="2500" y="240" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_19_Mild_di" bpmnElement="Flow_19_Mild">
+        <di:waypoint x="2525" y="215" />
+        <di:waypoint x="2525" y="160" />
+        <di:waypoint x="2590" y="240" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_20_Moderate_di" bpmnElement="Flow_20_Moderate">
+        <di:waypoint x="2550" y="240" />
+        <di:waypoint x="2590" y="240" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_21_Severe_di" bpmnElement="Flow_21_Severe">
+        <di:waypoint x="2525" y="265" />
+        <di:waypoint x="2525" y="320" />
+        <di:waypoint x="2590" y="240" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_22_di" bpmnElement="Flow_22">
+        <di:waypoint x="2910" y="240" />
+        <di:waypoint x="2950" y="240" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_23_Step1_di" bpmnElement="Flow_23_Step1">
+        <di:waypoint x="2975" y="215" />
+        <di:waypoint x="2975" y="100" />
+        <di:waypoint x="3090" y="100" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_24_Step2_3_di" bpmnElement="Flow_24_Step2_3">
+        <di:waypoint x="3000" y="240" />
+        <di:waypoint x="3090" y="360" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_25_Step4_di" bpmnElement="Flow_25_Step4">
+        <di:waypoint x="3000" y="240" />
+        <di:waypoint x="3000" y="360" />
+        <di:waypoint x="3090" y="360" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_26_di" bpmnElement="Flow_26">
+        <di:waypoint x="3390" y="100" />
+        <di:waypoint x="3430" y="100" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_27_di" bpmnElement="Flow_27">
+        <di:waypoint x="3750" y="100" />
+        <di:waypoint x="3790" y="100" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_28_AttendedYes_di" bpmnElement="Flow_28_AttendedYes">
+        <di:waypoint x="3840" y="100" />
+        <di:waypoint x="3580" y="260" />
+        <di:waypoint x="3580" y="260" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_29_AttendedNo_di" bpmnElement="Flow_29_AttendedNo">
+        <di:waypoint x="3815" y="125" />
+        <di:waypoint x="3815" y="200" />
+        <di:waypoint x="3960" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_30_di" bpmnElement="Flow_30">
+        <di:waypoint x="4280" y="200" />
+        <di:waypoint x="4290" y="100" />
+        <di:waypoint x="3430" y="100" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_31_di" bpmnElement="Flow_31">
+        <di:waypoint x="3250" y="320" />
+        <di:waypoint x="3430" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_32_di" bpmnElement="Flow_32">
+        <di:waypoint x="3730" y="300" />
+        <di:waypoint x="3790" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_33_ResponseYes_di" bpmnElement="Flow_33_ResponseYes">
+        <di:waypoint x="3840" y="300" />
+        <di:waypoint x="4100" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_34_ResponseNo_di" bpmnElement="Flow_34_ResponseNo">
+        <di:waypoint x="3815" y="275" />
+        <di:waypoint x="3815" y="240" />
+        <di:waypoint x="2590" y="240" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

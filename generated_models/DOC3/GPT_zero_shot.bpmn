@@ -1,0 +1,548 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+                  id="Definitions_02fe9dz"
+                  targetNamespace="http://bpmn.io/schema/bpmn"
+                  xmlns:modeler="http://camunda.org/schema/modeler/1.0"
+                  exporter="Camunda Modeler"
+                  exporterVersion="5.33.1"
+                  modeler:executionPlatform="Camunda Platform"
+                  modeler:executionPlatformVersion="7.22.0">
+
+  <bpmn:process id="Process_Agoraphobia_Management" name="Agoraphobia – Identification, Assessment, and Stepped Care Management" isExecutable="true">
+
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="Lane_PrimaryCare" name="Primary Care / Referring Clinician">
+        <bpmn:flowNodeRef>StartEvent_1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Screening</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_Suspected</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ProvideReferralInfo</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ReferToSpecialist</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_NoSuspicion</bpmn:flowNodeRef>
+      </bpmn:lane>
+
+      <bpmn:lane id="Lane_Specialist" name="Specialist (Psychiatry / Clinical Psychology)">
+        <bpmn:flowNodeRef>Task_SpecialistAssessment</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_MedicalSomaticWorkup</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_SomaticCause</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_DifferentialDiagnosis</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Psychometrics</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_AssessComorbidity</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_ComorbidDepression</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_PrioritizeDepressionPathway</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_SubstanceMisuse</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_TreatSubstanceMisuseFirst</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_CognitiveImpairment</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_AdjustDeliveryOrConsultSpecialist</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_AssessSuicideRisk</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_SuicideRisk</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_FollowSuicideSOP</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_CreateTreatmentPlan</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_MildOrImproving</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_PsychoeducationAndMonitoring</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_SteppedCare_Step1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_ResponseAfterStep1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_SteppedCare_Step2</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_ResponseAfterStep2</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_SteppedCare_Step3</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_ResponseAfterStep3</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_SteppedCare_Step4</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_MonitorOutcomes</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_TreatmentStabilized</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_SomaticTreated</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_SuicideSOP</bpmn:flowNodeRef>
+      </bpmn:lane>
+
+      <bpmn:lane id="Lane_Patient" name="Patient">
+        <bpmn:flowNodeRef>Task_PatientEngages</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <!-- Events -->
+    <bpmn:startEvent id="StartEvent_1" name="Patient presents / request for help">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <bpmn:endEvent id="EndEvent_NoSuspicion" name="No suspicion of anxiety disorder">
+      <bpmn:incoming>Flow_3b</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:endEvent id="EndEvent_SomaticTreated" name="Somatic cause managed (continue if agoraphobic symptoms persist)">
+      <bpmn:incoming>Flow_7a</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:endEvent id="EndEvent_SuicideSOP" name="Suicide risk handled via SOP">
+      <bpmn:incoming>Flow_16a</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:endEvent id="EndEvent_TreatmentStabilized" name="Treatment completed / stabilized + relapse prevention">
+      <bpmn:incoming>Flow_27</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <!-- Primary care -->
+    <bpmn:userTask id="Task_Screening" name="Initial screening for anxiety symptoms">
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="Gateway_Suspected" name="Suspected mental disorder?">
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_3a</bpmn:outgoing>
+      <bpmn:outgoing>Flow_3b</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="Task_ProvideReferralInfo" name="Provide written information (where to go, what to expect)">
+      <bpmn:incoming>Flow_3a</bpmn:incoming>
+      <bpmn:outgoing>Flow_4</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_ReferToSpecialist" name="Refer to specialist (psychiatry / clinical psychology)">
+      <bpmn:incoming>Flow_4</bpmn:incoming>
+      <bpmn:outgoing>Flow_5</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- Patient -->
+    <bpmn:userTask id="Task_PatientEngages" name="Patient attends specialist assessment and participates in care">
+      <bpmn:incoming>Flow_5</bpmn:incoming>
+      <bpmn:outgoing>Flow_6</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- Specialist assessment and diagnosis -->
+    <bpmn:userTask id="Task_SpecialistAssessment" name="Comprehensive mental health assessment (history, symptoms, functioning, treatment history)">
+      <bpmn:incoming>Flow_6</bpmn:incoming>
+      <bpmn:outgoing>Flow_6b</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_MedicalSomaticWorkup" name="Somatic evaluation (history, physical exam, vitals, ECG; labs/EEG if indicated)">
+      <bpmn:incoming>Flow_6b</bpmn:incoming>
+      <bpmn:outgoing>Flow_7</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="Gateway_SomaticCause" name="Somatic cause identified?">
+      <bpmn:incoming>Flow_7</bpmn:incoming>
+      <bpmn:outgoing>Flow_7a</bpmn:outgoing>
+      <bpmn:outgoing>Flow_7b</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="Task_DifferentialDiagnosis" name="Differential diagnosis (rule out other mental disorders; clarify avoidance drivers)">
+      <bpmn:incoming>Flow_7b</bpmn:incoming>
+      <bpmn:outgoing>Flow_8</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_Psychometrics" name="Use psychometric tools (e.g., avoidance/agoraphobia measures; PHQ-9 / GAD-7 for monitoring)">
+      <bpmn:incoming>Flow_8</bpmn:incoming>
+      <bpmn:outgoing>Flow_9</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_AssessComorbidity" name="Assess comorbidities and psychosocial factors (depression, substance use, learning/cognitive issues)">
+      <bpmn:incoming>Flow_9</bpmn:incoming>
+      <bpmn:outgoing>Flow_10</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- Comorbidity handling -->
+    <bpmn:exclusiveGateway id="Gateway_ComorbidDepression" name="Depression present and clinically significant?">
+      <bpmn:incoming>Flow_10</bpmn:incoming>
+      <bpmn:outgoing>Flow_11a</bpmn:outgoing>
+      <bpmn:outgoing>Flow_11b</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="Task_PrioritizeDepressionPathway" name="Prioritize depression treatment according to relevant standard (if needed)">
+      <bpmn:incoming>Flow_11a</bpmn:incoming>
+      <bpmn:outgoing>Flow_12</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="Gateway_SubstanceMisuse" name="Harmful alcohol/substance use or dependence?">
+      <bpmn:incoming>Flow_11b</bpmn:incoming>
+      <bpmn:incoming>Flow_12</bpmn:incoming>
+      <bpmn:outgoing>Flow_13a</bpmn:outgoing>
+      <bpmn:outgoing>Flow_13b</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="Task_TreatSubstanceMisuseFirst" name="Recommend/treat substance misuse first (may improve anxiety/depression symptoms)">
+      <bpmn:incoming>Flow_13a</bpmn:incoming>
+      <bpmn:outgoing>Flow_14</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="Gateway_CognitiveImpairment" name="Learning disorder or cognitive impairment present?">
+      <bpmn:incoming>Flow_13b</bpmn:incoming>
+      <bpmn:incoming>Flow_14</bpmn:incoming>
+      <bpmn:outgoing>Flow_15a</bpmn:outgoing>
+      <bpmn:outgoing>Flow_15b</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="Task_AdjustDeliveryOrConsultSpecialist" name="Adjust delivery/duration or consult specialist (if moderate/severe impairment)">
+      <bpmn:incoming>Flow_15a</bpmn:incoming>
+      <bpmn:outgoing>Flow_15c</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- Suicide risk -->
+    <bpmn:userTask id="Task_AssessSuicideRisk" name="Directly assess suicidal thoughts and intent">
+      <bpmn:incoming>Flow_15b</bpmn:incoming>
+      <bpmn:incoming>Flow_15c</bpmn:incoming>
+      <bpmn:outgoing>Flow_16</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="Gateway_SuicideRisk" name="Risk of self-harm or suicide?">
+      <bpmn:incoming>Flow_16</bpmn:incoming>
+      <bpmn:outgoing>Flow_16a</bpmn:outgoing>
+      <bpmn:outgoing>Flow_16b</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="Task_FollowSuicideSOP" name="Follow applicable SOP for self-harm/suicide risk management">
+      <bpmn:incoming>Flow_16a</bpmn:incoming>
+      <bpmn:outgoing>Flow_16a_end</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- Plan and treatment selection -->
+    <bpmn:userTask id="Task_CreateTreatmentPlan" name="Create individualized treatment plan (EBM-first; consider preferences, severity, duration, functioning)">
+      <bpmn:incoming>Flow_16b</bpmn:incoming>
+      <bpmn:outgoing>Flow_17</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="Gateway_MildOrImproving" name="Mild symptoms improving / early stage?">
+      <bpmn:incoming>Flow_17</bpmn:incoming>
+      <bpmn:outgoing>Flow_18a</bpmn:outgoing>
+      <bpmn:outgoing>Flow_18b</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="Task_PsychoeducationAndMonitoring" name="Provide psychoeducation and monitor before initiating intensive treatment">
+      <bpmn:incoming>Flow_18a</bpmn:incoming>
+      <bpmn:outgoing>Flow_26</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- Stepped care -->
+    <bpmn:userTask id="Task_SteppedCare_Step1" name="Step 1: Self-help techniques + lifestyle change + mobile applications">
+      <bpmn:incoming>Flow_18b</bpmn:incoming>
+      <bpmn:outgoing>Flow_19</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="Gateway_ResponseAfterStep1" name="Adequate response after Step 1?">
+      <bpmn:incoming>Flow_19</bpmn:incoming>
+      <bpmn:outgoing>Flow_20a</bpmn:outgoing>
+      <bpmn:outgoing>Flow_20b</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="Task_SteppedCare_Step2" name="Step 2: Psychological therapies (guided self-help; CBT 12–15 sessions; applied relaxation 12–15 sessions)">
+      <bpmn:incoming>Flow_20b</bpmn:incoming>
+      <bpmn:outgoing>Flow_21</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="Gateway_ResponseAfterStep2" name="Adequate response after Step 2?">
+      <bpmn:incoming>Flow_21</bpmn:incoming>
+      <bpmn:outgoing>Flow_22a</bpmn:outgoing>
+      <bpmn:outgoing>Flow_22b</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="Task_SteppedCare_Step3" name="Step 3: Medication / pharmacotherapy (per treating physician)">
+      <bpmn:incoming>Flow_22b</bpmn:incoming>
+      <bpmn:outgoing>Flow_23</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="Gateway_ResponseAfterStep3" name="Adequate response after Step 3?">
+      <bpmn:incoming>Flow_23</bpmn:incoming>
+      <bpmn:outgoing>Flow_24a</bpmn:outgoing>
+      <bpmn:outgoing>Flow_24b</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="Task_SteppedCare_Step4" name="Step 4: Support groups / community supports (as applicable)">
+      <bpmn:incoming>Flow_24b</bpmn:incoming>
+      <bpmn:outgoing>Flow_25</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- Monitoring and outcome -->
+    <bpmn:userTask id="Task_MonitorOutcomes" name="Monitor outcomes (repeat validated measures; track functioning; plan relapse prevention)">
+      <bpmn:incoming>Flow_20a</bpmn:incoming>
+      <bpmn:incoming>Flow_22a</bpmn:incoming>
+      <bpmn:incoming>Flow_24a</bpmn:incoming>
+      <bpmn:incoming>Flow_25</bpmn:incoming>
+      <bpmn:incoming>Flow_26</bpmn:incoming>
+      <bpmn:outgoing>Flow_27</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- Sequence flows -->
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_1" targetRef="Task_Screening"/>
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Task_Screening" targetRef="Gateway_Suspected"/>
+
+    <bpmn:sequenceFlow id="Flow_3a" sourceRef="Gateway_Suspected" targetRef="Task_ProvideReferralInfo">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${suspectedMentalDisorder == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_3b" sourceRef="Gateway_Suspected" targetRef="EndEvent_NoSuspicion">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${suspectedMentalDisorder == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="Flow_4" sourceRef="Task_ProvideReferralInfo" targetRef="Task_ReferToSpecialist"/>
+    <bpmn:sequenceFlow id="Flow_5" sourceRef="Task_ReferToSpecialist" targetRef="Task_PatientEngages"/>
+    <bpmn:sequenceFlow id="Flow_6" sourceRef="Task_PatientEngages" targetRef="Task_SpecialistAssessment"/>
+    <bpmn:sequenceFlow id="Flow_6b" sourceRef="Task_SpecialistAssessment" targetRef="Task_MedicalSomaticWorkup"/>
+
+    <bpmn:sequenceFlow id="Flow_7" sourceRef="Task_MedicalSomaticWorkup" targetRef="Gateway_SomaticCause"/>
+    <bpmn:sequenceFlow id="Flow_7a" sourceRef="Gateway_SomaticCause" targetRef="EndEvent_SomaticTreated">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${somaticCauseIdentified == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_7b" sourceRef="Gateway_SomaticCause" targetRef="Task_DifferentialDiagnosis">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${somaticCauseIdentified == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="Flow_8" sourceRef="Task_DifferentialDiagnosis" targetRef="Task_Psychometrics"/>
+    <bpmn:sequenceFlow id="Flow_9" sourceRef="Task_Psychometrics" targetRef="Task_AssessComorbidity"/>
+    <bpmn:sequenceFlow id="Flow_10" sourceRef="Task_AssessComorbidity" targetRef="Gateway_ComorbidDepression"/>
+
+    <bpmn:sequenceFlow id="Flow_11a" sourceRef="Gateway_ComorbidDepression" targetRef="Task_PrioritizeDepressionPathway">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${significantDepression == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_11b" sourceRef="Gateway_ComorbidDepression" targetRef="Gateway_SubstanceMisuse">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${significantDepression == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="Flow_12" sourceRef="Task_PrioritizeDepressionPathway" targetRef="Gateway_SubstanceMisuse"/>
+
+    <bpmn:sequenceFlow id="Flow_13a" sourceRef="Gateway_SubstanceMisuse" targetRef="Task_TreatSubstanceMisuseFirst">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${substanceMisuseOrDependence == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_13b" sourceRef="Gateway_SubstanceMisuse" targetRef="Gateway_CognitiveImpairment">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${substanceMisuseOrDependence == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="Flow_14" sourceRef="Task_TreatSubstanceMisuseFirst" targetRef="Gateway_CognitiveImpairment"/>
+
+    <bpmn:sequenceFlow id="Flow_15a" sourceRef="Gateway_CognitiveImpairment" targetRef="Task_AdjustDeliveryOrConsultSpecialist">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${learningOrCognitiveImpairment == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_15b" sourceRef="Gateway_CognitiveImpairment" targetRef="Task_AssessSuicideRisk">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${learningOrCognitiveImpairment == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="Flow_15c" sourceRef="Task_AdjustDeliveryOrConsultSpecialist" targetRef="Task_AssessSuicideRisk"/>
+
+    <bpmn:sequenceFlow id="Flow_16" sourceRef="Task_AssessSuicideRisk" targetRef="Gateway_SuicideRisk"/>
+    <bpmn:sequenceFlow id="Flow_16a" sourceRef="Gateway_SuicideRisk" targetRef="Task_FollowSuicideSOP">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${suicideRisk == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_16b" sourceRef="Gateway_SuicideRisk" targetRef="Task_CreateTreatmentPlan">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${suicideRisk == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="Flow_16a_end" sourceRef="Task_FollowSuicideSOP" targetRef="EndEvent_SuicideSOP"/>
+
+    <bpmn:sequenceFlow id="Flow_17" sourceRef="Task_CreateTreatmentPlan" targetRef="Gateway_MildOrImproving"/>
+    <bpmn:sequenceFlow id="Flow_18a" sourceRef="Gateway_MildOrImproving" targetRef="Task_PsychoeducationAndMonitoring">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${mildOrImproving == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_18b" sourceRef="Gateway_MildOrImproving" targetRef="Task_SteppedCare_Step1">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${mildOrImproving == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="Flow_19" sourceRef="Task_SteppedCare_Step1" targetRef="Gateway_ResponseAfterStep1"/>
+    <bpmn:sequenceFlow id="Flow_20a" sourceRef="Gateway_ResponseAfterStep1" targetRef="Task_MonitorOutcomes">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${responseAfterStep1 == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_20b" sourceRef="Gateway_ResponseAfterStep1" targetRef="Task_SteppedCare_Step2">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${responseAfterStep1 == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="Flow_21" sourceRef="Task_SteppedCare_Step2" targetRef="Gateway_ResponseAfterStep2"/>
+    <bpmn:sequenceFlow id="Flow_22a" sourceRef="Gateway_ResponseAfterStep2" targetRef="Task_MonitorOutcomes">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${responseAfterStep2 == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_22b" sourceRef="Gateway_ResponseAfterStep2" targetRef="Task_SteppedCare_Step3">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${responseAfterStep2 == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="Flow_23" sourceRef="Task_SteppedCare_Step3" targetRef="Gateway_ResponseAfterStep3"/>
+    <bpmn:sequenceFlow id="Flow_24a" sourceRef="Gateway_ResponseAfterStep3" targetRef="Task_MonitorOutcomes">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${responseAfterStep3 == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_24b" sourceRef="Gateway_ResponseAfterStep3" targetRef="Task_SteppedCare_Step4">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${responseAfterStep3 == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="Flow_25" sourceRef="Task_SteppedCare_Step4" targetRef="Task_MonitorOutcomes"/>
+    <bpmn:sequenceFlow id="Flow_26" sourceRef="Task_PsychoeducationAndMonitoring" targetRef="Task_MonitorOutcomes"/>
+    <bpmn:sequenceFlow id="Flow_27" sourceRef="Task_MonitorOutcomes" targetRef="EndEvent_TreatmentStabilized"/>
+
+  </bpmn:process>
+
+  <!-- BPMN DI (simple readable layout) -->
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Agoraphobia">
+    <bpmndi:BPMNPlane id="BPMNPlane_Agoraphobia" bpmnElement="Process_Agoraphobia_Management">
+
+      <!-- Shapes -->
+      <bpmndi:BPMNShape id="Shape_StartEvent_1" bpmnElement="StartEvent_1">
+        <dc:Bounds x="120" y="150" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Task_Screening" bpmnElement="Task_Screening">
+        <dc:Bounds x="210" y="130" width="210" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Gateway_Suspected" bpmnElement="Gateway_Suspected" isMarkerVisible="true">
+        <dc:Bounds x="460" y="145" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Task_ProvideReferralInfo" bpmnElement="Task_ProvideReferralInfo">
+        <dc:Bounds x="560" y="130" width="260" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Task_ReferToSpecialist" bpmnElement="Task_ReferToSpecialist">
+        <dc:Bounds x="860" y="130" width="240" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_EndEvent_NoSuspicion" bpmnElement="EndEvent_NoSuspicion">
+        <dc:Bounds x="560" y="240" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Task_PatientEngages" bpmnElement="Task_PatientEngages">
+        <dc:Bounds x="1140" y="130" width="260" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Task_SpecialistAssessment" bpmnElement="Task_SpecialistAssessment">
+        <dc:Bounds x="1440" y="130" width="290" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Task_MedicalSomaticWorkup" bpmnElement="Task_MedicalSomaticWorkup">
+        <dc:Bounds x="1760" y="130" width="300" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Gateway_SomaticCause" bpmnElement="Gateway_SomaticCause" isMarkerVisible="true">
+        <dc:Bounds x="2090" y="145" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_EndEvent_SomaticTreated" bpmnElement="EndEvent_SomaticTreated">
+        <dc:Bounds x="2170" y="40" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Task_DifferentialDiagnosis" bpmnElement="Task_DifferentialDiagnosis">
+        <dc:Bounds x="2180" y="130" width="260" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Task_Psychometrics" bpmnElement="Task_Psychometrics">
+        <dc:Bounds x="2470" y="130" width="300" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Task_AssessComorbidity" bpmnElement="Task_AssessComorbidity">
+        <dc:Bounds x="2800" y="130" width="320" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Gateway_ComorbidDepression" bpmnElement="Gateway_ComorbidDepression" isMarkerVisible="true">
+        <dc:Bounds x="3150" y="145" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Task_PrioritizeDepressionPathway" bpmnElement="Task_PrioritizeDepressionPathway">
+        <dc:Bounds x="3230" y="40" width="300" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Gateway_SubstanceMisuse" bpmnElement="Gateway_SubstanceMisuse" isMarkerVisible="true">
+        <dc:Bounds x="3545" y="145" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Task_TreatSubstanceMisuseFirst" bpmnElement="Task_TreatSubstanceMisuseFirst">
+        <dc:Bounds x="3625" y="40" width="300" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Gateway_CognitiveImpairment" bpmnElement="Gateway_CognitiveImpairment" isMarkerVisible="true">
+        <dc:Bounds x="3940" y="145" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Task_AdjustDeliveryOrConsultSpecialist" bpmnElement="Task_AdjustDeliveryOrConsultSpecialist">
+        <dc:Bounds x="4020" y="40" width="330" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Task_AssessSuicideRisk" bpmnElement="Task_AssessSuicideRisk">
+        <dc:Bounds x="4020" y="130" width="300" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Gateway_SuicideRisk" bpmnElement="Gateway_SuicideRisk" isMarkerVisible="true">
+        <dc:Bounds x="4350" y="145" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Task_FollowSuicideSOP" bpmnElement="Task_FollowSuicideSOP">
+        <dc:Bounds x="4430" y="40" width="300" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_EndEvent_SuicideSOP" bpmnElement="EndEvent_SuicideSOP">
+        <dc:Bounds x="4760" y="62" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Task_CreateTreatmentPlan" bpmnElement="Task_CreateTreatmentPlan">
+        <dc:Bounds x="4430" y="130" width="330" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Gateway_MildOrImproving" bpmnElement="Gateway_MildOrImproving" isMarkerVisible="true">
+        <dc:Bounds x="4790" y="145" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Task_PsychoeducationAndMonitoring" bpmnElement="Task_PsychoeducationAndMonitoring">
+        <dc:Bounds x="4870" y="40" width="320" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Task_SteppedCare_Step1" bpmnElement="Task_SteppedCare_Step1">
+        <dc:Bounds x="4870" y="130" width="320" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Gateway_ResponseAfterStep1" bpmnElement="Gateway_ResponseAfterStep1" isMarkerVisible="true">
+        <dc:Bounds x="5220" y="145" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Task_SteppedCare_Step2" bpmnElement="Task_SteppedCare_Step2">
+        <dc:Bounds x="5300" y="130" width="420" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Gateway_ResponseAfterStep2" bpmnElement="Gateway_ResponseAfterStep2" isMarkerVisible="true">
+        <dc:Bounds x="5750" y="145" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Task_SteppedCare_Step3" bpmnElement="Task_SteppedCare_Step3">
+        <dc:Bounds x="5830" y="130" width="320" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Gateway_ResponseAfterStep3" bpmnElement="Gateway_ResponseAfterStep3" isMarkerVisible="true">
+        <dc:Bounds x="6180" y="145" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Task_SteppedCare_Step4" bpmnElement="Task_SteppedCare_Step4">
+        <dc:Bounds x="6260" y="130" width="320" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Task_MonitorOutcomes" bpmnElement="Task_MonitorOutcomes">
+        <dc:Bounds x="6620" y="100" width="360" height="120"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_EndEvent_TreatmentStabilized" bpmnElement="EndEvent_TreatmentStabilized">
+        <dc:Bounds x="7020" y="142" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+
+      <!-- Edges (minimal) -->
+      <bpmndi:BPMNEdge id="Edge_Flow_1" bpmnElement="Flow_1">
+        <di:waypoint x="156" y="168"/><di:waypoint x="210" y="168"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_2" bpmnElement="Flow_2">
+        <di:waypoint x="420" y="168"/><di:waypoint x="460" y="170"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_3a" bpmnElement="Flow_3a">
+        <di:waypoint x="510" y="170"/><di:waypoint x="560" y="170"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_3b" bpmnElement="Flow_3b">
+        <di:waypoint x="485" y="195"/><di:waypoint x="578" y="258"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_4" bpmnElement="Flow_4">
+        <di:waypoint x="820" y="170"/><di:waypoint x="860" y="170"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_5" bpmnElement="Flow_5">
+        <di:waypoint x="1100" y="170"/><di:waypoint x="1140" y="170"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_6" bpmnElement="Flow_6">
+        <di:waypoint x="1400" y="170"/><di:waypoint x="1440" y="170"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Flow_6b" bpmnElement="Flow_6b">
+        <di:waypoint x="1730" y="170"/><di:waypoint x="1760" y="170"/>
+      </bpmndi:BPMNEdge>
+
+      <!-- (Other edges omitted for brevity; Camunda Modeler will auto-route on import if needed) -->
+
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+
+</bpmn:definitions>

@@ -1,0 +1,425 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1fnwx2w" targetNamespace="http://bpmn.io/schema/bpmn" xmlns:modeler="http://camunda.org/schema/modeler/1.0" exporter="Camunda Modeler" exporterVersion="5.33.1" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.22.0">
+  <bpmn:process id="Process_0mxms9h" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1" name="Patient Presentation">
+      <bpmn:outgoing>Flow_Start</bpmn:outgoing>
+    </bpmn:startEvent>
+    
+    <bpmn:userTask id="Activity_Screening" name="Perform Primary Screening">
+      <bpmn:incoming>Flow_Start</bpmn:incoming>
+      <bpmn:outgoing>Flow_Screening</bpmn:outgoing>
+    </bpmn:userTask>
+    
+    <bpmn:exclusiveGateway id="Gateway_Screening" name="Screening Outcome">
+      <bpmn:incoming>Flow_Screening</bpmn:incoming>
+      <bpmn:outgoing>Flow_Screening_Neg</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Screening_Pos</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    
+    <bpmn:endEvent id="Event_Dismissed" name="Suspicion Dismissed">
+      <bpmn:incoming>Flow_Screening_Neg</bpmn:incoming>
+    </bpmn:endEvent>
+    
+    <bpmn:businessRuleTask id="Activity_CheckReferral" name="Referral Source Verification">
+      <bpmn:incoming>Flow_Screening_Pos</bpmn:incoming>
+      <bpmn:outgoing>Flow_CheckReferral</bpmn:outgoing>
+    </bpmn:businessRuleTask>
+    
+    <bpmn:exclusiveGateway id="Gateway_Referral" name="Referral Source Verified?">
+      <bpmn:incoming>Flow_CheckReferral</bpmn:incoming>
+      <bpmn:outgoing>Flow_Ref_No</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Ref_Yes</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    
+    <bpmn:serviceTask id="Activity_InformGP" name="Inform General Practitioner">
+      <bpmn:incoming>Flow_Ref_No</bpmn:incoming>
+      <bpmn:outgoing>Flow_Inform_Refer</bpmn:outgoing>
+    </bpmn:serviceTask>
+    
+    <bpmn:serviceTask id="Activity_Refer" name="Refer to Specialist">
+      <bpmn:incoming>Flow_Ref_Yes</bpmn:incoming>
+      <bpmn:incoming>Flow_Inform_Refer</bpmn:incoming>
+      <bpmn:outgoing>Flow_Refer_Exam</bpmn:outgoing>
+    </bpmn:serviceTask>
+    
+    <bpmn:userTask id="Activity_PsychExam" name="Conduct Psychiatric Examination">
+      <bpmn:incoming>Flow_Refer_Exam</bpmn:incoming>
+      <bpmn:outgoing>Flow_Exam_Diag</bpmn:outgoing>
+    </bpmn:userTask>
+    
+    <bpmn:userTask id="Activity_PsychoDiag" name="Perform Psychodiagnostic Evaluation">
+      <bpmn:incoming>Flow_Exam_Diag</bpmn:incoming>
+      <bpmn:outgoing>Flow_Diag_Inst</bpmn:outgoing>
+    </bpmn:userTask>
+    
+    <bpmn:userTask id="Activity_ApplyInst" name="Apply Psychometric Instruments">
+      <bpmn:incoming>Flow_Diag_Inst</bpmn:incoming>
+      <bpmn:outgoing>Flow_Inst_Logic</bpmn:outgoing>
+    </bpmn:userTask>
+    
+    <bpmn:businessRuleTask id="Activity_DiffDiagLogic" name="Differential Diagnostic Evaluation">
+      <bpmn:incoming>Flow_Inst_Logic</bpmn:incoming>
+      <bpmn:outgoing>Flow_Logic_DiagGW</bpmn:outgoing>
+    </bpmn:businessRuleTask>
+    
+    <bpmn:exclusiveGateway id="Gateway_Diagnosis" name="Diagnosis Confirmed?">
+      <bpmn:incoming>Flow_Logic_DiagGW</bpmn:incoming>
+      <bpmn:outgoing>Flow_Diag_Other</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Diag_F40</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    
+    <bpmn:endEvent id="Event_OtherCondition" name="Diverted to Other Standard">
+      <bpmn:incoming>Flow_Diag_Other</bpmn:incoming>
+    </bpmn:endEvent>
+    
+    <bpmn:userTask id="Activity_PatientEd" name="Provide Patient Education">
+      <bpmn:incoming>Flow_Diag_F40</bpmn:incoming>
+      <bpmn:outgoing>Flow_Ed_Plan</bpmn:outgoing>
+    </bpmn:userTask>
+    
+    <bpmn:userTask id="Activity_DevPlan" name="Develop Individual Therapeutic Plan">
+      <bpmn:incoming>Flow_Ed_Plan</bpmn:incoming>
+      <bpmn:outgoing>Flow_Plan_Comorb</bpmn:outgoing>
+    </bpmn:userTask>
+    
+    <bpmn:businessRuleTask id="Activity_EvalComorb" name="Assess Comorbidity">
+      <bpmn:incoming>Flow_Plan_Comorb</bpmn:incoming>
+      <bpmn:outgoing>Flow_Comorb_GW</bpmn:outgoing>
+    </bpmn:businessRuleTask>
+    
+    <bpmn:exclusiveGateway id="Gateway_Comorb" name="Comorbidity with Panic Disorder?">
+      <bpmn:incoming>Flow_Comorb_GW</bpmn:incoming>
+      <bpmn:outgoing>Flow_Comorb_Panic</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Comorb_Ago</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    
+    <bpmn:endEvent id="Event_Panic" name="Trigger Panic Disorder Standard">
+      <bpmn:incoming>Flow_Comorb_Panic</bpmn:incoming>
+    </bpmn:endEvent>
+    
+    <bpmn:businessRuleTask id="Activity_AssessDev" name="Assess Standard Deviation">
+      <bpmn:incoming>Flow_Comorb_Ago</bpmn:incoming>
+      <bpmn:outgoing>Flow_Dev_GW</bpmn:outgoing>
+    </bpmn:businessRuleTask>
+    
+    <bpmn:exclusiveGateway id="Gateway_Deviation" name="Deviation Required?">
+      <bpmn:incoming>Flow_Dev_GW</bpmn:incoming>
+      <bpmn:outgoing>Flow_Dev_Yes</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Dev_No</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    
+    <bpmn:endEvent id="Event_Alternative" name="Proceed to Alternative Procedure">
+      <bpmn:incoming>Flow_Dev_Yes</bpmn:incoming>
+    </bpmn:endEvent>
+    
+    <bpmn:businessRuleTask id="Activity_CheckAccess" name="Evaluate Patient Accessibility">
+      <bpmn:incoming>Flow_Dev_No</bpmn:incoming>
+      <bpmn:outgoing>Flow_Access_GW</bpmn:outgoing>
+    </bpmn:businessRuleTask>
+    
+    <bpmn:exclusiveGateway id="Gateway_Access" name="Can Patient Attend?">
+      <bpmn:incoming>Flow_Access_GW</bpmn:incoming>
+      <bpmn:outgoing>Flow_Acc_Remote</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Acc_Attend</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    
+    <bpmn:userTask id="Activity_Step1" name="Administer Step 1 (Self-Help)">
+      <bpmn:incoming>Flow_Acc_Remote</bpmn:incoming>
+      <bpmn:outgoing>Flow_Step1_Mon</bpmn:outgoing>
+    </bpmn:userTask>
+    
+    <bpmn:exclusiveGateway id="Gateway_Therapist" name="Therapist Qualification">
+      <bpmn:incoming>Flow_Acc_Attend</bpmn:incoming>
+      <bpmn:outgoing>Flow_Ther_Cert</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Ther_Gen</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    
+    <bpmn:userTask id="Activity_Step2" name="Administer Step 2 (Psychotherapy)">
+      <bpmn:incoming>Flow_Ther_Cert</bpmn:incoming>
+      <bpmn:outgoing>Flow_Step2_Mon</bpmn:outgoing>
+    </bpmn:userTask>
+    
+    <bpmn:userTask id="Activity_Step3" name="Manage Pharmacotherapy (Step 3)">
+      <bpmn:incoming>Flow_Ther_Gen</bpmn:incoming>
+      <bpmn:outgoing>Flow_Step3_Mon</bpmn:outgoing>
+    </bpmn:userTask>
+    
+    <bpmn:userTask id="Activity_Monitor" name="Monitor Therapeutic Effect">
+      <bpmn:incoming>Flow_Step1_Mon</bpmn:incoming>
+      <bpmn:incoming>Flow_Step2_Mon</bpmn:incoming>
+      <bpmn:incoming>Flow_Step3_Mon</bpmn:incoming>
+      <bpmn:outgoing>Flow_Mon_End</bpmn:outgoing>
+    </bpmn:userTask>
+    
+    <bpmn:endEvent id="Event_Complete" name="Therapy Completed">
+      <bpmn:incoming>Flow_Mon_End</bpmn:incoming>
+    </bpmn:endEvent>
+    
+    <bpmn:sequenceFlow id="Flow_Start" sourceRef="StartEvent_1" targetRef="Activity_Screening" />
+    <bpmn:sequenceFlow id="Flow_Screening" sourceRef="Activity_Screening" targetRef="Gateway_Screening" />
+    <bpmn:sequenceFlow id="Flow_Screening_Neg" name="Negative" sourceRef="Gateway_Screening" targetRef="Event_Dismissed" />
+    <bpmn:sequenceFlow id="Flow_Screening_Pos" name="Positive" sourceRef="Gateway_Screening" targetRef="Activity_CheckReferral" />
+    <bpmn:sequenceFlow id="Flow_CheckReferral" sourceRef="Activity_CheckReferral" targetRef="Gateway_Referral" />
+    <bpmn:sequenceFlow id="Flow_Ref_No" name="Not Referred by GP" sourceRef="Gateway_Referral" targetRef="Activity_InformGP" />
+    <bpmn:sequenceFlow id="Flow_Ref_Yes" name="Referred by GP" sourceRef="Gateway_Referral" targetRef="Activity_Refer" />
+    <bpmn:sequenceFlow id="Flow_Inform_Refer" sourceRef="Activity_InformGP" targetRef="Activity_Refer" />
+    <bpmn:sequenceFlow id="Flow_Refer_Exam" sourceRef="Activity_Refer" targetRef="Activity_PsychExam" />
+    <bpmn:sequenceFlow id="Flow_Exam_Diag" sourceRef="Activity_PsychExam" targetRef="Activity_PsychoDiag" />
+    <bpmn:sequenceFlow id="Flow_Diag_Inst" sourceRef="Activity_PsychoDiag" targetRef="Activity_ApplyInst" />
+    <bpmn:sequenceFlow id="Flow_Inst_Logic" sourceRef="Activity_ApplyInst" targetRef="Activity_DiffDiagLogic" />
+    <bpmn:sequenceFlow id="Flow_Logic_DiagGW" sourceRef="Activity_DiffDiagLogic" targetRef="Gateway_Diagnosis" />
+    <bpmn:sequenceFlow id="Flow_Diag_Other" name="Other Condition" sourceRef="Gateway_Diagnosis" targetRef="Event_OtherCondition" />
+    <bpmn:sequenceFlow id="Flow_Diag_F40" name="F40.0 Confirmed" sourceRef="Gateway_Diagnosis" targetRef="Activity_PatientEd" />
+    <bpmn:sequenceFlow id="Flow_Ed_Plan" sourceRef="Activity_PatientEd" targetRef="Activity_DevPlan" />
+    <bpmn:sequenceFlow id="Flow_Plan_Comorb" sourceRef="Activity_DevPlan" targetRef="Activity_EvalComorb" />
+    <bpmn:sequenceFlow id="Flow_Comorb_GW" sourceRef="Activity_EvalComorb" targetRef="Gateway_Comorb" />
+    <bpmn:sequenceFlow id="Flow_Comorb_Panic" name="Panic Disorder Present" sourceRef="Gateway_Comorb" targetRef="Event_Panic" />
+    <bpmn:sequenceFlow id="Flow_Comorb_Ago" name="Agoraphobia Only" sourceRef="Gateway_Comorb" targetRef="Activity_AssessDev" />
+    <bpmn:sequenceFlow id="Flow_Dev_GW" sourceRef="Activity_AssessDev" targetRef="Gateway_Deviation" />
+    <bpmn:sequenceFlow id="Flow_Dev_Yes" name="Deviation Necessary" sourceRef="Gateway_Deviation" targetRef="Event_Alternative" />
+    <bpmn:sequenceFlow id="Flow_Dev_No" name="Standard Procedure" sourceRef="Gateway_Deviation" targetRef="Activity_CheckAccess" />
+    <bpmn:sequenceFlow id="Flow_Access_GW" sourceRef="Activity_CheckAccess" targetRef="Gateway_Access" />
+    <bpmn:sequenceFlow id="Flow_Acc_Remote" name="Remote Access Required" sourceRef="Gateway_Access" targetRef="Activity_Step1" />
+    <bpmn:sequenceFlow id="Flow_Acc_Attend" name="Can Attend" sourceRef="Gateway_Access" targetRef="Gateway_Therapist" />
+    <bpmn:sequenceFlow id="Flow_Ther_Cert" name="Certified Available" sourceRef="Gateway_Therapist" targetRef="Activity_Step2" />
+    <bpmn:sequenceFlow id="Flow_Ther_Gen" name="General Only" sourceRef="Gateway_Therapist" targetRef="Activity_Step3" />
+    <bpmn:sequenceFlow id="Flow_Step1_Mon" sourceRef="Activity_Step1" targetRef="Activity_Monitor" />
+    <bpmn:sequenceFlow id="Flow_Step2_Mon" sourceRef="Activity_Step2" targetRef="Activity_Monitor" />
+    <bpmn:sequenceFlow id="Flow_Step3_Mon" sourceRef="Activity_Step3" targetRef="Activity_Monitor" />
+    <bpmn:sequenceFlow id="Flow_Mon_End" sourceRef="Activity_Monitor" targetRef="Event_Complete" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_0mxms9h">
+      <bpmndi:BPMNShape id="StartEvent_1_di" bpmnElement="StartEvent_1">
+        <dc:Bounds x="182" y="162" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_Screening_di" bpmnElement="Activity_Screening">
+        <dc:Bounds x="270" y="140" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_Screening_di" bpmnElement="Gateway_Screening" isMarkerVisible="true">
+        <dc:Bounds x="420" y="155" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_Dismissed_di" bpmnElement="Event_Dismissed">
+        <dc:Bounds x="520" y="82" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_CheckReferral_di" bpmnElement="Activity_CheckReferral">
+        <dc:Bounds x="520" y="140" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_Referral_di" bpmnElement="Gateway_Referral" isMarkerVisible="true">
+        <dc:Bounds x="670" y="155" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_InformGP_di" bpmnElement="Activity_InformGP">
+        <dc:Bounds x="750" y="60" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_Refer_di" bpmnElement="Activity_Refer">
+        <dc:Bounds x="900" y="140" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_PsychExam_di" bpmnElement="Activity_PsychExam">
+        <dc:Bounds x="1050" y="140" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_PsychoDiag_di" bpmnElement="Activity_PsychoDiag">
+        <dc:Bounds x="1200" y="140" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_ApplyInst_di" bpmnElement="Activity_ApplyInst">
+        <dc:Bounds x="1350" y="140" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_DiffDiagLogic_di" bpmnElement="Activity_DiffDiagLogic">
+        <dc:Bounds x="1500" y="140" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_Diagnosis_di" bpmnElement="Gateway_Diagnosis" isMarkerVisible="true">
+        <dc:Bounds x="1650" y="155" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_OtherCondition_di" bpmnElement="Event_OtherCondition">
+        <dc:Bounds x="1730" y="82" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_PatientEd_di" bpmnElement="Activity_PatientEd">
+        <dc:Bounds x="1750" y="140" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_DevPlan_di" bpmnElement="Activity_DevPlan">
+        <dc:Bounds x="1900" y="140" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_EvalComorb_di" bpmnElement="Activity_EvalComorb">
+        <dc:Bounds x="2050" y="140" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_Comorb_di" bpmnElement="Gateway_Comorb" isMarkerVisible="true">
+        <dc:Bounds x="2200" y="155" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_Panic_di" bpmnElement="Event_Panic">
+        <dc:Bounds x="2300" y="82" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_AssessDev_di" bpmnElement="Activity_AssessDev">
+        <dc:Bounds x="2300" y="140" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_Deviation_di" bpmnElement="Gateway_Deviation" isMarkerVisible="true">
+        <dc:Bounds x="2450" y="155" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_Alternative_di" bpmnElement="Event_Alternative">
+        <dc:Bounds x="2530" y="82" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_CheckAccess_di" bpmnElement="Activity_CheckAccess">
+        <dc:Bounds x="2550" y="140" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_Access_di" bpmnElement="Gateway_Access" isMarkerVisible="true">
+        <dc:Bounds x="2700" y="155" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_Step1_di" bpmnElement="Activity_Step1">
+        <dc:Bounds x="2800" y="60" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_Therapist_di" bpmnElement="Gateway_Therapist" isMarkerVisible="true">
+        <dc:Bounds x="2800" y="235" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_Step2_di" bpmnElement="Activity_Step2">
+        <dc:Bounds x="2900" y="220" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_Step3_di" bpmnElement="Activity_Step3">
+        <dc:Bounds x="2900" y="300" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_Monitor_di" bpmnElement="Activity_Monitor">
+        <dc:Bounds x="3150" y="140" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_Complete_di" bpmnElement="Event_Complete">
+        <dc:Bounds x="3300" y="162" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_Start_di" bpmnElement="Flow_Start">
+        <di:waypoint x="218" y="180" />
+        <di:waypoint x="270" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Screening_di" bpmnElement="Flow_Screening">
+        <di:waypoint x="370" y="180" />
+        <di:waypoint x="420" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Screening_Neg_di" bpmnElement="Flow_Screening_Neg">
+        <di:waypoint x="445" y="155" />
+        <di:waypoint x="445" y="100" />
+        <di:waypoint x="520" y="100" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Screening_Pos_di" bpmnElement="Flow_Screening_Pos">
+        <di:waypoint x="470" y="180" />
+        <di:waypoint x="520" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_CheckReferral_di" bpmnElement="Flow_CheckReferral">
+        <di:waypoint x="620" y="180" />
+        <di:waypoint x="670" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Ref_No_di" bpmnElement="Flow_Ref_No">
+        <di:waypoint x="695" y="155" />
+        <di:waypoint x="695" y="100" />
+        <di:waypoint x="750" y="100" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Ref_Yes_di" bpmnElement="Flow_Ref_Yes">
+        <di:waypoint x="720" y="180" />
+        <di:waypoint x="900" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Inform_Refer_di" bpmnElement="Flow_Inform_Refer">
+        <di:waypoint x="850" y="100" />
+        <di:waypoint x="950" y="100" />
+        <di:waypoint x="950" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Refer_Exam_di" bpmnElement="Flow_Refer_Exam">
+        <di:waypoint x="1000" y="180" />
+        <di:waypoint x="1050" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Exam_Diag_di" bpmnElement="Flow_Exam_Diag">
+        <di:waypoint x="1150" y="180" />
+        <di:waypoint x="1200" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Diag_Inst_di" bpmnElement="Flow_Diag_Inst">
+        <di:waypoint x="1300" y="180" />
+        <di:waypoint x="1350" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Inst_Logic_di" bpmnElement="Flow_Inst_Logic">
+        <di:waypoint x="1450" y="180" />
+        <di:waypoint x="1500" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Logic_DiagGW_di" bpmnElement="Flow_Logic_DiagGW">
+        <di:waypoint x="1600" y="180" />
+        <di:waypoint x="1650" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Diag_Other_di" bpmnElement="Flow_Diag_Other">
+        <di:waypoint x="1675" y="155" />
+        <di:waypoint x="1675" y="100" />
+        <di:waypoint x="1730" y="100" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Diag_F40_di" bpmnElement="Flow_Diag_F40">
+        <di:waypoint x="1700" y="180" />
+        <di:waypoint x="1750" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Ed_Plan_di" bpmnElement="Flow_Ed_Plan">
+        <di:waypoint x="1850" y="180" />
+        <di:waypoint x="1900" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Plan_Comorb_di" bpmnElement="Flow_Plan_Comorb">
+        <di:waypoint x="2000" y="180" />
+        <di:waypoint x="2050" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Comorb_GW_di" bpmnElement="Flow_Comorb_GW">
+        <di:waypoint x="2150" y="180" />
+        <di:waypoint x="2200" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Comorb_Panic_di" bpmnElement="Flow_Comorb_Panic">
+        <di:waypoint x="2225" y="155" />
+        <di:waypoint x="2225" y="100" />
+        <di:waypoint x="2300" y="100" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Comorb_Ago_di" bpmnElement="Flow_Comorb_Ago">
+        <di:waypoint x="2250" y="180" />
+        <di:waypoint x="2300" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Dev_GW_di" bpmnElement="Flow_Dev_GW">
+        <di:waypoint x="2400" y="180" />
+        <di:waypoint x="2450" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Dev_Yes_di" bpmnElement="Flow_Dev_Yes">
+        <di:waypoint x="2475" y="155" />
+        <di:waypoint x="2475" y="100" />
+        <di:waypoint x="2530" y="100" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Dev_No_di" bpmnElement="Flow_Dev_No">
+        <di:waypoint x="2500" y="180" />
+        <di:waypoint x="2550" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Access_GW_di" bpmnElement="Flow_Access_GW">
+        <di:waypoint x="2650" y="180" />
+        <di:waypoint x="2700" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Acc_Remote_di" bpmnElement="Flow_Acc_Remote">
+        <di:waypoint x="2725" y="155" />
+        <di:waypoint x="2725" y="100" />
+        <di:waypoint x="2800" y="100" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Acc_Attend_di" bpmnElement="Flow_Acc_Attend">
+        <di:waypoint x="2725" y="205" />
+        <di:waypoint x="2725" y="260" />
+        <di:waypoint x="2800" y="260" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Ther_Cert_di" bpmnElement="Flow_Ther_Cert">
+        <di:waypoint x="2850" y="260" />
+        <di:waypoint x="2900" y="260" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Ther_Gen_di" bpmnElement="Flow_Ther_Gen">
+        <di:waypoint x="2825" y="285" />
+        <di:waypoint x="2825" y="340" />
+        <di:waypoint x="2900" y="340" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Step1_Mon_di" bpmnElement="Flow_Step1_Mon">
+        <di:waypoint x="2900" y="100" />
+        <di:waypoint x="3200" y="100" />
+        <di:waypoint x="3200" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Step2_Mon_di" bpmnElement="Flow_Step2_Mon">
+        <di:waypoint x="3000" y="260" />
+        <di:waypoint x="3200" y="260" />
+        <di:waypoint x="3200" y="220" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Step3_Mon_di" bpmnElement="Flow_Step3_Mon">
+        <di:waypoint x="3000" y="340" />
+        <di:waypoint x="3200" y="340" />
+        <di:waypoint x="3200" y="220" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Mon_End_di" bpmnElement="Flow_Mon_End">
+        <di:waypoint x="3250" y="180" />
+        <di:waypoint x="3300" y="180" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

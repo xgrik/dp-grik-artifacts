@@ -1,0 +1,435 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+                  id="Definitions_02fe9dz"
+                  targetNamespace="http://bpmn.io/schema/bpmn"
+                  xmlns:modeler="http://camunda.org/schema/modeler/1.0"
+                  exporter="Camunda Modeler"
+                  exporterVersion="5.33.1"
+                  modeler:executionPlatform="Camunda Platform"
+                  modeler:executionPlatformVersion="7.22.0">
+
+  <bpmn:collaboration id="Collaboration_LTC_Depression_Anxiety">
+    <bpmn:participant id="Participant_LTC" name="Stepped Care for Depression/Anxiety in Somatic (LTC) Patient" processRef="Process_LTC_SteppedCare"/>
+  </bpmn:collaboration>
+
+  <bpmn:process id="Process_LTC_SteppedCare" name="Stepped Care for Depression/Anxiety in Somatic (LTC) Patient" isExecutable="true">
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="Lane_Patient" name="Patient">
+        <bpmn:flowNodeRef>StartEvent_1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Patient_CompleteScreening</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Patient_ReceiveInfoSafetyNet</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Patient_AttendFollowUp</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Patient_EngageInTreatment</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_Resolved</bpmn:flowNodeRef>
+      </bpmn:lane>
+
+      <bpmn:lane id="Lane_Provider" name="Primary Care / Treating Physician (GP or Hospital Physician)">
+        <bpmn:flowNodeRef>Task_Provider_IdentifyCase</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_PositiveScreen</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Provider_AssessCapability</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_ProviderCapable</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Provider_ClinicalAssessment</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Provider_AssessRisk</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_ImmediateRisk</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Provider_Step1_PlanAndPsychoeducation</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Provider_SleepHygiene</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_NeedsMoreActiveTreatment</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Provider_Step2_LowIntensity</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_InadequateResponseOrSevere</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Provider_Step3_HighIntensity</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_LifeThreateningOrNeglect</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Provider_Step4_CrisisHospitalization</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Provider_FollowUpIn2Weeks</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Provider_MonitoringLoop</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_Improved</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Provider_InformGPIfNotPrimary</bpmn:flowNodeRef>
+      </bpmn:lane>
+
+      <bpmn:lane id="Lane_MH" name="Mental Health Specialist (Clinical Psychologist / Psychiatrist / Specialized Center)">
+        <bpmn:flowNodeRef>Task_MH_PsychologicalAssessment</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_MH_DifferentialDiagnosis</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_MH_TreatmentPlan</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_MH_ProvideTherapyOrMedication</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_MH_ProvideCrisisCare</bpmn:flowNodeRef>
+      </bpmn:lane>
+
+      <bpmn:lane id="Lane_HIS" name="Healthcare Information System">
+        <bpmn:flowNodeRef>Task_HIS_RecordScreeningResults</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_HIS_ScheduleReferral</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_HIS_ScheduleFollowUp</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_HIS_DocumentCarePlan</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <!-- Events -->
+    <bpmn:startEvent id="StartEvent_1" name="Somatic (LTC) patient encounter">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <bpmn:endEvent id="EndEvent_Resolved" name="Symptoms managed / ongoing maintenance">
+      <bpmn:incoming>Flow_32</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <!-- Core tasks -->
+    <bpmn:userTask id="Task_Provider_IdentifyCase" name="Identify case using screening questions (depression/anxiety)">
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:serviceTask id="Task_HIS_RecordScreeningResults" name="Record screening responses" camunda:type="external">
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_3</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:userTask id="Task_Patient_CompleteScreening" name="Answer screening questions / questionnaires">
+      <bpmn:incoming>Flow_3</bpmn:incoming>
+      <bpmn:outgoing>Flow_4</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="Gateway_PositiveScreen" name="Any positive screening response?">
+      <bpmn:incoming>Flow_4</bpmn:incoming>
+      <bpmn:outgoing>Flow_5</bpmn:outgoing>
+      <bpmn:outgoing>Flow_6</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="Task_Provider_AssessCapability" name="Check if physician is capable to assess mental state">
+      <bpmn:incoming>Flow_5</bpmn:incoming>
+      <bpmn:outgoing>Flow_7</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="Gateway_ProviderCapable" name="Physician capable to assess?">
+      <bpmn:incoming>Flow_7</bpmn:incoming>
+      <bpmn:outgoing>Flow_8</bpmn:outgoing>
+      <bpmn:outgoing>Flow_9</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="Task_Provider_ClinicalAssessment" name="Clinical assessment (history, severity, PHQ-9/GAD-7 as needed)">
+      <bpmn:incoming>Flow_8</bpmn:incoming>
+      <bpmn:outgoing>Flow_10</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_Provider_AssessRisk" name="Assess suicidality and immediate risk">
+      <bpmn:incoming>Flow_10</bpmn:incoming>
+      <bpmn:outgoing>Flow_11</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="Gateway_ImmediateRisk" name="Immediate risk to self/others?">
+      <bpmn:incoming>Flow_11</bpmn:incoming>
+      <bpmn:outgoing>Flow_12</bpmn:outgoing>
+      <bpmn:outgoing>Flow_13</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="Task_MH_ProvideCrisisCare" name="Urgent referral for crisis care / hospitalization decision">
+      <bpmn:incoming>Flow_12</bpmn:incoming>
+      <bpmn:outgoing>Flow_14</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_Provider_Step4_CrisisHospitalization" name="Step 4: Crisis intervention / multiple care / hospitalization">
+      <bpmn:incoming>Flow_14</bpmn:incoming>
+      <bpmn:outgoing>Flow_31</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_Provider_Step1_PlanAndPsychoeducation" name="Step 1: Initial coordination, psychoeducation, support, active monitoring">
+      <bpmn:incoming>Flow_13</bpmn:incoming>
+      <bpmn:outgoing>Flow_15</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:serviceTask id="Task_HIS_DocumentCarePlan" name="Document care plan and responsibilities" camunda:type="external">
+      <bpmn:incoming>Flow_15</bpmn:incoming>
+      <bpmn:outgoing>Flow_16</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:userTask id="Task_Provider_SleepHygiene" name="Provide sleep hygiene education (if needed)">
+      <bpmn:incoming>Flow_16</bpmn:incoming>
+      <bpmn:outgoing>Flow_17</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_Patient_ReceiveInfoSafetyNet" name="Receive safety-net instructions (seek help if worsening)">
+      <bpmn:incoming>Flow_17</bpmn:incoming>
+      <bpmn:outgoing>Flow_18</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="Gateway_NeedsMoreActiveTreatment" name="Needs more active treatment in primary care?">
+      <bpmn:incoming>Flow_18</bpmn:incoming>
+      <bpmn:outgoing>Flow_19</bpmn:outgoing>
+      <bpmn:outgoing>Flow_20</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="Task_Provider_Step2_LowIntensity" name="Step 2: Low-intensity psychosocial/psychological interventions (and/or medication)">
+      <bpmn:incoming>Flow_20</bpmn:incoming>
+      <bpmn:outgoing>Flow_21</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="Gateway_InadequateResponseOrSevere" name="Inadequate response to Step 2 or moderate/severe?">
+      <bpmn:incoming>Flow_21</bpmn:incoming>
+      <bpmn:outgoing>Flow_22</bpmn:outgoing>
+      <bpmn:outgoing>Flow_23</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="Task_Provider_Step3_HighIntensity" name="Step 3: High-intensity psychological interventions / combined treatment / collaborative care">
+      <bpmn:incoming>Flow_23</bpmn:incoming>
+      <bpmn:outgoing>Flow_24</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="Gateway_LifeThreateningOrNeglect" name="Life-threatening / severe neglect?">
+      <bpmn:incoming>Flow_24</bpmn:incoming>
+      <bpmn:outgoing>Flow_25</bpmn:outgoing>
+      <bpmn:outgoing>Flow_26</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="Task_MH_PsychologicalAssessment" name="Mental health assessment (history, PHQ-9/GAD-7 as needed)">
+      <bpmn:incoming>Flow_9</bpmn:incoming>
+      <bpmn:incoming>Flow_19</bpmn:incoming>
+      <bpmn:incoming>Flow_26</bpmn:incoming>
+      <bpmn:outgoing>Flow_27</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_MH_DifferentialDiagnosis" name="Differential diagnosis (e.g., adjustment vs other disorders)">
+      <bpmn:incoming>Flow_27</bpmn:incoming>
+      <bpmn:outgoing>Flow_28</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_MH_TreatmentPlan" name="Create individualized treatment plan (with patient, family/caregiver if needed)">
+      <bpmn:incoming>Flow_28</bpmn:incoming>
+      <bpmn:outgoing>Flow_29</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_MH_ProvideTherapyOrMedication" name="Provide therapy and/or medication; coordinate interdisciplinary care">
+      <bpmn:incoming>Flow_29</bpmn:incoming>
+      <bpmn:outgoing>Flow_30</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="Gateway_Improved" name="Improvement / stabilization achieved?">
+      <bpmn:incoming>Flow_30</bpmn:incoming>
+      <bpmn:incoming>Flow_33</bpmn:incoming>
+      <bpmn:outgoing>Flow_32</bpmn:outgoing>
+      <bpmn:outgoing>Flow_34</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="Task_Provider_FollowUpIn2Weeks" name="Arrange follow-up appointment within 2 weeks (active monitoring)">
+      <bpmn:incoming>Flow_22</bpmn:incoming>
+      <bpmn:incoming>Flow_34</bpmn:incoming>
+      <bpmn:outgoing>Flow_35</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:serviceTask id="Task_HIS_ScheduleFollowUp" name="Schedule follow-up and contact plan" camunda:type="external">
+      <bpmn:incoming>Flow_35</bpmn:incoming>
+      <bpmn:outgoing>Flow_36</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:userTask id="Task_Patient_AttendFollowUp" name="Attend follow-up / be contacted if missed">
+      <bpmn:incoming>Flow_36</bpmn:incoming>
+      <bpmn:outgoing>Flow_37</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_Provider_MonitoringLoop" name="Re-assess symptoms, adherence, and functioning; optimize somatic treatment">
+      <bpmn:incoming>Flow_37</bpmn:incoming>
+      <bpmn:outgoing>Flow_33</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_Patient_EngageInTreatment" name="Engage in agreed interventions (self-help/therapy/medication)">
+      <bpmn:incoming>Flow_31</bpmn:incoming>
+      <bpmn:incoming>Flow_25</bpmn:incoming>
+      <bpmn:incoming>Flow_36</bpmn:incoming>
+      <bpmn:outgoing>Flow_38</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_Provider_InformGPIfNotPrimary" name="Inform the patient's GP if not the primary provider">
+      <bpmn:incoming>Flow_6</bpmn:incoming>
+      <bpmn:outgoing>Flow_39</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:endEvent id="EndEvent_NoIndication" name="No indication of comorbid depression/anxiety">
+      <bpmn:incoming>Flow_39</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:serviceTask id="Task_HIS_ScheduleReferral" name="Create referral and share information" camunda:type="external">
+      <bpmn:incoming>Flow_19</bpmn:incoming>
+      <bpmn:outgoing>Flow_40</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <!-- Sequence flows -->
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_1" targetRef="Task_Provider_IdentifyCase"/>
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Task_Provider_IdentifyCase" targetRef="Task_HIS_RecordScreeningResults"/>
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="Task_HIS_RecordScreeningResults" targetRef="Task_Patient_CompleteScreening"/>
+    <bpmn:sequenceFlow id="Flow_4" sourceRef="Task_Patient_CompleteScreening" targetRef="Gateway_PositiveScreen"/>
+
+    <bpmn:sequenceFlow id="Flow_5" name="Yes" sourceRef="Gateway_PositiveScreen" targetRef="Task_Provider_AssessCapability">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"
+                                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><![CDATA[${positiveScreening == true}]]></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_6" name="No" sourceRef="Gateway_PositiveScreen" targetRef="Task_Provider_InformGPIfNotPrimary">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"
+                                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><![CDATA[${positiveScreening != true}]]></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="Flow_7" sourceRef="Task_Provider_AssessCapability" targetRef="Gateway_ProviderCapable"/>
+    <bpmn:sequenceFlow id="Flow_8" name="Yes" sourceRef="Gateway_ProviderCapable" targetRef="Task_Provider_ClinicalAssessment">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"
+                                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><![CDATA[${providerCapable == true}]]></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_9" name="No (refer to MH specialist)" sourceRef="Gateway_ProviderCapable" targetRef="Task_MH_PsychologicalAssessment">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"
+                                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><![CDATA[${providerCapable != true}]]></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="Flow_10" sourceRef="Task_Provider_ClinicalAssessment" targetRef="Task_Provider_AssessRisk"/>
+    <bpmn:sequenceFlow id="Flow_11" sourceRef="Task_Provider_AssessRisk" targetRef="Gateway_ImmediateRisk"/>
+
+    <bpmn:sequenceFlow id="Flow_12" name="Yes (urgent)" sourceRef="Gateway_ImmediateRisk" targetRef="Task_MH_ProvideCrisisCare">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"
+                                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><![CDATA[${immediateRisk == true}]]></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_13" name="No" sourceRef="Gateway_ImmediateRisk" targetRef="Task_Provider_Step1_PlanAndPsychoeducation">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"
+                                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><![CDATA[${immediateRisk != true}]]></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="Flow_14" sourceRef="Task_MH_ProvideCrisisCare" targetRef="Task_Provider_Step4_CrisisHospitalization"/>
+    <bpmn:sequenceFlow id="Flow_31" sourceRef="Task_Provider_Step4_CrisisHospitalization" targetRef="Task_Patient_EngageInTreatment"/>
+
+    <bpmn:sequenceFlow id="Flow_15" sourceRef="Task_Provider_Step1_PlanAndPsychoeducation" targetRef="Task_HIS_DocumentCarePlan"/>
+    <bpmn:sequenceFlow id="Flow_16" sourceRef="Task_HIS_DocumentCarePlan" targetRef="Task_Provider_SleepHygiene"/>
+    <bpmn:sequenceFlow id="Flow_17" sourceRef="Task_Provider_SleepHygiene" targetRef="Task_Patient_ReceiveInfoSafetyNet"/>
+    <bpmn:sequenceFlow id="Flow_18" sourceRef="Task_Patient_ReceiveInfoSafetyNet" targetRef="Gateway_NeedsMoreActiveTreatment"/>
+
+    <bpmn:sequenceFlow id="Flow_19" name="Refer to MH specialist" sourceRef="Gateway_NeedsMoreActiveTreatment" targetRef="Task_HIS_ScheduleReferral">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"
+                                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><![CDATA[${needsSpecialistReferral == true}]]></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_40" sourceRef="Task_HIS_ScheduleReferral" targetRef="Task_MH_PsychologicalAssessment"/>
+
+    <bpmn:sequenceFlow id="Flow_20" name="Treat in primary care (Step 2)" sourceRef="Gateway_NeedsMoreActiveTreatment" targetRef="Task_Provider_Step2_LowIntensity">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"
+                                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><![CDATA[${needsSpecialistReferral != true}]]></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="Flow_21" sourceRef="Task_Provider_Step2_LowIntensity" targetRef="Gateway_InadequateResponseOrSevere"/>
+    <bpmn:sequenceFlow id="Flow_22" name="No (monitor)" sourceRef="Gateway_InadequateResponseOrSevere" targetRef="Task_Provider_FollowUpIn2Weeks">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"
+                                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><![CDATA[${inadequateResponseOrSevere != true}]]></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_23" name="Yes (Step 3)" sourceRef="Gateway_InadequateResponseOrSevere" targetRef="Task_Provider_Step3_HighIntensity">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"
+                                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><![CDATA[${inadequateResponseOrSevere == true}]]></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="Flow_24" sourceRef="Task_Provider_Step3_HighIntensity" targetRef="Gateway_LifeThreateningOrNeglect"/>
+    <bpmn:sequenceFlow id="Flow_25" name="Yes (Step 4)" sourceRef="Gateway_LifeThreateningOrNeglect" targetRef="Task_Patient_EngageInTreatment">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"
+                                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><![CDATA[${lifeThreateningOrNeglect == true}]]></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_26" name="No (specialist management)" sourceRef="Gateway_LifeThreateningOrNeglect" targetRef="Task_MH_PsychologicalAssessment">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"
+                                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><![CDATA[${lifeThreateningOrNeglect != true}]]></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="Flow_27" sourceRef="Task_MH_PsychologicalAssessment" targetRef="Task_MH_DifferentialDiagnosis"/>
+    <bpmn:sequenceFlow id="Flow_28" sourceRef="Task_MH_DifferentialDiagnosis" targetRef="Task_MH_TreatmentPlan"/>
+    <bpmn:sequenceFlow id="Flow_29" sourceRef="Task_MH_TreatmentPlan" targetRef="Task_MH_ProvideTherapyOrMedication"/>
+    <bpmn:sequenceFlow id="Flow_30" sourceRef="Task_MH_ProvideTherapyOrMedication" targetRef="Gateway_Improved"/>
+
+    <bpmn:sequenceFlow id="Flow_32" name="Yes" sourceRef="Gateway_Improved" targetRef="EndEvent_Resolved">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"
+                                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><![CDATA[${improved == true}]]></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_34" name="No (continue monitoring)" sourceRef="Gateway_Improved" targetRef="Task_Provider_FollowUpIn2Weeks">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"
+                                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><![CDATA[${improved != true}]]></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="Flow_35" sourceRef="Task_Provider_FollowUpIn2Weeks" targetRef="Task_HIS_ScheduleFollowUp"/>
+    <bpmn:sequenceFlow id="Flow_36" sourceRef="Task_HIS_ScheduleFollowUp" targetRef="Task_Patient_AttendFollowUp"/>
+    <bpmn:sequenceFlow id="Flow_37" sourceRef="Task_Patient_AttendFollowUp" targetRef="Task_Provider_MonitoringLoop"/>
+    <bpmn:sequenceFlow id="Flow_33" sourceRef="Task_Provider_MonitoringLoop" targetRef="Gateway_Improved"/>
+
+    <bpmn:sequenceFlow id="Flow_38" sourceRef="Task_Patient_EngageInTreatment" targetRef="Task_Provider_FollowUpIn2Weeks"/>
+
+    <bpmn:sequenceFlow id="Flow_39" sourceRef="Task_Provider_InformGPIfNotPrimary" targetRef="EndEvent_NoIndication"/>
+
+  </bpmn:process>
+
+  <!-- Minimal DI so Camunda Modeler can open it; layout may be auto-arranged -->
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_LTC_Depression_Anxiety">
+
+      <bpmndi:BPMNShape id="Shape_Participant_LTC" bpmnElement="Participant_LTC">
+        <dc:Bounds x="150" y="80" width="1850" height="780"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Lane_Patient" bpmnElement="Lane_Patient">
+        <dc:Bounds x="180" y="110" width="1820" height="180"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Lane_Provider" bpmnElement="Lane_Provider">
+        <dc:Bounds x="180" y="290" width="1820" height="260"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Lane_MH" bpmnElement="Lane_MH">
+        <dc:Bounds x="180" y="550" width="1820" height="170"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Lane_HIS" bpmnElement="Lane_HIS">
+        <dc:Bounds x="180" y="720" width="1820" height="120"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_StartEvent_1" bpmnElement="StartEvent_1">
+        <dc:Bounds x="230" y="170" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Task_Provider_IdentifyCase" bpmnElement="Task_Provider_IdentifyCase">
+        <dc:Bounds x="300" y="315" width="210" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Task_HIS_RecordScreeningResults" bpmnElement="Task_HIS_RecordScreeningResults">
+        <dc:Bounds x="540" y="745" width="210" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Task_Patient_CompleteScreening" bpmnElement="Task_Patient_CompleteScreening">
+        <dc:Bounds x="780" y="145" width="210" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Gateway_PositiveScreen" bpmnElement="Gateway_PositiveScreen" isMarkerVisible="true">
+        <dc:Bounds x="1030" y="160" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Task_Provider_AssessCapability" bpmnElement="Task_Provider_AssessCapability">
+        <dc:Bounds x="1120" y="315" width="230" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Gateway_ProviderCapable" bpmnElement="Gateway_ProviderCapable" isMarkerVisible="true">
+        <dc:Bounds x="1380" y="330" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Task_Provider_ClinicalAssessment" bpmnElement="Task_Provider_ClinicalAssessment">
+        <dc:Bounds x="1460" y="315" width="260" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Task_Provider_AssessRisk" bpmnElement="Task_Provider_AssessRisk">
+        <dc:Bounds x="1750" y="315" width="210" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Gateway_ImmediateRisk" bpmnElement="Gateway_ImmediateRisk" isMarkerVisible="true">
+        <dc:Bounds x="1980" y="330" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Task_MH_ProvideCrisisCare" bpmnElement="Task_MH_ProvideCrisisCare">
+        <dc:Bounds x="2060" y="585" width="230" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Task_Provider_Step1" bpmnElement="Task_Provider_Step1_PlanAndPsychoeducation">
+        <dc:Bounds x="2060" y="405" width="260" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNEdge id="Edge_Flow_1" bpmnElement="Flow_1">
+        <di:waypoint x="266" y="188"/>
+        <di:waypoint x="300" y="355"/>
+      </bpmndi:BPMNEdge>
+
+      <!-- (Other edges omitted intentionally; Camunda Modeler can auto-route/arrange) -->
+
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+
+</bpmn:definitions>

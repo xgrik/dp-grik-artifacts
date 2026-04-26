@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_0i3pgsi" targetNamespace="http://bpmn.io/schema/bpmn" xmlns:modeler="http://camunda.org/schema/modeler/1.0" exporter="Camunda Modeler" exporterVersion="5.33.1" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.22.0">
+  <bpmn:process id="Process_1juweid" isExecutable="true">
+
+    <bpmn:startEvent id="StartEvent_1" name="Process Started: Chronic Pain Patient Identified" />
+
+    <bpmn:userTask id="UserTask_InitialExam" name="Perform Initial Patient Examination and Intake" />
+    <bpmn:userTask id="UserTask_AssessPain" name="Assess Severity and Characteristics of Chronic Pain" />
+    <bpmn:userTask id="UserTask_Biopsychosocial" name="Perform Biopsychosocial Assessment" />
+
+    <bpmn:userTask id="UserTask_PHQ9" name="Administer Depression Screening (PHQ-9)" />
+    <bpmn:userTask id="UserTask_GAD7" name="Administer Anxiety Screening (GAD-7)" />
+    <bpmn:userTask id="UserTask_ChronRisk" name="Assess Risk of Pain Chronification" />
+
+    <bpmn:businessRuleTask id="BusinessRule_EvaluateScreening" name="Evaluate Screening Results" />
+
+    <bpmn:exclusiveGateway id="Gateway_DepAnx" name="Clinically Significant Depression or Anxiety?" />
+    <bpmn:businessRuleTask id="BusinessRule_PsychExamNeed" name="Decide on Referral to Psychological Examination" />
+    <bpmn:exclusiveGateway id="Gateway_PsychExam" name="Psychological Examination Indicated?" />
+
+    <bpmn:userTask id="UserTask_Psychodiagnostic" name="Perform Psychodiagnostic Assessment" />
+    <bpmn:userTask id="UserTask_Psychoeducation" name="Provide Psychoeducation" />
+    <bpmn:userTask id="UserTask_Psychotherapy" name="Deliver Psychological Therapy / Supportive Psychotherapy" />
+
+    <bpmn:businessRuleTask id="BusinessRule_PsychiatryNeed" name="Assess Need for Psychiatric Referral" />
+    <bpmn:exclusiveGateway id="Gateway_Psychiatry" name="Psychiatric Referral Required?" />
+
+    <bpmn:userTask id="UserTask_PsychiatricEval" name="Perform Psychiatric Evaluation" />
+    <bpmn:exclusiveGateway id="Gateway_PharmIndicated" name="Psychiatric Pharmacotherapy Indicated?" />
+    <bpmn:userTask id="UserTask_PharmInit" name="Initiate Psychiatric Pharmacotherapy" />
+
+    <bpmn:userTask id="UserTask_HospDecision" name="Decide on Need for Hospitalization" />
+    <bpmn:exclusiveGateway id="Gateway_HospRequired" name="Hospitalization Required?" />
+
+    <bpmn:userTask id="UserTask_MultiTreatMonitor" name="Continue Multidisciplinary Treatment and Monitoring" />
+    <bpmn:userTask id="UserTask_FollowUp" name="Conduct Ongoing Ambulatory Follow-up" />
+
+    <bpmn:endEvent id="EndEvent_Standard" name="Process Ended: Ambulatory Management Continued" />
+    <bpmn:endEvent id="EndEvent_Hospitalization" name="Process Ended: Hospitalization Initiated" />
+
+    <bpmn:sequenceFlow id="Flow_001" sourceRef="StartEvent_1" targetRef="UserTask_InitialExam" />
+    <bpmn:sequenceFlow id="Flow_002" sourceRef="UserTask_InitialExam" targetRef="UserTask_AssessPain" />
+    <bpmn:sequenceFlow id="Flow_003" sourceRef="UserTask_AssessPain" targetRef="UserTask_Biopsychosocial" />
+    <bpmn:sequenceFlow id="Flow_004" sourceRef="UserTask_Biopsychosocial" targetRef="UserTask_PHQ9" />
+    <bpmn:sequenceFlow id="Flow_005" sourceRef="UserTask_PHQ9" targetRef="UserTask_GAD7" />
+    <bpmn:sequenceFlow id="Flow_006" sourceRef="UserTask_GAD7" targetRef="UserTask_ChronRisk" />
+    <bpmn:sequenceFlow id="Flow_007" sourceRef="UserTask_ChronRisk" targetRef="BusinessRule_EvaluateScreening" />
+    <bpmn:sequenceFlow id="Flow_008" sourceRef="BusinessRule_EvaluateScreening" targetRef="Gateway_DepAnx" />
+
+    <bpmn:sequenceFlow id="Flow_009" name="No clinically significant symptoms" sourceRef="Gateway_DepAnx" targetRef="UserTask_MultiTreatMonitor" />
+    <bpmn:sequenceFlow id="Flow_010" name="Clinically significant symptoms present" sourceRef="Gateway_DepAnx" targetRef="BusinessRule_PsychExamNeed" />
+
+    <bpmn:sequenceFlow id="Flow_011" sourceRef="BusinessRule_PsychExamNeed" targetRef="Gateway_PsychExam" />
+    <bpmn:sequenceFlow id="Flow_012" name="Not indicated" sourceRef="Gateway_PsychExam" targetRef="UserTask_MultiTreatMonitor" />
+    <bpmn:sequenceFlow id="Flow_013" name="Indicated" sourceRef="Gateway_PsychExam" targetRef="UserTask_Psychodiagnostic" />
+
+    <bpmn:sequenceFlow id="Flow_014" sourceRef="UserTask_Psychodiagnostic" targetRef="UserTask_Psychoeducation" />
+    <bpmn:sequenceFlow id="Flow_015" sourceRef="UserTask_Psychoeducation" targetRef="UserTask_Psychotherapy" />
+    <bpmn:sequenceFlow id="Flow_016" sourceRef="UserTask_Psychotherapy" targetRef="BusinessRule_PsychiatryNeed" />
+    <bpmn:sequenceFlow id="Flow_017" sourceRef="BusinessRule_PsychiatryNeed" targetRef="Gateway_Psychiatry" />
+
+    <bpmn:sequenceFlow id="Flow_018" name="No" sourceRef="Gateway_Psychiatry" targetRef="UserTask_MultiTreatMonitor" />
+    <bpmn:sequenceFlow id="Flow_019" name="Yes" sourceRef="Gateway_Psychiatry" targetRef="UserTask_PsychiatricEval" />
+
+    <bpmn:sequenceFlow id="Flow_020" sourceRef="UserTask_PsychiatricEval" targetRef="Gateway_PharmIndicated" />
+    <bpmn:sequenceFlow id="Flow_021" name="No" sourceRef="Gateway_PharmIndicated" targetRef="UserTask_HospDecision" />
+    <bpmn:sequenceFlow id="Flow_022" name="Yes" sourceRef="Gateway_PharmIndicated" targetRef="UserTask_PharmInit" />
+    <bpmn:sequenceFlow id="Flow_023" sourceRef="UserTask_PharmInit" targetRef="UserTask_HospDecision" />
+
+    <bpmn:sequenceFlow id="Flow_024" sourceRef="UserTask_HospDecision" targetRef="Gateway_HospRequired" />
+    <bpmn:sequenceFlow id="Flow_025" name="No" sourceRef="Gateway_HospRequired" targetRef="UserTask_MultiTreatMonitor" />
+    <bpmn:sequenceFlow id="Flow_026" name="Yes" sourceRef="Gateway_HospRequired" targetRef="EndEvent_Hospitalization" />
+
+    <bpmn:sequenceFlow id="Flow_027" sourceRef="UserTask_MultiTreatMonitor" targetRef="UserTask_FollowUp" />
+    <bpmn:sequenceFlow id="Flow_028" sourceRef="UserTask_FollowUp" targetRef="EndEvent_Standard" />
+
+  </bpmn:process>
+
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1juweid">
+
+      <bpmndi:BPMNShape id="StartEvent_1_di" bpmnElement="StartEvent_1">
+        <dc:Bounds x="182" y="162" width="36" height="36" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_InitialExam_di" bpmnElement="UserTask_InitialExam">
+        <dc:Bounds x="260" y="140" width="180" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_AssessPain_di" bpmnElement="UserTask_AssessPain">
+        <dc:Bounds x="480" y="140" width="210" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_Biopsychosocial_di" bpmnElement="UserTask_Biopsychosocial">
+        <dc:Bounds x="730" y="140" width="210" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_PHQ9_di" bpmnElement="UserTask_PHQ9">
+        <dc:Bounds x="980" y="140" width="210" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_GAD7_di" bpmnElement="UserTask_GAD7">
+        <dc:Bounds x="1230" y="140" width="210" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_ChronRisk_di" bpmnElement="UserTask_ChronRisk">
+        <dc:Bounds x="1480" y="140" width="210" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="BusinessRule_EvaluateScreening_di" bpmnElement="BusinessRule_EvaluateScreening">
+        <dc:Bounds x="1730" y="140" width="190" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_DepAnx_di" bpmnElement="Gateway_DepAnx">
+        <dc:Bounds x="1960" y="155" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="BusinessRule_PsychExamNeed_di" bpmnElement="BusinessRule_PsychExamNeed">
+        <dc:Bounds x="2040" y="40" width="220" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_PsychExam_di" bpmnElement="Gateway_PsychExam">
+        <dc:Bounds x="2290" y="55" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_Psychodiagnostic_di" bpmnElement="UserTask_Psychodiagnostic">
+        <dc:Bounds x="2370" y="40" width="210" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_Psychoeducation_di" bpmnElement="UserTask_Psychoeducation">
+        <dc:Bounds x="2620" y="40" width="180" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_Psychotherapy_di" bpmnElement="UserTask_Psychotherapy">
+        <dc:Bounds x="2840" y="40" width="240" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="BusinessRule_PsychiatryNeed_di" bpmnElement="BusinessRule_PsychiatryNeed">
+        <dc:Bounds x="3120" y="40" width="220" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_Psychiatry_di" bpmnElement="Gateway_Psychiatry">
+        <dc:Bounds x="3370" y="55" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_PsychiatricEval_di" bpmnElement="UserTask_PsychiatricEval">
+        <dc:Bounds x="3450" y="40" width="200" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_PharmIndicated_di" bpmnElement="Gateway_PharmIndicated">
+        <dc:Bounds x="3680" y="55" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_PharmInit_di" bpmnElement="UserTask_PharmInit">
+        <dc:Bounds x="3760" y="-30" width="220" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_HospDecision_di" bpmnElement="UserTask_HospDecision">
+        <dc:Bounds x="3990" y="40" width="220" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_HospRequired_di" bpmnElement="Gateway_HospRequired">
+        <dc:Bounds x="4240" y="55" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="EndEvent_Hospitalization_di" bpmnElement="EndEvent_Hospitalization">
+        <dc:Bounds x="4340" y="-10" width="36" height="36" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_MultiTreatMonitor_di" bpmnElement="UserTask_MultiTreatMonitor">
+        <dc:Bounds x="2130" y="260" width="260" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_FollowUp_di" bpmnElement="UserTask_FollowUp">
+        <dc:Bounds x="2430" y="260" width="220" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="EndEvent_Standard_di" bpmnElement="EndEvent_Standard">
+        <dc:Bounds x="2700" y="282" width="36" height="36" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNEdge id="Flow_001_di" bpmnElement="Flow_001">
+        <dc:Point x="218" y="180" />
+        <dc:Point x="260" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_002_di" bpmnElement="Flow_002">
+        <dc:Point x="440" y="180" />
+        <dc:Point x="480" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_003_di" bpmnElement="Flow_003">
+        <dc:Point x="690" y="180" />
+        <dc:Point x="730" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_004_di" bpmnElement="Flow_004">
+        <dc:Point x="940" y="180" />
+        <dc:Point x="980" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_005_di" bpmnElement="Flow_005">
+        <dc:Point x="1190" y="180" />
+        <dc:Point x="1230" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_006_di" bpmnElement="Flow_006">
+        <dc:Point x="1440" y="180" />
+        <dc:Point x="1480" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_007_di" bpmnElement="Flow_007">
+        <dc:Point x="1690" y="180" />
+        <dc:Point x="1730" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_008_di" bpmnElement="Flow_008">
+        <dc:Point x="1920" y="180" />
+        <dc:Point x="1960" y="180" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_009_di" bpmnElement="Flow_009">
+        <dc:Point x="1985" y="205" />
+        <dc:Point x="1985" y="300" />
+        <dc:Point x="2130" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_010_di" bpmnElement="Flow_010">
+        <dc:Point x="2010" y="180" />
+        <dc:Point x="2040" y="80" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_011_di" bpmnElement="Flow_011">
+        <dc:Point x="2260" y="80" />
+        <dc:Point x="2290" y="80" />
+      </bpmndi:BPMNEdge>
+      
+      <bpmndi:BPMNEdge id="Flow_013_di" bpmnElement="Flow_013">
+        <dc:Point x="2340" y="80" />
+        <dc:Point x="2370" y="80" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_014_di" bpmnElement="Flow_014">
+        <dc:Point x="2580" y="80" />
+        <dc:Point x="2620" y="80" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_015_di" bpmnElement="Flow_015">
+        <dc:Point x="2800" y="80" />
+        <dc:Point x="2840" y="80" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_016_di" bpmnElement="Flow_016">
+        <dc:Point x="3080" y="80" />
+        <dc:Point x="3120" y="80" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_017_di" bpmnElement="Flow_017">
+        <dc:Point x="3340" y="80" />
+        <dc:Point x="3370" y="80" />
+      </bpmndi:BPMNEdge>
+
+      
+      <bpmndi:BPMNEdge id="Flow_019_di" bpmnElement="Flow_019">
+        <dc:Point x="3420" y="80" />
+        <dc:Point x="3450" y="80" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_020_di" bpmnElement="Flow_020">
+        <dc:Point x="3650" y="80" />
+        <dc:Point x="3680" y="80" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_021_di" bpmnElement="Flow_021">
+        <dc:Point x="3705" y="105" />
+        <dc:Point x="3705" y="180" />
+        <dc:Point x="3990" y="80" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_022_di" bpmnElement="Flow_022">
+        <dc:Point x="3730" y="80" />
+        <dc:Point x="3760" y="10" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_023_di" bpmnElement="Flow_023">
+        <dc:Point x="3980" y="10" />
+        <dc:Point x="4100" y="10" />
+        <dc:Point x="4100" y="80" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_024_di" bpmnElement="Flow_024">
+        <dc:Point x="4210" y="80" />
+        <dc:Point x="4240" y="80" />
+      </bpmndi:BPMNEdge>
+      
+      <bpmndi:BPMNEdge id="Flow_026_di" bpmnElement="Flow_026">
+        <dc:Point x="4290" y="80" />
+        <dc:Point x="4340" y="8" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_027_di" bpmnElement="Flow_027">
+        <dc:Point x="2390" y="300" />
+        <dc:Point x="2430" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_028_di" bpmnElement="Flow_028">
+        <dc:Point x="2650" y="300" />
+        <dc:Point x="2700" y="300" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_012_di" bpmnElement="Flow_012">
+        <dc:Point x="2315" y="105" />
+        <dc:Point x="2315" y="240" />
+        <dc:Point x="2260" y="260" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_018_di" bpmnElement="Flow_018">
+        <dc:Point x="3395" y="105" />
+        <dc:Point x="3395" y="260" />
+        <dc:Point x="2390" y="280" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_025_di" bpmnElement="Flow_025">
+        <dc:Point x="4265" y="105" />
+        <dc:Point x="4265" y="340" />
+        <dc:Point x="2390" y="320" />
+      </bpmndi:BPMNEdge>
+
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

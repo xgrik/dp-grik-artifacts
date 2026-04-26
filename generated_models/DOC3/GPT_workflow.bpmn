@@ -1,0 +1,548 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1fnwx2w" targetNamespace="http://bpmn.io/schema/bpmn" xmlns:modeler="http://camunda.org/schema/modeler/1.0" exporter="Camunda Modeler" exporterVersion="5.33.1" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.22.0">
+  <bpmn:process id="Process_0mxms9h" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_001</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <bpmn:userTask id="UserTask_Screening" name="Perform Initial Mental Health Screening">
+      <bpmn:incoming>Flow_001</bpmn:incoming>
+      <bpmn:outgoing>Flow_002</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:businessRuleTask id="BusinessRule_AssessSuspicion" name="Assess Suspicion of Agoraphobia or Related Anxiety Disorder">
+      <bpmn:incoming>Flow_002</bpmn:incoming>
+      <bpmn:outgoing>Flow_003</bpmn:outgoing>
+    </bpmn:businessRuleTask>
+
+    <bpmn:exclusiveGateway id="Gateway_Suspicion" name="Suspicion Present?">
+      <bpmn:incoming>Flow_003</bpmn:incoming>
+      <bpmn:outgoing>Flow_004</bpmn:outgoing>
+      <bpmn:outgoing>Flow_005</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:endEvent id="EndEvent_NoSuspicion" name="End (No Specialist Pathway)">
+      <bpmn:incoming>Flow_005</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:userTask id="UserTask_ReferSpecialist" name="Refer Patient to Specialist Care">
+      <bpmn:incoming>Flow_004</bpmn:incoming>
+      <bpmn:outgoing>Flow_006</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="UserTask_PsychiatricAssessment" name="Conduct Psychiatric Diagnostic Assessment">
+      <bpmn:incoming>Flow_006</bpmn:incoming>
+      <bpmn:outgoing>Flow_007</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:businessRuleTask id="BusinessRule_SomaticNeed" name="Assess Need for Physical Examination and Somatic Tests">
+      <bpmn:incoming>Flow_007</bpmn:incoming>
+      <bpmn:outgoing>Flow_008</bpmn:outgoing>
+    </bpmn:businessRuleTask>
+
+    <bpmn:exclusiveGateway id="Gateway_SomaticTests" name="Somatic Causes Suspected?">
+      <bpmn:incoming>Flow_008</bpmn:incoming>
+      <bpmn:outgoing>Flow_009</bpmn:outgoing>
+      <bpmn:outgoing>Flow_010</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="UserTask_SomaticTests" name="Perform Physical Examination and Basic Somatic Tests">
+      <bpmn:incoming>Flow_009</bpmn:incoming>
+      <bpmn:outgoing>Flow_011</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="Gateway_SomaticMerge" name="Proceed After Somatic Assessment">
+      <bpmn:incoming>Flow_010</bpmn:incoming>
+      <bpmn:incoming>Flow_011</bpmn:incoming>
+      <bpmn:outgoing>Flow_012</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:businessRuleTask id="BusinessRule_PsychExamNeed" name="Assess Indication for Clinical-Psychological Examination">
+      <bpmn:incoming>Flow_012</bpmn:incoming>
+      <bpmn:outgoing>Flow_013</bpmn:outgoing>
+    </bpmn:businessRuleTask>
+
+    <bpmn:exclusiveGateway id="Gateway_PsychExam" name="Clinical-Psychological Examination Indicated?">
+      <bpmn:incoming>Flow_013</bpmn:incoming>
+      <bpmn:outgoing>Flow_014</bpmn:outgoing>
+      <bpmn:outgoing>Flow_015</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="UserTask_PsychExam" name="Conduct Clinical-Psychological Examination">
+      <bpmn:incoming>Flow_014</bpmn:incoming>
+      <bpmn:outgoing>Flow_016</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="Gateway_PsychExamMerge" name="Proceed After Psychological Examination Decision">
+      <bpmn:incoming>Flow_015</bpmn:incoming>
+      <bpmn:incoming>Flow_016</bpmn:incoming>
+      <bpmn:outgoing>Flow_017</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="UserTask_SuicideRisk" name="Assess Suicide and Self-Harm Risk">
+      <bpmn:incoming>Flow_017</bpmn:incoming>
+      <bpmn:outgoing>Flow_018</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="Gateway_SuicideRisk" name="High Suicide/Self-Harm Risk?">
+      <bpmn:incoming>Flow_018</bpmn:incoming>
+      <bpmn:outgoing>Flow_019</bpmn:outgoing>
+      <bpmn:outgoing>Flow_020</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="UserTask_CrisisProcedure" name="Initiate Crisis or Emergency Procedure">
+      <bpmn:incoming>Flow_019</bpmn:incoming>
+      <bpmn:outgoing>Flow_021</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:endEvent id="EndEvent_CrisisHandled" name="End (Crisis/Emergency Pathway)">
+      <bpmn:incoming>Flow_021</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:businessRuleTask id="BusinessRule_SelectTreatment" name="Select Treatment Strategy (Stepped Care)">
+      <bpmn:incoming>Flow_020</bpmn:incoming>
+      <bpmn:incoming>Flow_029</bpmn:incoming>
+      <bpmn:outgoing>Flow_022</bpmn:outgoing>
+    </bpmn:businessRuleTask>
+
+    <bpmn:exclusiveGateway id="Gateway_TreatmentLevel" name="Treatment Level Selected">
+      <bpmn:incoming>Flow_022</bpmn:incoming>
+      <bpmn:outgoing>Flow_023</bpmn:outgoing>
+      <bpmn:outgoing>Flow_024</bpmn:outgoing>
+      <bpmn:outgoing>Flow_025</bpmn:outgoing>
+      <bpmn:outgoing>Flow_026</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="UserTask_Psychoeducation" name="Provide Psychoeducation to Patient">
+      <bpmn:incoming>Flow_023</bpmn:incoming>
+      <bpmn:outgoing>Flow_027</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="UserTask_CBT" name="Deliver Cognitive-Behavioral Therapy (CBT)">
+      <bpmn:incoming>Flow_024</bpmn:incoming>
+      <bpmn:outgoing>Flow_027</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="UserTask_Pharmacotherapy" name="Initiate Pharmacological Treatment">
+      <bpmn:incoming>Flow_025</bpmn:incoming>
+      <bpmn:outgoing>Flow_027</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="UserTask_CombinedTreatment" name="Initiate Pharmacological Treatment and Deliver CBT">
+      <bpmn:incoming>Flow_026</bpmn:incoming>
+      <bpmn:outgoing>Flow_027</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="Gateway_TreatmentMerge" name="Proceed to Monitoring">
+      <bpmn:incoming>Flow_027</bpmn:incoming>
+      <bpmn:outgoing>Flow_028</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:serviceTask id="ServiceTask_Monitor" name="Monitor Treatment Progress Using Standardized Questionnaires">
+      <bpmn:incoming>Flow_028</bpmn:incoming>
+      <bpmn:outgoing>Flow_030</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:businessRuleTask id="BusinessRule_Response" name="Assess Treatment Response">
+      <bpmn:incoming>Flow_030</bpmn:incoming>
+      <bpmn:outgoing>Flow_031</bpmn:outgoing>
+    </bpmn:businessRuleTask>
+
+    <bpmn:exclusiveGateway id="Gateway_Response" name="Treatment Response Adequate?">
+      <bpmn:incoming>Flow_031</bpmn:incoming>
+      <bpmn:outgoing>Flow_032</bpmn:outgoing>
+      <bpmn:outgoing>Flow_033</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="UserTask_RelapsePrevention" name="Implement Relapse Prevention Measures">
+      <bpmn:incoming>Flow_032</bpmn:incoming>
+      <bpmn:outgoing>Flow_034</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:endEvent id="EndEvent_Completed" name="End (Treatment Stabilized)">
+      <bpmn:incoming>Flow_034</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:userTask id="UserTask_AdjustTreatment" name="Adjust Treatment Based on Response">
+      <bpmn:incoming>Flow_033</bpmn:incoming>
+      <bpmn:outgoing>Flow_029</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:sequenceFlow id="Flow_001" sourceRef="StartEvent_1" targetRef="UserTask_Screening" />
+    <bpmn:sequenceFlow id="Flow_002" sourceRef="UserTask_Screening" targetRef="BusinessRule_AssessSuspicion" />
+    <bpmn:sequenceFlow id="Flow_003" sourceRef="BusinessRule_AssessSuspicion" targetRef="Gateway_Suspicion" />
+    <bpmn:sequenceFlow id="Flow_004" name="Suspicion confirmed" sourceRef="Gateway_Suspicion" targetRef="UserTask_ReferSpecialist" />
+    <bpmn:sequenceFlow id="Flow_005" name="No suspicion" sourceRef="Gateway_Suspicion" targetRef="EndEvent_NoSuspicion" />
+    <bpmn:sequenceFlow id="Flow_006" sourceRef="UserTask_ReferSpecialist" targetRef="UserTask_PsychiatricAssessment" />
+    <bpmn:sequenceFlow id="Flow_007" sourceRef="UserTask_PsychiatricAssessment" targetRef="BusinessRule_SomaticNeed" />
+    <bpmn:sequenceFlow id="Flow_008" sourceRef="BusinessRule_SomaticNeed" targetRef="Gateway_SomaticTests" />
+    <bpmn:sequenceFlow id="Flow_009" name="Somatic evaluation needed" sourceRef="Gateway_SomaticTests" targetRef="UserTask_SomaticTests" />
+    <bpmn:sequenceFlow id="Flow_010" name="Somatic evaluation not needed" sourceRef="Gateway_SomaticTests" targetRef="Gateway_SomaticMerge" />
+    <bpmn:sequenceFlow id="Flow_011" sourceRef="UserTask_SomaticTests" targetRef="Gateway_SomaticMerge" />
+    <bpmn:sequenceFlow id="Flow_012" sourceRef="Gateway_SomaticMerge" targetRef="BusinessRule_PsychExamNeed" />
+    <bpmn:sequenceFlow id="Flow_013" sourceRef="BusinessRule_PsychExamNeed" targetRef="Gateway_PsychExam" />
+    <bpmn:sequenceFlow id="Flow_014" name="Psychological examination indicated" sourceRef="Gateway_PsychExam" targetRef="UserTask_PsychExam" />
+    <bpmn:sequenceFlow id="Flow_015" name="Psychological examination not indicated" sourceRef="Gateway_PsychExam" targetRef="Gateway_PsychExamMerge" />
+    <bpmn:sequenceFlow id="Flow_016" sourceRef="UserTask_PsychExam" targetRef="Gateway_PsychExamMerge" />
+    <bpmn:sequenceFlow id="Flow_017" sourceRef="Gateway_PsychExamMerge" targetRef="UserTask_SuicideRisk" />
+    <bpmn:sequenceFlow id="Flow_018" sourceRef="UserTask_SuicideRisk" targetRef="Gateway_SuicideRisk" />
+    <bpmn:sequenceFlow id="Flow_019" name="High risk detected" sourceRef="Gateway_SuicideRisk" targetRef="UserTask_CrisisProcedure" />
+    <bpmn:sequenceFlow id="Flow_020" name="No high risk" sourceRef="Gateway_SuicideRisk" targetRef="BusinessRule_SelectTreatment" />
+    <bpmn:sequenceFlow id="Flow_021" sourceRef="UserTask_CrisisProcedure" targetRef="EndEvent_CrisisHandled" />
+    <bpmn:sequenceFlow id="Flow_022" sourceRef="BusinessRule_SelectTreatment" targetRef="Gateway_TreatmentLevel" />
+    <bpmn:sequenceFlow id="Flow_023" name="Self-help / Psychoeducation" sourceRef="Gateway_TreatmentLevel" targetRef="UserTask_Psychoeducation" />
+    <bpmn:sequenceFlow id="Flow_024" name="Psychological therapy (CBT)" sourceRef="Gateway_TreatmentLevel" targetRef="UserTask_CBT" />
+    <bpmn:sequenceFlow id="Flow_025" name="Pharmacotherapy" sourceRef="Gateway_TreatmentLevel" targetRef="UserTask_Pharmacotherapy" />
+    <bpmn:sequenceFlow id="Flow_026" name="Combined treatment" sourceRef="Gateway_TreatmentLevel" targetRef="UserTask_CombinedTreatment" />
+    <bpmn:sequenceFlow id="Flow_027" sourceRef="UserTask_Psychoeducation" targetRef="Gateway_TreatmentMerge" />
+    <bpmn:sequenceFlow id="Flow_028" sourceRef="Gateway_TreatmentMerge" targetRef="ServiceTask_Monitor" />
+    <bpmn:sequenceFlow id="Flow_029" sourceRef="UserTask_AdjustTreatment" targetRef="BusinessRule_SelectTreatment" />
+    <bpmn:sequenceFlow id="Flow_030" sourceRef="ServiceTask_Monitor" targetRef="BusinessRule_Response" />
+    <bpmn:sequenceFlow id="Flow_031" sourceRef="BusinessRule_Response" targetRef="Gateway_Response" />
+    <bpmn:sequenceFlow id="Flow_032" name="Adequate response" sourceRef="Gateway_Response" targetRef="UserTask_RelapsePrevention" />
+    <bpmn:sequenceFlow id="Flow_033" name="Inadequate response" sourceRef="Gateway_Response" targetRef="UserTask_AdjustTreatment" />
+    <bpmn:sequenceFlow id="Flow_034" sourceRef="UserTask_RelapsePrevention" targetRef="EndEvent_Completed" />
+
+    <!-- Additional sequenceFlows for branches converging into Gateway_TreatmentMerge -->
+    <bpmn:sequenceFlow id="Flow_027a" sourceRef="UserTask_CBT" targetRef="Gateway_TreatmentMerge" />
+    <bpmn:sequenceFlow id="Flow_027b" sourceRef="UserTask_Pharmacotherapy" targetRef="Gateway_TreatmentMerge" />
+    <bpmn:sequenceFlow id="Flow_027c" sourceRef="UserTask_CombinedTreatment" targetRef="Gateway_TreatmentMerge" />
+
+  </bpmn:process>
+
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_0mxms9h">
+
+      <bpmndi:BPMNShape id="StartEvent_1_di" bpmnElement="StartEvent_1">
+        <dc:Bounds x="182" y="162" width="36" height="36" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_Screening_di" bpmnElement="UserTask_Screening">
+        <dc:Bounds x="260" y="140" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="BusinessRule_AssessSuspicion_di" bpmnElement="BusinessRule_AssessSuspicion">
+        <dc:Bounds x="450" y="140" width="220" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_Suspicion_di" bpmnElement="Gateway_Suspicion">
+        <dc:Bounds x="700" y="155" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="EndEvent_NoSuspicion_di" bpmnElement="EndEvent_NoSuspicion">
+        <dc:Bounds x="830" y="162" width="36" height="36" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_ReferSpecialist_di" bpmnElement="UserTask_ReferSpecialist">
+        <dc:Bounds x="820" y="260" width="200" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_PsychiatricAssessment_di" bpmnElement="UserTask_PsychiatricAssessment">
+        <dc:Bounds x="1060" y="260" width="240" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="BusinessRule_SomaticNeed_di" bpmnElement="BusinessRule_SomaticNeed">
+        <dc:Bounds x="1340" y="260" width="260" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_SomaticTests_di" bpmnElement="Gateway_SomaticTests">
+        <dc:Bounds x="1630" y="275" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_SomaticTests_di" bpmnElement="UserTask_SomaticTests">
+        <dc:Bounds x="1720" y="380" width="260" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_SomaticMerge_di" bpmnElement="Gateway_SomaticMerge">
+        <dc:Bounds x="1690" y="275" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="BusinessRule_PsychExamNeed_di" bpmnElement="BusinessRule_PsychExamNeed">
+        <dc:Bounds x="1780" y="260" width="290" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_PsychExam_di" bpmnElement="Gateway_PsychExam">
+        <dc:Bounds x="2110" y="275" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_PsychExam_di" bpmnElement="UserTask_PsychExam">
+        <dc:Bounds x="2200" y="380" width="260" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_PsychExamMerge_di" bpmnElement="Gateway_PsychExamMerge">
+        <dc:Bounds x="2170" y="275" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_SuicideRisk_di" bpmnElement="UserTask_SuicideRisk">
+        <dc:Bounds x="2260" y="260" width="220" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_SuicideRisk_di" bpmnElement="Gateway_SuicideRisk">
+        <dc:Bounds x="2510" y="275" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_CrisisProcedure_di" bpmnElement="UserTask_CrisisProcedure">
+        <dc:Bounds x="2600" y="140" width="240" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="EndEvent_CrisisHandled_di" bpmnElement="EndEvent_CrisisHandled">
+        <dc:Bounds x="2890" y="162" width="36" height="36" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="BusinessRule_SelectTreatment_di" bpmnElement="BusinessRule_SelectTreatment">
+        <dc:Bounds x="2600" y="260" width="260" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_TreatmentLevel_di" bpmnElement="Gateway_TreatmentLevel">
+        <dc:Bounds x="2890" y="275" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_Psychoeducation_di" bpmnElement="UserTask_Psychoeducation">
+        <dc:Bounds x="3000" y="60" width="230" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_CBT_di" bpmnElement="UserTask_CBT">
+        <dc:Bounds x="3000" y="160" width="230" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_Pharmacotherapy_di" bpmnElement="UserTask_Pharmacotherapy">
+        <dc:Bounds x="3000" y="260" width="230" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_CombinedTreatment_di" bpmnElement="UserTask_CombinedTreatment">
+        <dc:Bounds x="3000" y="360" width="300" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_TreatmentMerge_di" bpmnElement="Gateway_TreatmentMerge">
+        <dc:Bounds x="3340" y="275" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="ServiceTask_Monitor_di" bpmnElement="ServiceTask_Monitor">
+        <dc:Bounds x="3420" y="260" width="320" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="BusinessRule_Response_di" bpmnElement="BusinessRule_Response">
+        <dc:Bounds x="3770" y="260" width="200" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_Response_di" bpmnElement="Gateway_Response">
+        <dc:Bounds x="4005" y="275" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_RelapsePrevention_di" bpmnElement="UserTask_RelapsePrevention">
+        <dc:Bounds x="4100" y="160" width="260" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="EndEvent_Completed_di" bpmnElement="EndEvent_Completed">
+        <dc:Bounds x="4410" y="182" width="36" height="36" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="UserTask_AdjustTreatment_di" bpmnElement="UserTask_AdjustTreatment">
+        <dc:Bounds x="4100" y="360" width="260" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNEdge id="Flow_001_di" bpmnElement="Flow_001">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="218" y="180" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="260" y="180" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_002_di" bpmnElement="Flow_002">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="420" y="180" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="450" y="180" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_003_di" bpmnElement="Flow_003">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="670" y="180" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="700" y="180" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_004_di" bpmnElement="Flow_004">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="725" y="205" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="725" y="300" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="820" y="300" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_005_di" bpmnElement="Flow_005">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="750" y="180" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="830" y="180" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_006_di" bpmnElement="Flow_006">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1020" y="300" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1060" y="300" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_007_di" bpmnElement="Flow_007">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1300" y="300" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1340" y="300" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_008_di" bpmnElement="Flow_008">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1600" y="300" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1630" y="300" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_009_di" bpmnElement="Flow_009">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1655" y="325" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1655" y="420" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1720" y="420" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_010_di" bpmnElement="Flow_010">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1680" y="300" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1690" y="300" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_011_di" bpmnElement="Flow_011">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1980" y="420" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1715" y="420" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1715" y="325" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_012_di" bpmnElement="Flow_012">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1740" y="300" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1780" y="300" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_013_di" bpmnElement="Flow_013">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2070" y="300" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2110" y="300" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_014_di" bpmnElement="Flow_014">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2135" y="325" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2135" y="420" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2200" y="420" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_015_di" bpmnElement="Flow_015">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2160" y="300" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2170" y="300" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_016_di" bpmnElement="Flow_016">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2460" y="420" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2195" y="420" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2195" y="325" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_017_di" bpmnElement="Flow_017">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2220" y="300" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2260" y="300" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_018_di" bpmnElement="Flow_018">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2480" y="300" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2510" y="300" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_019_di" bpmnElement="Flow_019">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2535" y="275" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2535" y="180" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2600" y="180" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_020_di" bpmnElement="Flow_020">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2560" y="300" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2600" y="300" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_021_di" bpmnElement="Flow_021">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2840" y="180" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2890" y="180" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_022_di" bpmnElement="Flow_022">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2860" y="300" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2890" y="300" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_023_di" bpmnElement="Flow_023">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2915" y="275" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2915" y="100" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3000" y="100" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_024_di" bpmnElement="Flow_024">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2940" y="300" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2970" y="300" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2970" y="200" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3000" y="200" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_025_di" bpmnElement="Flow_025">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2940" y="300" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3000" y="300" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_026_di" bpmnElement="Flow_026">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2915" y="325" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2915" y="400" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3000" y="400" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_027_di" bpmnElement="Flow_027">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3230" y="100" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3365" y="100" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3365" y="275" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_027a_di" bpmnElement="Flow_027a">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3230" y="200" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3365" y="200" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3365" y="275" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_027b_di" bpmnElement="Flow_027b">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3230" y="300" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3340" y="300" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_027c_di" bpmnElement="Flow_027c">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3300" y="400" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3365" y="400" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3365" y="325" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_028_di" bpmnElement="Flow_028">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3390" y="300" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3420" y="300" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_030_di" bpmnElement="Flow_030">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3740" y="300" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3770" y="300" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_031_di" bpmnElement="Flow_031">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3970" y="300" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4005" y="300" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_032_di" bpmnElement="Flow_032">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4030" y="275" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4030" y="200" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4100" y="200" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_033_di" bpmnElement="Flow_033">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4030" y="325" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4030" y="400" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4100" y="400" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_034_di" bpmnElement="Flow_034">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4360" y="200" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4410" y="200" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_029_di" bpmnElement="Flow_029">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4230" y="400" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2570" y="400" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2570" y="300" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2600" y="300" />
+      </bpmndi:BPMNEdge>
+
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

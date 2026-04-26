@@ -1,0 +1,518 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+                  id="Definitions_PTSP"
+                  targetNamespace="http://bpmn.io/schema/bpmn"
+                  xmlns:modeler="http://camunda.org/schema/modeler/1.0"
+                  exporter="Camunda Modeler"
+                  exporterVersion="5.33.1"
+                  modeler:executionPlatform="Camunda Platform"
+                  modeler:executionPlatformVersion="7.22.0">
+
+  <!-- ═══════════════════════════════════════════════════════════
+       POOL: Posttraumatická stresová porucha – klinický postup
+       ═══════════════════════════════════════════════════════════ -->
+  <bpmn:collaboration id="Collab_PTSP">
+    <bpmn:participant id="Pool_PTSP" name="Posttraumatická stresová porucha – klinický postup" processRef="Process_PTSP"/>
+  </bpmn:collaboration>
+
+  <bpmn:process id="Process_PTSP" name="PTSP klinický postup" isExecutable="true">
+
+    <!-- ── Lanes ── -->
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="Lane_VL"   name="Všeobecný lekár (primárna starostlivosť)">
+        <bpmn:flowNodeRef>Start_Pacient</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_PrimarnePosudenieVL</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_MacScreen</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_PozitivnySkrining</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_AktivneSledo</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_OdeslanieSpecialist</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Spec" name="Psychiater / Klinický psychológ (sekundárna starostlivosť)">
+        <bpmn:flowNodeRef>Task_KomplexneDiagn</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_DiffDiagnoza</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_DiagPTSP</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_InaPorucha</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_TvoraLiecebnehoPl</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Psychoedukacia</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_VolbaLiecby</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_TraumaKBT</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_EMDR</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_KomputerizovanaKBT</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Farmakoterapia</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_JoinLiecba</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_MonitorovaniePHQ_GAD</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_EfektLiecby</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_IntenzifikaciaLiecby</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_NutnaHospitalizacia</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_UstavnaLiecba</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_UkoncenieLiecby</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_SledovaniePoPrepusteni</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_Uzdravenie</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_ChronickaStarostlivost</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <!-- ══════════════════════════════════
+         START
+         ══════════════════════════════════ -->
+    <bpmn:startEvent id="Start_Pacient" name="Pacient prichádza s možnými príznakmi PTSP">
+      <bpmn:outgoing>SF_Start_PrimarnePos</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <!-- ══════════════════════════════════
+         PRIMÁRNA STAROSTLIVOSŤ
+         ══════════════════════════════════ -->
+    <bpmn:task id="Task_PrimarnePosudenieVL" name="Prvotné posúdenie a anamnéza (VL)">
+      <bpmn:incoming>SF_Start_PrimarnePos</bpmn:incoming>
+      <bpmn:outgoing>SF_Pos_MacScreen</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:task id="Task_MacScreen" name="Orientačný skríning PTSP&#10;(PTSD-MACSCREEN)">
+      <bpmn:incoming>SF_Pos_MacScreen</bpmn:incoming>
+      <bpmn:outgoing>SF_MacScreen_GW</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:exclusiveGateway id="GW_PozitivnySkrining" name="Pozitívny skríning?">
+      <bpmn:incoming>SF_MacScreen_GW</bpmn:incoming>
+      <bpmn:outgoing>SF_GW_Nie_Sledov</bpmn:outgoing>
+      <bpmn:outgoing>SF_GW_Ano_Odosli</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:task id="Task_AktivneSledo" name="Aktívne sledovanie&#10;(príznaky &lt; 4 týždne)">
+      <bpmn:incoming>SF_GW_Nie_Sledov</bpmn:incoming>
+      <bpmn:outgoing>SF_Sledov_MacScreen</bpmn:outgoing>
+    </bpmn:task>
+
+    <!-- loop back to re-screen after watchful waiting -->
+    <bpmn:sequenceFlow id="SF_Sledov_MacScreen" sourceRef="Task_AktivneSledo" targetRef="Task_MacScreen"/>
+
+    <bpmn:task id="Task_OdeslanieSpecialist" name="Odoslanie k špecialistovi&#10;(psychiater / klin. psychológ)">
+      <bpmn:incoming>SF_GW_Ano_Odosli</bpmn:incoming>
+      <bpmn:outgoing>SF_Odosli_KomplDiagn</bpmn:outgoing>
+    </bpmn:task>
+
+    <!-- ══════════════════════════════════
+         SEKUNDÁRNA STAROSTLIVOSŤ – DIAGNOSTIKA
+         ══════════════════════════════════ -->
+    <bpmn:task id="Task_KomplexneDiagn" name="Komplexné psychodiagnostické vyšetrenie&#10;(PCL-5, PHQ-9, GAD-7, CORE-OM, LEC-5)">
+      <bpmn:incoming>SF_Odosli_KomplDiagn</bpmn:incoming>
+      <bpmn:outgoing>SF_KomplDiagn_Diff</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:task id="Task_DiffDiagnoza" name="Diferenciálna diagnostika&#10;(vylúčenie iných porúch, somatika, neurol.)">
+      <bpmn:incoming>SF_KomplDiagn_Diff</bpmn:incoming>
+      <bpmn:outgoing>SF_Diff_GW</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:exclusiveGateway id="GW_DiagPTSP" name="Potvrdená diagnóza PTSP&#10;(MKCH-10 kritériá)?">
+      <bpmn:incoming>SF_Diff_GW</bpmn:incoming>
+      <bpmn:outgoing>SF_Diag_Nie</bpmn:outgoing>
+      <bpmn:outgoing>SF_Diag_Ano</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:task id="Task_InaPorucha" name="Liečba inej psychickej poruchy&#10;/ odoslanie k príslušnému špecialistovi">
+      <bpmn:incoming>SF_Diag_Nie</bpmn:incoming>
+      <bpmn:outgoing>SF_InaPorucha_End</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:endEvent id="End_ChronickaStarostlivost" name="Ukončenie v tomto postupe&#10;(iná diagnóza)">
+      <bpmn:incoming>SF_InaPorucha_End</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <!-- ══════════════════════════════════
+         TVORBA LIEČEBNÉHO PLÁNU
+         ══════════════════════════════════ -->
+    <bpmn:task id="Task_TvoraLiecebnehoPl" name="Tvorba individuálneho liečebného plánu&#10;(informovaný súhlas, zapojenie rodiny)">
+      <bpmn:incoming>SF_Diag_Ano</bpmn:incoming>
+      <bpmn:outgoing>SF_Plan_Psychoed</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:task id="Task_Psychoedukacia" name="Psychoedukácia pacienta a rodiny&#10;(informácie o PTSP, priebehu, liečbe)">
+      <bpmn:incoming>SF_Plan_Psychoed</bpmn:incoming>
+      <bpmn:outgoing>SF_Psychoed_GWVolba</bpmn:outgoing>
+    </bpmn:task>
+
+    <!-- ══════════════════════════════════
+         VOĽBA LIEČBY (paralelné vetvy cez inclusive GW)
+         ══════════════════════════════════ -->
+    <bpmn:inclusiveGateway id="GW_VolbaLiecby" name="Voľba liečebnej metódy&#10;(podľa preferencií a klinického stavu)">
+      <bpmn:incoming>SF_Psychoed_GWVolba</bpmn:incoming>
+      <bpmn:outgoing>SF_Vol_KBT</bpmn:outgoing>
+      <bpmn:outgoing>SF_Vol_EMDR</bpmn:outgoing>
+      <bpmn:outgoing>SF_Vol_IKBT</bpmn:outgoing>
+      <bpmn:outgoing>SF_Vol_Farma</bpmn:outgoing>
+    </bpmn:inclusiveGateway>
+
+    <bpmn:task id="Task_TraumaKBT" name="Na traumu zameraná KBT&#10;(8–12 sedení; CPT / predĺžená expozícia /&#10;naratívna expozičná terapia)">
+      <bpmn:incoming>SF_Vol_KBT</bpmn:incoming>
+      <bpmn:outgoing>SF_KBT_Join</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:task id="Task_EMDR" name="EMDR terapia&#10;(8–12 sedení; bilaterálna stimulácia;&#10;fázovitý postup)">
+      <bpmn:incoming>SF_Vol_EMDR</bpmn:incoming>
+      <bpmn:outgoing>SF_EMDR_Join</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:task id="Task_KomputerizovanaKBT" name="Komputerizovaná / internetová KBT&#10;(IKBT; 8–10 sedení; s podporou terapeuta)">
+      <bpmn:incoming>SF_Vol_IKBT</bpmn:incoming>
+      <bpmn:outgoing>SF_IKBT_Join</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:task id="Task_Farmakoterapia" name="Farmakoterapia&#10;(v kompetencii psychiatra;&#10;ako doplnok alebo pri preferovaní liekov)">
+      <bpmn:incoming>SF_Vol_Farma</bpmn:incoming>
+      <bpmn:outgoing>SF_Farma_Join</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:inclusiveGateway id="GW_JoinLiecba" name="Zlúčenie liečebných vetiev">
+      <bpmn:incoming>SF_KBT_Join</bpmn:incoming>
+      <bpmn:incoming>SF_EMDR_Join</bpmn:incoming>
+      <bpmn:incoming>SF_IKBT_Join</bpmn:incoming>
+      <bpmn:incoming>SF_Farma_Join</bpmn:incoming>
+      <bpmn:outgoing>SF_Join_Monitor</bpmn:outgoing>
+    </bpmn:inclusiveGateway>
+
+    <!-- ══════════════════════════════════
+         MONITOROVANIE A HODNOTENIE EFEKTU
+         ══════════════════════════════════ -->
+    <bpmn:task id="Task_MonitorovaniePHQ_GAD" name="Priebežné monitorovanie&#10;(PHQ-9, GAD-7, CORE-OM; každé sedenie)">
+      <bpmn:incoming>SF_Join_Monitor</bpmn:incoming>
+      <bpmn:incoming>SF_Intenz_Monitor</bpmn:incoming>
+      <bpmn:outgoing>SF_Monitor_GWEfekt</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:exclusiveGateway id="GW_EfektLiecby" name="Efekt liečby dostatočný?">
+      <bpmn:incoming>SF_Monitor_GWEfekt</bpmn:incoming>
+      <bpmn:outgoing>SF_Efekt_Ano</bpmn:outgoing>
+      <bpmn:outgoing>SF_Efekt_Nie</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:task id="Task_IntenzifikaciaLiecby" name="Intenzifikácia / zmena liečby&#10;(alternatívna psychoterapia, augmentácia,&#10;skupinová terapia, špecifické intervencie)">
+      <bpmn:incoming>SF_Efekt_Nie</bpmn:incoming>
+      <bpmn:outgoing>SF_Intenz_GWHosp</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:exclusiveGateway id="GW_NutnaHospitalizacia" name="Nutná hospitalizácia?&#10;(suicidalita, závažné komorbidity,&#10;nedostatočná odp. na amb. liečbu)">
+      <bpmn:incoming>SF_Intenz_GWHosp</bpmn:incoming>
+      <bpmn:outgoing>SF_Hosp_Nie</bpmn:outgoing>
+      <bpmn:outgoing>SF_Hosp_Ano</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:task id="Task_UstavnaLiecba" name="Ústavná / denná psychiatrická liečba&#10;(hospitalizácia; denné sanatórium)">
+      <bpmn:incoming>SF_Hosp_Ano</bpmn:incoming>
+      <bpmn:outgoing>SF_Intenz_Monitor</bpmn:outgoing>
+    </bpmn:task>
+
+    <!-- ══════════════════════════════════
+         UKONČENIE A SLEDOVANIE
+         ══════════════════════════════════ -->
+    <bpmn:task id="Task_UkoncenieLiecby" name="Ukončenie aktívnej liečby&#10;(záverečné sedenie, relapse prevencia,&#10;plán pre výročia traumy)">
+      <bpmn:incoming>SF_Efekt_Ano</bpmn:incoming>
+      <bpmn:outgoing>SF_Ukon_Sledov</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:task id="Task_SledovaniePoPrepusteni" name="Dlhodobé sledovanie v ambulantnej starostlivosti&#10;(6–18 mesiacov; koordinácia s VL a rodinou)">
+      <bpmn:incoming>SF_Ukon_Sledov</bpmn:incoming>
+      <bpmn:outgoing>SF_Sledov_End</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:endEvent id="End_Uzdravenie" name="Pacient v remisii /&#10;stabilizovaný stav">
+      <bpmn:incoming>SF_Sledov_End</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <!-- ══════════════════════════════════
+         SEQUENCE FLOWS
+         ══════════════════════════════════ -->
+    <bpmn:sequenceFlow id="SF_Start_PrimarnePos"   sourceRef="Start_Pacient"            targetRef="Task_PrimarnePosudenieVL"/>
+    <bpmn:sequenceFlow id="SF_Pos_MacScreen"        sourceRef="Task_PrimarnePosudenieVL" targetRef="Task_MacScreen"/>
+    <bpmn:sequenceFlow id="SF_MacScreen_GW"         sourceRef="Task_MacScreen"           targetRef="GW_PozitivnySkrining"/>
+    <bpmn:sequenceFlow id="SF_GW_Nie_Sledov"        sourceRef="GW_PozitivnySkrining"     targetRef="Task_AktivneSledo"       name="Nie / príznaky &lt; 4 týždne"/>
+    <bpmn:sequenceFlow id="SF_GW_Ano_Odosli"        sourceRef="GW_PozitivnySkrining"     targetRef="Task_OdeslanieSpecialist" name="Áno"/>
+    <bpmn:sequenceFlow id="SF_Odosli_KomplDiagn"    sourceRef="Task_OdeslanieSpecialist" targetRef="Task_KomplexneDiagn"/>
+    <bpmn:sequenceFlow id="SF_KomplDiagn_Diff"      sourceRef="Task_KomplexneDiagn"      targetRef="Task_DiffDiagnoza"/>
+    <bpmn:sequenceFlow id="SF_Diff_GW"              sourceRef="Task_DiffDiagnoza"        targetRef="GW_DiagPTSP"/>
+    <bpmn:sequenceFlow id="SF_Diag_Nie"             sourceRef="GW_DiagPTSP"              targetRef="Task_InaPorucha"          name="Nie – iná diagnóza"/>
+    <bpmn:sequenceFlow id="SF_Diag_Ano"             sourceRef="GW_DiagPTSP"              targetRef="Task_TvoraLiecebnehoPl"   name="Áno – PTSP potvrdená"/>
+    <bpmn:sequenceFlow id="SF_InaPorucha_End"       sourceRef="Task_InaPorucha"          targetRef="End_ChronickaStarostlivost"/>
+    <bpmn:sequenceFlow id="SF_Plan_Psychoed"        sourceRef="Task_TvoraLiecebnehoPl"   targetRef="Task_Psychoedukacia"/>
+    <bpmn:sequenceFlow id="SF_Psychoed_GWVolba"     sourceRef="Task_Psychoedukacia"      targetRef="GW_VolbaLiecby"/>
+    <bpmn:sequenceFlow id="SF_Vol_KBT"              sourceRef="GW_VolbaLiecby"           targetRef="Task_TraumaKBT"           name="Na traumu zameraná KBT"/>
+    <bpmn:sequenceFlow id="SF_Vol_EMDR"             sourceRef="GW_VolbaLiecby"           targetRef="Task_EMDR"                name="EMDR"/>
+    <bpmn:sequenceFlow id="SF_Vol_IKBT"             sourceRef="GW_VolbaLiecby"           targetRef="Task_KomputerizovanaKBT"  name="Komputerizovaná / IKBT"/>
+    <bpmn:sequenceFlow id="SF_Vol_Farma"            sourceRef="GW_VolbaLiecby"           targetRef="Task_Farmakoterapia"      name="Farmakoterapia (doplnok)"/>
+    <bpmn:sequenceFlow id="SF_KBT_Join"             sourceRef="Task_TraumaKBT"           targetRef="GW_JoinLiecba"/>
+    <bpmn:sequenceFlow id="SF_EMDR_Join"            sourceRef="Task_EMDR"                targetRef="GW_JoinLiecba"/>
+    <bpmn:sequenceFlow id="SF_IKBT_Join"            sourceRef="Task_KomputerizovanaKBT"  targetRef="GW_JoinLiecba"/>
+    <bpmn:sequenceFlow id="SF_Farma_Join"           sourceRef="Task_Farmakoterapia"      targetRef="GW_JoinLiecba"/>
+    <bpmn:sequenceFlow id="SF_Join_Monitor"         sourceRef="GW_JoinLiecba"            targetRef="Task_MonitorovaniePHQ_GAD"/>
+    <bpmn:sequenceFlow id="SF_Monitor_GWEfekt"      sourceRef="Task_MonitorovaniePHQ_GAD" targetRef="GW_EfektLiecby"/>
+    <bpmn:sequenceFlow id="SF_Efekt_Ano"            sourceRef="GW_EfektLiecby"           targetRef="Task_UkoncenieLiecby"     name="Áno – dostatočné zlepšenie"/>
+    <bpmn:sequenceFlow id="SF_Efekt_Nie"            sourceRef="GW_EfektLiecby"           targetRef="Task_IntenzifikaciaLiecby" name="Nie – nedostatočná odpoveď"/>
+    <bpmn:sequenceFlow id="SF_Intenz_GWHosp"        sourceRef="Task_IntenzifikaciaLiecby" targetRef="GW_NutnaHospitalizacia"/>
+    <bpmn:sequenceFlow id="SF_Hosp_Nie"             sourceRef="GW_NutnaHospitalizacia"   targetRef="Task_MonitorovaniePHQ_GAD" name="Nie – pokračovanie amb."/>
+    <bpmn:sequenceFlow id="SF_Hosp_Ano"             sourceRef="GW_NutnaHospitalizacia"   targetRef="Task_UstavnaLiecba"       name="Áno – hospitalizácia"/>
+    <bpmn:sequenceFlow id="SF_Intenz_Monitor"       sourceRef="Task_UstavnaLiecba"       targetRef="Task_MonitorovaniePHQ_GAD"/>
+    <bpmn:sequenceFlow id="SF_Ukon_Sledov"          sourceRef="Task_UkoncenieLiecby"     targetRef="Task_SledovaniePoPrepusteni"/>
+    <bpmn:sequenceFlow id="SF_Sledov_End"           sourceRef="Task_SledovaniePoPrepusteni" targetRef="End_Uzdravenie"/>
+
+  </bpmn:process>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       DIAGRAM (DI)
+       ═══════════════════════════════════════════════════════════ -->
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collab_PTSP">
+
+      <!-- Pool -->
+      <bpmndi:BPMNShape id="Shape_Pool_PTSP" bpmnElement="Pool_PTSP" isHorizontal="true">
+        <dc:Bounds x="140" y="80" width="2160" height="760"/>
+      </bpmndi:BPMNShape>
+
+      <!-- Lane VL -->
+      <bpmndi:BPMNShape id="Shape_Lane_VL" bpmnElement="Lane_VL" isHorizontal="true">
+        <dc:Bounds x="170" y="80" width="2130" height="280"/>
+      </bpmndi:BPMNShape>
+
+      <!-- Lane Spec -->
+      <bpmndi:BPMNShape id="Shape_Lane_Spec" bpmnElement="Lane_Spec" isHorizontal="true">
+        <dc:Bounds x="170" y="360" width="2130" height="480"/>
+      </bpmndi:BPMNShape>
+
+      <!-- ── Lane VL nodes ── -->
+      <bpmndi:BPMNShape id="Shape_Start_Pacient" bpmnElement="Start_Pacient">
+        <dc:Bounds x="222" y="182" width="36" height="36"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="198" y="225" width="86" height="40"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Task_PrimarnePosudenieVL" bpmnElement="Task_PrimarnePosudenieVL">
+        <dc:Bounds x="310" y="160" width="160" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Task_MacScreen" bpmnElement="Task_MacScreen">
+        <dc:Bounds x="530" y="160" width="160" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_GW_PozitivnySkrining" bpmnElement="GW_PozitivnySkrining" isMarkerVisible="true">
+        <dc:Bounds x="755" y="175" width="50" height="50"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="735" y="232" width="92" height="27"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Task_AktivneSledo" bpmnElement="Task_AktivneSledo">
+        <dc:Bounds x="730" y="290" width="160" height="60"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Task_OdeslanieSpecialist" bpmnElement="Task_OdeslanieSpecialist">
+        <dc:Bounds x="870" y="160" width="160" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <!-- ── Lane Spec nodes ── -->
+      <bpmndi:BPMNShape id="Shape_Task_KomplexneDiagn" bpmnElement="Task_KomplexneDiagn">
+        <dc:Bounds x="870" y="390" width="160" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Task_DiffDiagnoza" bpmnElement="Task_DiffDiagnoza">
+        <dc:Bounds x="1090" y="390" width="160" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_GW_DiagPTSP" bpmnElement="GW_DiagPTSP" isMarkerVisible="true">
+        <dc:Bounds x="1305" y="405" width="50" height="50"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="1275" y="462" width="112" height="40"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Task_InaPorucha" bpmnElement="Task_InaPorucha">
+        <dc:Bounds x="1280" y="560" width="160" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_End_ChronickaStarostlivost" bpmnElement="End_ChronickaStarostlivost">
+        <dc:Bounds x="1502" y="582" width="36" height="36"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="1484" y="625" width="72" height="40"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Task_TvoraLiecebnehoPl" bpmnElement="Task_TvoraLiecebnehoPl">
+        <dc:Bounds x="1420" y="390" width="160" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Task_Psychoedukacia" bpmnElement="Task_Psychoedukacia">
+        <dc:Bounds x="1640" y="390" width="160" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_GW_VolbaLiecby" bpmnElement="GW_VolbaLiecby">
+        <dc:Bounds x="1855" y="405" width="50" height="50"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="1825" y="462" width="112" height="40"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Task_TraumaKBT" bpmnElement="Task_TraumaKBT">
+        <dc:Bounds x="1960" y="370" width="160" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Task_EMDR" bpmnElement="Task_EMDR">
+        <dc:Bounds x="1960" y="465" width="160" height="70"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Task_KomputerizovanaKBT" bpmnElement="Task_KomputerizovanaKBT">
+        <dc:Bounds x="1960" y="548" width="160" height="70"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Task_Farmakoterapia" bpmnElement="Task_Farmakoterapia">
+        <dc:Bounds x="1960" y="630" width="160" height="70"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_GW_JoinLiecba" bpmnElement="GW_JoinLiecba">
+        <dc:Bounds x="2175" y="500" width="50" height="50"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="2155" y="557" width="90" height="27"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- Monitoring + downstream -->
+      <bpmndi:BPMNShape id="Shape_Task_MonitorovaniePHQ_GAD" bpmnElement="Task_MonitorovaniePHQ_GAD">
+        <dc:Bounds x="1640" y="615" width="160" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_GW_EfektLiecby" bpmnElement="GW_EfektLiecby" isMarkerVisible="true">
+        <dc:Bounds x="1455" y="630" width="50" height="50"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="1425" y="687" width="112" height="27"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Task_UkoncenieLiecby" bpmnElement="Task_UkoncenieLiecby">
+        <dc:Bounds x="1280" y="615" width="160" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Task_IntenzifikaciaLiecby" bpmnElement="Task_IntenzifikaciaLiecby">
+        <dc:Bounds x="1420" y="740" width="160" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_GW_NutnaHospitalizacia" bpmnElement="GW_NutnaHospitalizacia" isMarkerVisible="true">
+        <dc:Bounds x="1245" y="755" width="50" height="50"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="1205" y="812" width="132" height="40"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Task_UstavnaLiecba" bpmnElement="Task_UstavnaLiecba">
+        <dc:Bounds x="1070" y="740" width="160" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Task_SledovaniePoPrepusteni" bpmnElement="Task_SledovaniePoPrepusteni">
+        <dc:Bounds x="1090" y="615" width="160" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_End_Uzdravenie" bpmnElement="End_Uzdravenie">
+        <dc:Bounds x="912" y="637" width="36" height="36"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="888" y="680" width="85" height="40"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- ══════════════════════════════════
+           EDGES
+           ══════════════════════════════════ -->
+      <bpmndi:BPMNEdge id="Edge_SF_Start_PrimarnePos"   bpmnElement="SF_Start_PrimarnePos">
+        <di:waypoint x="258" y="200"/><di:waypoint x="310" y="200"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_Pos_MacScreen"        bpmnElement="SF_Pos_MacScreen">
+        <di:waypoint x="470" y="200"/><di:waypoint x="530" y="200"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_MacScreen_GW"         bpmnElement="SF_MacScreen_GW">
+        <di:waypoint x="690" y="200"/><di:waypoint x="755" y="200"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_GW_Nie_Sledov"        bpmnElement="SF_GW_Nie_Sledov">
+        <di:waypoint x="780" y="225"/><di:waypoint x="780" y="290"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="786" y="250" width="92" height="27"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_Sledov_MacScreen"     bpmnElement="SF_Sledov_MacScreen">
+        <di:waypoint x="730" y="320"/><di:waypoint x="610" y="320"/><di:waypoint x="610" y="240"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_GW_Ano_Odosli"        bpmnElement="SF_GW_Ano_Odosli">
+        <di:waypoint x="805" y="200"/><di:waypoint x="870" y="200"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="823" y="182" width="26" height="14"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_Odosli_KomplDiagn"    bpmnElement="SF_Odosli_KomplDiagn">
+        <di:waypoint x="950" y="240"/><di:waypoint x="950" y="390"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_KomplDiagn_Diff"      bpmnElement="SF_KomplDiagn_Diff">
+        <di:waypoint x="1030" y="430"/><di:waypoint x="1090" y="430"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_Diff_GW"              bpmnElement="SF_Diff_GW">
+        <di:waypoint x="1250" y="430"/><di:waypoint x="1305" y="430"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_Diag_Nie"             bpmnElement="SF_Diag_Nie">
+        <di:waypoint x="1330" y="455"/><di:waypoint x="1330" y="560"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="1338" y="498" width="80" height="27"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_InaPorucha_End"       bpmnElement="SF_InaPorucha_End">
+        <di:waypoint x="1440" y="600"/><di:waypoint x="1502" y="600"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_Diag_Ano"             bpmnElement="SF_Diag_Ano">
+        <di:waypoint x="1355" y="430"/><di:waypoint x="1420" y="430"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="1358" y="412" width="55" height="14"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_Plan_Psychoed"        bpmnElement="SF_Plan_Psychoed">
+        <di:waypoint x="1580" y="430"/><di:waypoint x="1640" y="430"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_Psychoed_GWVolba"     bpmnElement="SF_Psychoed_GWVolba">
+        <di:waypoint x="1800" y="430"/><di:waypoint x="1855" y="430"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_Vol_KBT"              bpmnElement="SF_Vol_KBT">
+        <di:waypoint x="1905" y="420"/><di:waypoint x="1960" y="410"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="1908" y="400" width="50" height="14"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_Vol_EMDR"             bpmnElement="SF_Vol_EMDR">
+        <di:waypoint x="1905" y="430"/><di:waypoint x="1960" y="500"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="1908" y="455" width="32" height="14"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_Vol_IKBT"             bpmnElement="SF_Vol_IKBT">
+        <di:waypoint x="1905" y="445"/><di:waypoint x="1960" y="583"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="1908" y="510" width="50" height="14"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_Vol_Farma"            bpmnElement="SF_Vol_Farma">
+        <di:waypoint x="1905" y="455"/><di:waypoint x="1960" y="665"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="1908" y="565" width="70" height="14"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_KBT_Join"             bpmnElement="SF_KBT_Join">
+        <di:waypoint x="2120" y="410"/><di:waypoint x="2175" y="515"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_EMDR_Join"            bpmnElement="SF_EMDR_Join">
+        <di:waypoint x="2120" y="500"/><di:waypoint x="2175" y="520"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_IKBT_Join"            bpmnElement="SF_IKBT_Join">
+        <di:waypoint x="2120" y="583"/><di:waypoint x="2175" y="530"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_Farma_Join"           bpmnElement="SF_Farma_Join">
+        <di:waypoint x="2120" y="665"/><di:waypoint x="2175" y="545"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_Join_Monitor"         bpmnElement="SF_Join_Monitor">
+        <di:waypoint x="2175" y="525"/><di:waypoint x="1800" y="655"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_Monitor_GWEfekt"      bpmnElement="SF_Monitor_GWEfekt">
+        <di:waypoint x="1640" y="655"/><di:waypoint x="1505" y="655"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_Efekt_Ano"            bpmnElement="SF_Efekt_Ano">
+        <di:waypoint x="1455" y="655"/><di:waypoint x="1440" y="655"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="1442" y="637" width="50" height="14"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_Efekt_Nie"            bpmnElement="SF_Efekt_Nie">
+        <di:waypoint x="1480" y="680"/><di:waypoint x="1480" y="740"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="1488" y="700" width="25" height="14"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_Intenz_GWHosp"        bpmnElement="SF_Intenz_GWHosp">
+        <di:waypoint x="1420" y="780"/><di:waypoint x="1295" y="780"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_Hosp_Nie"             bpmnElement="SF_Hosp_Nie">
+        <di:waypoint x="1270" y="755"/><di:waypoint x="1270" y="700"/><di:waypoint x="1640" y="680"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="1276" y="724" width="60" height="27"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_Hosp_Ano"             bpmnElement="SF_Hosp_Ano">
+        <di:waypoint x="1245" y="780"/><di:waypoint x="1230" y="780"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="1230" y="762" width="26" height="14"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_Intenz_Monitor"       bpmnElement="SF_Intenz_Monitor">
+        <di:waypoint x="1150" y="740"/><di:waypoint x="1150" y="695"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_Ukon_Sledov"          bpmnElement="SF_Ukon_Sledov">
+        <di:waypoint x="1280" y="655"/><di:waypoint x="1250" y="655"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_Sledov_End"           bpmnElement="SF_Sledov_End">
+        <di:waypoint x="1090" y="655"/><di:waypoint x="948" y="655"/>
+      </bpmndi:BPMNEdge>
+
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" 
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" 
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" 
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:camunda="http://camunda.org/schema/1.0/bpmn" 
+                  id="Definitions_02fe9dz" 
+                  targetNamespace="http://bpmn.io/schema/bpmn" 
+                  xmlns:modeler="http://camunda.org/schema/modeler/1.0" 
+                  exporter="Camunda Modeler" 
+                  exporterVersion="5.33.1" 
+                  modeler:executionPlatform="Camunda Platform" 
+                  modeler:executionPlatformVersion="7.22.0">
+  
+  <bpmn:collaboration id="Collaboration_PsychologicalManagement">
+    <bpmn:participant id="Participant_HealthcareSystem" name="Psychologický manažment somatického pacienta" processRef="Process_KPM_SomatickyPacient" />
+  </bpmn:collaboration>
+
+  <bpmn:process id="Process_KPM_SomatickyPacient" isExecutable="true">
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="Lane_GP" name="Všeobecný lekár (GP)">
+        <bpmn:flowNodeRef>StartEvent_PatientVisit</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_InitialAssessment</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_DistressPresent</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Level1Treatment</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_Level1Effective</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Psychologist" name="Klinický psychológ / Psychiater">
+        <bpmn:flowNodeRef>Task_DetailedDiagnostics</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_Severity</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_LowIntensityCBT</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_HighIntensityCBT</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_SpecializedCBT</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_TreatmentEffective</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_SpecializedCenter" name="Multidisciplinárne centrum">
+        <bpmn:flowNodeRef>Task_Level3Management</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_TreatmentComplete</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:startEvent id="StartEvent_PatientVisit" name="Návšteva pacienta so somatickým ochorením">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <bpmn:task id="Task_InitialAssessment" name="Prvotné posúdenie psychických potrieb">
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:exclusiveGateway id="Gateway_DistressPresent" name="Zistená úzkosť/depresia?">
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_NoDistress</bpmn:outgoing>
+      <bpmn:outgoing>Flow_YesDistress</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:task id="Task_Level1Treatment" name="1. stupeň liečby (Edukačné a podporné poradenstvo GP)">
+      <bpmn:incoming>Flow_YesDistress</bpmn:incoming>
+      <bpmn:outgoing>Flow_3</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:exclusiveGateway id="Gateway_Level1Effective" name="Účinná liečba po 4-6 týždňoch?">
+      <bpmn:incoming>Flow_3</bpmn:incoming>
+      <bpmn:outgoing>Flow_L1Effective</bpmn:outgoing>
+      <bpmn:outgoing>Flow_L1NotEffective</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:task id="Task_DetailedDiagnostics" name="Podrobná psychodiagnostika (škály BDI, GAD-7)">
+      <bpmn:incoming>Flow_L1NotEffective</bpmn:incoming>
+      <bpmn:outgoing>Flow_4</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:exclusiveGateway id="Gateway_Severity" name="Závažnosť symptómov">
+      <bpmn:incoming>Flow_4</bpmn:incoming>
+      <bpmn:outgoing>Flow_Mild</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Moderate</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Severe</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:task id="Task_LowIntensityCBT" name="KBT nízkej intenzity (Stage 2 - 6 sedení)">
+      <bpmn:incoming>Flow_Mild</bpmn:incoming>
+      <bpmn:outgoing>Flow_5</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:task id="Task_HighIntensityCBT" name="KBT vysokej intenzity (Stage 3 - 20 sedení)">
+      <bpmn:incoming>Flow_Moderate</bpmn:incoming>
+      <bpmn:outgoing>Flow_5</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:task id="Task_SpecializedCBT" name="Špecializovaná KBT (Stage 4 - 30 sedení)">
+      <bpmn:incoming>Flow_Severe</bpmn:incoming>
+      <bpmn:outgoing>Flow_5</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:exclusiveGateway id="Gateway_TreatmentEffective" name="Zlepšenie stavu po 3 mesiacoch?">
+      <bpmn:incoming>Flow_5</bpmn:incoming>
+      <bpmn:outgoing>Flow_L2Effective</bpmn:outgoing>
+      <bpmn:outgoing>Flow_L2NotEffective</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:task id="Task_Level3Management" name="3. stupeň liečby (Multidisciplinárna intenzívna starostlivosť)">
+      <bpmn:incoming>Flow_L2NotEffective</bpmn:incoming>
+      <bpmn:outgoing>Flow_6</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:endEvent id="EndEvent_TreatmentComplete" name="Ukončenie/Udržiavacia fáza">
+      <bpmn:incoming>Flow_6</bpmn:incoming>
+      <bpmn:incoming>Flow_L2Effective</bpmn:incoming>
+      <bpmn:incoming>Flow_L1Effective</bpmn:incoming>
+      <bpmn:incoming>Flow_NoDistress</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_PatientVisit" targetRef="Task_InitialAssessment" />
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Task_InitialAssessment" targetRef="Gateway_DistressPresent" />
+    <bpmn:sequenceFlow id="Flow_NoDistress" name="Nie" sourceRef="Gateway_DistressPresent" targetRef="EndEvent_TreatmentComplete" />
+    <bpmn:sequenceFlow id="Flow_YesDistress" name="Áno" sourceRef="Gateway_DistressPresent" targetRef="Task_Level1Treatment" />
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="Task_Level1Treatment" targetRef="Gateway_Level1Effective" />
+    <bpmn:sequenceFlow id="Flow_L1Effective" name="Áno" sourceRef="Gateway_Level1Effective" targetRef="EndEvent_TreatmentComplete" />
+    <bpmn:sequenceFlow id="Flow_L1NotEffective" name="Nie / PN > 4 týždne" sourceRef="Gateway_Level1Effective" targetRef="Task_DetailedDiagnostics" />
+    <bpmn:sequenceFlow id="Flow_4" sourceRef="Task_DetailedDiagnostics" targetRef="Gateway_Severity" />
+    <bpmn:sequenceFlow id="Flow_Mild" name="Mierna" sourceRef="Gateway_Severity" targetRef="Task_LowIntensityCBT" />
+    <bpmn:sequenceFlow id="Flow_Moderate" name="Stredná" sourceRef="Gateway_Severity" targetRef="Task_HighIntensityCBT" />
+    <bpmn:sequenceFlow id="Flow_Severe" name="Ťažká" sourceRef="Gateway_Severity" targetRef="Task_SpecializedCBT" />
+    <bpmn:sequenceFlow id="Flow_5" sourceRef="Task_LowIntensityCBT" targetRef="Gateway_TreatmentEffective" />
+    <bpmn:sequenceFlow id="Flow_L2Effective" name="Áno" sourceRef="Gateway_TreatmentEffective" targetRef="EndEvent_TreatmentComplete" />
+    <bpmn:sequenceFlow id="Flow_L2NotEffective" name="Nie / Trvanie > 3 mesiace" sourceRef="Gateway_TreatmentEffective" targetRef="Task_Level3Management" />
+    <bpmn:sequenceFlow id="Flow_6" sourceRef="Task_Level3Management" targetRef="EndEvent_TreatmentComplete" />
+  </bpmn:process>
+
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_PsychologicalManagement">
+      </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

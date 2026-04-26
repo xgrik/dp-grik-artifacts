@@ -1,0 +1,779 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+                  id="Definitions_KPM_Somatika"
+                  targetNamespace="http://bpmn.io/schema/bpmn"
+                  xmlns:modeler="http://camunda.org/schema/modeler/1.0"
+                  exporter="Camunda Modeler"
+                  exporterVersion="5.33.1"
+                  modeler:executionPlatform="Camunda Platform"
+                  modeler:executionPlatformVersion="7.22.0">
+
+  <!-- ═══════════════════════════════════════════════════════════
+       COLLABORATION
+  ═══════════════════════════════════════════════════════════ -->
+  <bpmn:collaboration id="Collab_KPM">
+    <bpmn:participant id="Participant_VL"   name="Všeobecný lekár (primárna starostlivosť)" processRef="Process_VL"/>
+    <bpmn:participant id="Participant_KP"   name="Klinický psychológ"                        processRef="Process_KP"/>
+    <bpmn:participant id="Participant_PS"   name="Psychiater / Špecializované centrum"       processRef="Process_PS"/>
+    <bpmn:messageFlow id="MF_1" sourceRef="Task_VL_OdoslatKP"   targetRef="StartEvent_KP"/>
+    <bpmn:messageFlow id="MF_2" sourceRef="Task_VL_OdoslatPS"   targetRef="StartEvent_PS"/>
+    <bpmn:messageFlow id="MF_3" sourceRef="Task_KP_OdoslatPS"   targetRef="StartEvent_PS"/>
+  </bpmn:collaboration>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       POOL 1 – VŠEOBECNÝ LEKÁR
+  ═══════════════════════════════════════════════════════════ -->
+  <bpmn:process id="Process_VL" name="Manažment pacienta – Všeobecný lekár" isExecutable="true">
+
+    <bpmn:startEvent id="StartEvent_VL" name="Pacient prichádza s&#10;somatickým ochorením">
+      <bpmn:outgoing>SF_VL_01</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <bpmn:sequenceFlow id="SF_VL_01" sourceRef="StartEvent_VL" targetRef="Task_VL_Anamneza"/>
+
+    <!-- Anamnéza a vyšetrenie -->
+    <bpmn:task id="Task_VL_Anamneza" name="Odobrať anamnézu a vyšetriť&#10;pacienta (1. stupeň)">
+      <bpmn:incoming>SF_VL_01</bpmn:incoming>
+      <bpmn:outgoing>SF_VL_02</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:sequenceFlow id="SF_VL_02" sourceRef="Task_VL_Anamneza" targetRef="Task_VL_Skrining"/>
+
+    <!-- Skríning psychických problémov -->
+    <bpmn:task id="Task_VL_Skrining" name="Položiť skríningové otázky&#10;(úzkosť, depresia)">
+      <bpmn:incoming>SF_VL_02</bpmn:incoming>
+      <bpmn:outgoing>SF_VL_03</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:sequenceFlow id="SF_VL_03" sourceRef="Task_VL_Skrining" targetRef="GW_VL_Skrining"/>
+
+    <bpmn:exclusiveGateway id="GW_VL_Skrining" name="Pozitívny skríning&#10;psychických ťažkostí?">
+      <bpmn:incoming>SF_VL_03</bpmn:incoming>
+      <bpmn:outgoing>SF_VL_Nie</bpmn:outgoing>
+      <bpmn:outgoing>SF_VL_Ano</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- Vetva NIE – len somatická liečba -->
+    <bpmn:sequenceFlow id="SF_VL_Nie" name="Nie" sourceRef="GW_VL_Skrining" targetRef="Task_VL_SomLiecba"/>
+
+    <bpmn:task id="Task_VL_SomLiecba" name="Pokračovať v somatickej liečbe&#10;a pravidelných kontrolách">
+      <bpmn:incoming>SF_VL_Nie</bpmn:incoming>
+      <bpmn:outgoing>SF_VL_Monitor</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:sequenceFlow id="SF_VL_Monitor" sourceRef="Task_VL_SomLiecba" targetRef="Task_VL_AktMonitor"/>
+
+    <!-- Vetva ÁNO – ďalšie hodnotenie -->
+    <bpmn:sequenceFlow id="SF_VL_Ano" name="Áno" sourceRef="GW_VL_Skrining" targetRef="Task_VL_HodnotenieDep"/>
+
+    <bpmn:task id="Task_VL_HodnotenieDep" name="Podrobne hodnotiť depresiu/úzkosť&#10;(PHQ-9, GAD-7, BDI-II)">
+      <bpmn:incoming>SF_VL_Ano</bpmn:incoming>
+      <bpmn:outgoing>SF_VL_04</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:sequenceFlow id="SF_VL_04" sourceRef="Task_VL_HodnotenieDep" targetRef="GW_VL_Zavaznost"/>
+
+    <bpmn:exclusiveGateway id="GW_VL_Zavaznost" name="Závažnosť depresie/úzkosti?">
+      <bpmn:incoming>SF_VL_04</bpmn:incoming>
+      <bpmn:outgoing>SF_VL_Subklin</bpmn:outgoing>
+      <bpmn:outgoing>SF_VL_Mierna</bpmn:outgoing>
+      <bpmn:outgoing>SF_VL_Tazka</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- Subklinická / mierna – Stupeň 1 VL -->
+    <bpmn:sequenceFlow id="SF_VL_Subklin" name="Subklinická" sourceRef="GW_VL_Zavaznost" targetRef="Task_VL_Stupen1"/>
+
+    <bpmn:task id="Task_VL_Stupen1" name="Stupeň 1: Psychoedukácia,&#10;aktívne monitorovanie,&#10;spánková hygiena">
+      <bpmn:incoming>SF_VL_Subklin</bpmn:incoming>
+      <bpmn:outgoing>SF_VL_05</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:sequenceFlow id="SF_VL_05" sourceRef="Task_VL_Stupen1" targetRef="Task_VL_AktMonitor"/>
+
+    <!-- Aktívne monitorovanie -->
+    <bpmn:task id="Task_VL_AktMonitor" name="Aktívne monitorovanie stavu&#10;pacienta (kontroly 1–4 týždne)">
+      <bpmn:incoming>SF_VL_Monitor</bpmn:incoming>
+      <bpmn:incoming>SF_VL_05</bpmn:incoming>
+      <bpmn:outgoing>SF_VL_06</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:sequenceFlow id="SF_VL_06" sourceRef="Task_VL_AktMonitor" targetRef="GW_VL_Zlepsenie"/>
+
+    <bpmn:exclusiveGateway id="GW_VL_Zlepsenie" name="Zlepšenie stavu po&#10;1. stupni liečby?">
+      <bpmn:incoming>SF_VL_06</bpmn:incoming>
+      <bpmn:outgoing>SF_VL_Zlepsil</bpmn:outgoing>
+      <bpmn:outgoing>SF_VL_Nezlepsil</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:sequenceFlow id="SF_VL_Zlepsil" name="Áno" sourceRef="GW_VL_Zlepsenie" targetRef="EndEvent_VL_OK"/>
+    <bpmn:sequenceFlow id="SF_VL_Nezlepsil" name="Nie" sourceRef="GW_VL_Zlepsenie" targetRef="Task_VL_OdoslatKP"/>
+
+    <!-- Mierna/stredná – odoslanie ku KP -->
+    <bpmn:sequenceFlow id="SF_VL_Mierna" name="Mierna/stredná" sourceRef="GW_VL_Zavaznost" targetRef="Task_VL_OdoslatKP"/>
+
+    <bpmn:task id="Task_VL_OdoslatKP" name="Odoslať pacienta ku&#10;klinickému psychológovi&#10;(2. stupeň)">
+      <bpmn:incoming>SF_VL_Mierna</bpmn:incoming>
+      <bpmn:incoming>SF_VL_Nezlepsil</bpmn:incoming>
+      <bpmn:outgoing>SF_VL_07</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:sequenceFlow id="SF_VL_07" sourceRef="Task_VL_OdoslatKP" targetRef="Task_VL_Koordinacia"/>
+
+    <!-- Ťažká depresia – odoslanie k psychiatrovi -->
+    <bpmn:sequenceFlow id="SF_VL_Tazka" name="Ťažká / ohrozenie&#10;života" sourceRef="GW_VL_Zavaznost" targetRef="Task_VL_OdoslatPS"/>
+
+    <bpmn:task id="Task_VL_OdoslatPS" name="Neodkladne odoslať&#10;k psychiatrovi / do špecializovaného&#10;centra (3.–4. stupeň)">
+      <bpmn:incoming>SF_VL_Tazka</bpmn:incoming>
+      <bpmn:outgoing>SF_VL_08</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:sequenceFlow id="SF_VL_08" sourceRef="Task_VL_OdoslatPS" targetRef="Task_VL_Koordinacia"/>
+
+    <!-- Koordinácia a sledovanie -->
+    <bpmn:task id="Task_VL_Koordinacia" name="Koordinovať interdisciplinárnu&#10;starostlivosť a farmakoterapiu">
+      <bpmn:incoming>SF_VL_07</bpmn:incoming>
+      <bpmn:incoming>SF_VL_08</bpmn:incoming>
+      <bpmn:outgoing>SF_VL_09</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:sequenceFlow id="SF_VL_09" sourceRef="Task_VL_Koordinacia" targetRef="EndEvent_VL_Odoslany"/>
+
+    <bpmn:endEvent id="EndEvent_VL_OK" name="Pacient stabilizovaný&#10;v primárnej starostlivosti">
+      <bpmn:incoming>SF_VL_Zlepsil</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:endEvent id="EndEvent_VL_Odoslany" name="Pacient odoslaný na&#10;ďalšiu špecializovanú starostlivosť">
+      <bpmn:incoming>SF_VL_09</bpmn:incoming>
+    </bpmn:endEvent>
+
+  </bpmn:process>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       POOL 2 – KLINICKÝ PSYCHOLÓG
+  ═══════════════════════════════════════════════════════════ -->
+  <bpmn:process id="Process_KP" name="Manažment pacienta – Klinický psychológ" isExecutable="true">
+
+    <bpmn:startEvent id="StartEvent_KP" name="Prijatie odporúčania&#10;od všeobecného lekára">
+      <bpmn:messageEventDefinition id="MED_KP_Start" messageRef="Msg_OdoslatKP"/>
+      <bpmn:outgoing>SF_KP_01</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <bpmn:sequenceFlow id="SF_KP_01" sourceRef="StartEvent_KP" targetRef="Task_KP_Psychodiag"/>
+
+    <!-- Psychodiagnostika -->
+    <bpmn:task id="Task_KP_Psychodiag" name="Komplexné psychodiagnostické&#10;vyšetrenie (PHQ-9, GAD-7,&#10;BDI-II, HAI, anamnéza)">
+      <bpmn:incoming>SF_KP_01</bpmn:incoming>
+      <bpmn:outgoing>SF_KP_02</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:sequenceFlow id="SF_KP_02" sourceRef="Task_KP_Psychodiag" targetRef="Task_KP_DiagDep"/>
+
+    <!-- Diferenciálna diagnostika -->
+    <bpmn:task id="Task_KP_DiagDep" name="Diferenciálna diagnostika:&#10;adaptačná porucha vs. depresia&#10;vs. úzkostná porucha">
+      <bpmn:incoming>SF_KP_02</bpmn:incoming>
+      <bpmn:outgoing>SF_KP_03</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:sequenceFlow id="SF_KP_03" sourceRef="Task_KP_DiagDep" targetRef="GW_KP_Stupen"/>
+
+    <bpmn:exclusiveGateway id="GW_KP_Stupen" name="Intenzita psychickej&#10;poruchy?">
+      <bpmn:incoming>SF_KP_03</bpmn:incoming>
+      <bpmn:outgoing>SF_KP_NizkaInt</bpmn:outgoing>
+      <bpmn:outgoing>SF_KP_VysokaInt</bpmn:outgoing>
+      <bpmn:outgoing>SF_KP_Krizova</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- Nízka intenzita – Stupeň 2 -->
+    <bpmn:sequenceFlow id="SF_KP_NizkaInt" name="Nízka intenzita&#10;(subklinická / mierna)" sourceRef="GW_KP_Stupen" targetRef="Task_KP_NizkaInt"/>
+
+    <bpmn:task id="Task_KP_NizkaInt" name="Stupeň 2 – Nízko intenzívne&#10;intervencie: iKBT, skupinová KBT,&#10;svojpomoc, behaviorálna aktivácia,&#10;psychoedukácia">
+      <bpmn:incoming>SF_KP_NizkaInt</bpmn:incoming>
+      <bpmn:outgoing>SF_KP_04</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:sequenceFlow id="SF_KP_04" sourceRef="Task_KP_NizkaInt" targetRef="Task_KP_TerapeutVztah"/>
+
+    <!-- Vysoká intenzita – Stupeň 3 -->
+    <bpmn:sequenceFlow id="SF_KP_VysokaInt" name="Stredná až ťažká" sourceRef="GW_KP_Stupen" targetRef="Task_KP_VysokaInt"/>
+
+    <bpmn:task id="Task_KP_VysokaInt" name="Stupeň 3 – Vysoko intenzívne&#10;intervencie: individuálna/skupinová&#10;KBT, IPT, relaxačné techniky,&#10;kombinácia s farmakoterapiou">
+      <bpmn:incoming>SF_KP_VysokaInt</bpmn:incoming>
+      <bpmn:outgoing>SF_KP_05</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:sequenceFlow id="SF_KP_05" sourceRef="Task_KP_VysokaInt" targetRef="Task_KP_TerapeutVztah"/>
+
+    <!-- Krízová intervencia -->
+    <bpmn:sequenceFlow id="SF_KP_Krizova" name="Ohrozenie života /&#10;suicidálne riziko" sourceRef="GW_KP_Stupen" targetRef="Task_KP_Krizova"/>
+
+    <bpmn:task id="Task_KP_Krizova" name="Krízová intervencia a&#10;neodkladné odoslanie k psychiatrovi">
+      <bpmn:incoming>SF_KP_Krizova</bpmn:incoming>
+      <bpmn:outgoing>SF_KP_06</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:sequenceFlow id="SF_KP_06" sourceRef="Task_KP_Krizova" targetRef="Task_KP_OdoslatPS"/>
+
+    <!-- Terapeutický vzťah a plán -->
+    <bpmn:task id="Task_KP_TerapeutVztah" name="Vytvoriť terapeutický vzťah&#10;a individuálny liečebný plán">
+      <bpmn:incoming>SF_KP_04</bpmn:incoming>
+      <bpmn:incoming>SF_KP_05</bpmn:incoming>
+      <bpmn:outgoing>SF_KP_07</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:sequenceFlow id="SF_KP_07" sourceRef="Task_KP_TerapeutVztah" targetRef="Task_KP_Terapia"/>
+
+    <!-- Realizácia terapie -->
+    <bpmn:task id="Task_KP_Terapia" name="Realizovať psychoterapeutické&#10;sedenia (KBT kognitívne,&#10;behaviorálne a relaxačné techniky)">
+      <bpmn:incoming>SF_KP_07</bpmn:incoming>
+      <bpmn:outgoing>SF_KP_08</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:sequenceFlow id="SF_KP_08" sourceRef="Task_KP_Terapia" targetRef="Task_KP_Monitorovanie"/>
+
+    <!-- Monitorovanie efektivity -->
+    <bpmn:task id="Task_KP_Monitorovanie" name="Monitorovať efektivitu liečby&#10;(opakované PHQ-9, GAD-7)&#10;každé 3 mesiace">
+      <bpmn:incoming>SF_KP_08</bpmn:incoming>
+      <bpmn:outgoing>SF_KP_09</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:sequenceFlow id="SF_KP_09" sourceRef="Task_KP_Monitorovanie" targetRef="GW_KP_Odpoved"/>
+
+    <bpmn:exclusiveGateway id="GW_KP_Odpoved" name="Odpoveď na liečbu?">
+      <bpmn:incoming>SF_KP_09</bpmn:incoming>
+      <bpmn:outgoing>SF_KP_Remisia</bpmn:outgoing>
+      <bpmn:outgoing>SF_KP_Nedostatok</bpmn:outgoing>
+      <bpmn:outgoing>SF_KP_Zhorsenie</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:sequenceFlow id="SF_KP_Remisia"    name="Remisia"              sourceRef="GW_KP_Odpoved" targetRef="Task_KP_Udrzba"/>
+    <bpmn:sequenceFlow id="SF_KP_Nedostatok" name="Nedostatočná odpoveď" sourceRef="GW_KP_Odpoved" targetRef="Task_KP_ZintenzivnieLiecby"/>
+    <bpmn:sequenceFlow id="SF_KP_Zhorsenie"  name="Zhoršenie / ťažká&#10;depresia"              sourceRef="GW_KP_Odpoved" targetRef="Task_KP_OdoslatPS"/>
+
+    <!-- Zintenzívnenie liečby -->
+    <bpmn:task id="Task_KP_ZintenzivnieLiecby" name="Zintenzívniť intervencie&#10;(zvýšiť stupeň, pridať&#10;farmakoterapiu v spolupráci s VL)">
+      <bpmn:incoming>SF_KP_Nedostatok</bpmn:incoming>
+      <bpmn:outgoing>SF_KP_10</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:sequenceFlow id="SF_KP_10" sourceRef="Task_KP_ZintenzivnieLiecby" targetRef="Task_KP_Terapia"/>
+
+    <!-- Udržiavacia fáza -->
+    <bpmn:task id="Task_KP_Udrzba" name="Udržiavacia fáza:&#10;kontrolné sedenia po 6 a 12 mesiacoch,&#10;prevencia relapsu">
+      <bpmn:incoming>SF_KP_Remisia</bpmn:incoming>
+      <bpmn:outgoing>SF_KP_11</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:sequenceFlow id="SF_KP_11" sourceRef="Task_KP_Udrzba" targetRef="EndEvent_KP_Remisia"/>
+
+    <!-- Odoslanie k psychiatrovi -->
+    <bpmn:task id="Task_KP_OdoslatPS" name="Odoslať pacienta&#10;k psychiatrovi / do špecializovaného&#10;centra">
+      <bpmn:incoming>SF_KP_06</bpmn:incoming>
+      <bpmn:incoming>SF_KP_Zhorsenie</bpmn:incoming>
+      <bpmn:outgoing>SF_KP_12</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:sequenceFlow id="SF_KP_12" sourceRef="Task_KP_OdoslatPS" targetRef="EndEvent_KP_Odoslany"/>
+
+    <bpmn:endEvent id="EndEvent_KP_Remisia" name="Pacient v remisii –&#10;prepustený do starostlivosti VL">
+      <bpmn:incoming>SF_KP_11</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:endEvent id="EndEvent_KP_Odoslany" name="Pacient odoslaný&#10;k psychiatrovi">
+      <bpmn:incoming>SF_KP_12</bpmn:incoming>
+    </bpmn:endEvent>
+
+  </bpmn:process>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       POOL 3 – PSYCHIATER / ŠPECIALIZOVANÉ CENTRUM
+  ═══════════════════════════════════════════════════════════ -->
+  <bpmn:process id="Process_PS" name="Manažment pacienta – Psychiater / Špecializované centrum" isExecutable="true">
+
+    <bpmn:startEvent id="StartEvent_PS" name="Prijatie pacienta&#10;(odporúčanie VL alebo KP)">
+      <bpmn:messageEventDefinition id="MED_PS_Start" messageRef="Msg_OdoslatPS"/>
+      <bpmn:outgoing>SF_PS_01</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <bpmn:sequenceFlow id="SF_PS_01" sourceRef="StartEvent_PS" targetRef="Task_PS_Vysetrenie"/>
+
+    <!-- Psychiatrické vyšetrenie -->
+    <bpmn:task id="Task_PS_Vysetrenie" name="Psychiatrické vyšetrenie,&#10;posúdenie suicidálneho rizika&#10;a psychotických symptómov">
+      <bpmn:incoming>SF_PS_01</bpmn:incoming>
+      <bpmn:outgoing>SF_PS_02</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:sequenceFlow id="SF_PS_02" sourceRef="Task_PS_Vysetrenie" targetRef="GW_PS_Hospitalizacia"/>
+
+    <bpmn:exclusiveGateway id="GW_PS_Hospitalizacia" name="Potrebná&#10;hospitalizácia?">
+      <bpmn:incoming>SF_PS_02</bpmn:incoming>
+      <bpmn:outgoing>SF_PS_Hosp</bpmn:outgoing>
+      <bpmn:outgoing>SF_PS_Ambulant</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:sequenceFlow id="SF_PS_Hosp"    name="Áno" sourceRef="GW_PS_Hospitalizacia" targetRef="Task_PS_Hospitalizacia"/>
+    <bpmn:sequenceFlow id="SF_PS_Ambulant" name="Nie" sourceRef="GW_PS_Hospitalizacia" targetRef="Task_PS_AmbulantnaLiecba"/>
+
+    <!-- Hospitalizácia -->
+    <bpmn:task id="Task_PS_Hospitalizacia" name="Hospitalizácia: intenzívna&#10;farmakoterapia, psychologické&#10;intervencie, krízová intervencia,&#10;elektrokonvulzívna terapia (ak ind.)">
+      <bpmn:incoming>SF_PS_Hosp</bpmn:incoming>
+      <bpmn:outgoing>SF_PS_03</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:sequenceFlow id="SF_PS_03" sourceRef="Task_PS_Hospitalizacia" targetRef="Task_PS_MultidiscTim"/>
+
+    <!-- Ambulantná liečba -->
+    <bpmn:task id="Task_PS_AmbulantnaLiecba" name="Ambulantná psychiatrická&#10;liečba: nastavenie farmakoterapie&#10;(SSRI a iné), individuálny&#10;terapeutický plán">
+      <bpmn:incoming>SF_PS_Ambulant</bpmn:incoming>
+      <bpmn:outgoing>SF_PS_04</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:sequenceFlow id="SF_PS_04" sourceRef="Task_PS_AmbulantnaLiecba" targetRef="Task_PS_MultidiscTim"/>
+
+    <!-- Multidisciplinárny tím -->
+    <bpmn:task id="Task_PS_MultidiscTim" name="Koordinácia v multidisciplinárnom&#10;tíme (psychiater, klinický psychológ,&#10;VL, sestra, soc. pracovník)">
+      <bpmn:incoming>SF_PS_03</bpmn:incoming>
+      <bpmn:incoming>SF_PS_04</bpmn:incoming>
+      <bpmn:outgoing>SF_PS_05</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:sequenceFlow id="SF_PS_05" sourceRef="Task_PS_MultidiscTim" targetRef="Task_PS_KBT_Stupen4"/>
+
+    <!-- KBT a vysokointenzívne intervencie – Stupeň 4 -->
+    <bpmn:task id="Task_PS_KBT_Stupen4" name="Stupeň 4 – Vysoko intenzívne&#10;psychologické intervencie:&#10;individuálna KBT (30 sedení),&#10;IPT, kombinovaná liečba">
+      <bpmn:incoming>SF_PS_05</bpmn:incoming>
+      <bpmn:outgoing>SF_PS_06</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:sequenceFlow id="SF_PS_06" sourceRef="Task_PS_KBT_Stupen4" targetRef="Task_PS_Monitoring"/>
+
+    <!-- Monitoring -->
+    <bpmn:task id="Task_PS_Monitoring" name="Pravidelné monitorovanie stavu&#10;(kontroly každé 4–6 týždňov),&#10;hodnotenie farmakoterapie&#10;a liekových interakcií">
+      <bpmn:incoming>SF_PS_06</bpmn:incoming>
+      <bpmn:outgoing>SF_PS_07</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:sequenceFlow id="SF_PS_07" sourceRef="Task_PS_Monitoring" targetRef="GW_PS_VysledokLiecby"/>
+
+    <bpmn:exclusiveGateway id="GW_PS_VysledokLiecby" name="Výsledok liečby?">
+      <bpmn:incoming>SF_PS_07</bpmn:incoming>
+      <bpmn:outgoing>SF_PS_Stabilny</bpmn:outgoing>
+      <bpmn:outgoing>SF_PS_Refrakter</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:sequenceFlow id="SF_PS_Stabilny"  name="Stabilizácia / remisia" sourceRef="GW_PS_VysledokLiecby" targetRef="Task_PS_Prepustenie"/>
+    <bpmn:sequenceFlow id="SF_PS_Refrakter" name="Refraktérny priebeh"    sourceRef="GW_PS_VysledokLiecby" targetRef="Task_PS_Refrakter"/>
+
+    <!-- Refraktérne ochorenie -->
+    <bpmn:task id="Task_PS_Refrakter" name="Prehodnotenie diagnózy,&#10;intenzifikácia liečby,&#10;zváženie augmentačnej terapie">
+      <bpmn:incoming>SF_PS_Refrakter</bpmn:incoming>
+      <bpmn:outgoing>SF_PS_08</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:sequenceFlow id="SF_PS_08" sourceRef="Task_PS_Refrakter" targetRef="Task_PS_Monitoring"/>
+
+    <!-- Prepustenie a spolupráca -->
+    <bpmn:task id="Task_PS_Prepustenie" name="Plán prepustenia: pokračovanie&#10;starostlivosti u VL a KP,&#10;psychoedukácia pacienta a rodiny,&#10;prevencia relapsu">
+      <bpmn:incoming>SF_PS_Stabilny</bpmn:incoming>
+      <bpmn:outgoing>SF_PS_09</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:sequenceFlow id="SF_PS_09" sourceRef="Task_PS_Prepustenie" targetRef="EndEvent_PS_Stabilny"/>
+
+    <bpmn:endEvent id="EndEvent_PS_Stabilny" name="Pacient stabilizovaný –&#10;prepustený do ambulantnej&#10;starostlivosti">
+      <bpmn:incoming>SF_PS_09</bpmn:incoming>
+    </bpmn:endEvent>
+
+  </bpmn:process>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       MESSAGES
+  ═══════════════════════════════════════════════════════════ -->
+  <bpmn:message id="Msg_OdoslatKP" name="OdoslanieKuKlinickemPsychologovi"/>
+  <bpmn:message id="Msg_OdoslatPS" name="OdoslanieKuPsychiatrovi"/>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       DIAGRAM (DI)
+  ═══════════════════════════════════════════════════════════ -->
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collab_KPM">
+
+      <!-- ── POOL 1 VL ── -->
+      <bpmndi:BPMNShape id="Shape_Part_VL" bpmnElement="Participant_VL" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="2000" height="440"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Start_VL" bpmnElement="StartEvent_VL">
+        <dc:Bounds x="222" y="272" width="36" height="36"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="198" y="315" width="84" height="40"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Edge_SF_VL_01" bpmnElement="SF_VL_01">
+        <di:waypoint x="258" y="290"/><di:waypoint x="310" y="290"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNShape id="Shape_Task_VL_Anamneza" bpmnElement="Task_VL_Anamneza">
+        <dc:Bounds x="310" y="250" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Edge_SF_VL_02" bpmnElement="SF_VL_02">
+        <di:waypoint x="450" y="290"/><di:waypoint x="510" y="290"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNShape id="Shape_Task_VL_Skrining" bpmnElement="Task_VL_Skrining">
+        <dc:Bounds x="510" y="250" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Edge_SF_VL_03" bpmnElement="SF_VL_03">
+        <di:waypoint x="650" y="290"/><di:waypoint x="710" y="290"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNShape id="Shape_GW_VL_Skrining" bpmnElement="GW_VL_Skrining" isMarkerVisible="true">
+        <dc:Bounds x="710" y="265" width="50" height="50"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="690" y="322" width="90" height="40"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Edge_SF_VL_Nie" bpmnElement="SF_VL_Nie">
+        <di:waypoint x="735" y="265"/><di:waypoint x="735" y="160"/><di:waypoint x="820" y="160"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="740" y="200" width="22" height="14"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_VL_Ano" bpmnElement="SF_VL_Ano">
+        <di:waypoint x="760" y="290"/><di:waypoint x="820" y="290"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="781" y="272" width="20" height="14"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNShape id="Shape_Task_VL_SomLiecba" bpmnElement="Task_VL_SomLiecba">
+        <dc:Bounds x="820" y="120" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Edge_SF_VL_Monitor" bpmnElement="SF_VL_Monitor">
+        <di:waypoint x="960" y="160"/><di:waypoint x="1060" y="160"/><di:waypoint x="1060" y="250"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNShape id="Shape_Task_VL_HodnotenieDep" bpmnElement="Task_VL_HodnotenieDep">
+        <dc:Bounds x="820" y="250" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Edge_SF_VL_04" bpmnElement="SF_VL_04">
+        <di:waypoint x="960" y="290"/><di:waypoint x="1010" y="290"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNShape id="Shape_GW_VL_Zavaznost" bpmnElement="GW_VL_Zavaznost" isMarkerVisible="true">
+        <dc:Bounds x="1010" y="265" width="50" height="50"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="990" y="322" width="90" height="40"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Edge_SF_VL_Subklin" bpmnElement="SF_VL_Subklin">
+        <di:waypoint x="1035" y="265"/><di:waypoint x="1035" y="160"/><di:waypoint x="1120" y="160"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="1038" y="200" width="60" height="14"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_VL_Mierna" bpmnElement="SF_VL_Mierna">
+        <di:waypoint x="1060" y="290"/><di:waypoint x="1260" y="290"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="1120" y="272" width="80" height="14"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_VL_Tazka" bpmnElement="SF_VL_Tazka">
+        <di:waypoint x="1035" y="315"/><di:waypoint x="1035" y="400"/><di:waypoint x="1260" y="400"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="1038" y="355" width="90" height="27"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNShape id="Shape_Task_VL_Stupen1" bpmnElement="Task_VL_Stupen1">
+        <dc:Bounds x="1120" y="120" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Edge_SF_VL_05" bpmnElement="SF_VL_05">
+        <di:waypoint x="1190" y="200"/><di:waypoint x="1190" y="250"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNShape id="Shape_Task_VL_AktMonitor" bpmnElement="Task_VL_AktMonitor">
+        <dc:Bounds x="1120" y="250" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Edge_SF_VL_06" bpmnElement="SF_VL_06">
+        <di:waypoint x="1260" y="290"/><di:waypoint x="1310" y="290"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNShape id="Shape_GW_VL_Zlepsenie" bpmnElement="GW_VL_Zlepsenie" isMarkerVisible="true">
+        <dc:Bounds x="1310" y="265" width="50" height="50"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="1290" y="322" width="90" height="40"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Edge_SF_VL_Zlepsil" bpmnElement="SF_VL_Zlepsil">
+        <di:waypoint x="1360" y="290"/><di:waypoint x="1920" y="290"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="1620" y="272" width="20" height="14"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_VL_Nezlepsil" bpmnElement="SF_VL_Nezlepsil">
+        <di:waypoint x="1335" y="315"/><di:waypoint x="1335" y="400"/><di:waypoint x="1410" y="400"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="1338" y="355" width="22" height="14"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNShape id="Shape_Task_VL_OdoslatKP" bpmnElement="Task_VL_OdoslatKP">
+        <dc:Bounds x="1410" y="360" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Edge_SF_VL_07" bpmnElement="SF_VL_07">
+        <di:waypoint x="1550" y="400"/><di:waypoint x="1630" y="400"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNShape id="Shape_Task_VL_OdoslatPS" bpmnElement="Task_VL_OdoslatPS">
+        <dc:Bounds x="1260" y="360" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Edge_SF_VL_08" bpmnElement="SF_VL_08">
+        <di:waypoint x="1330" y="440"/><di:waypoint x="1330" y="480"/><di:waypoint x="1700" y="480"/><di:waypoint x="1700" y="440"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNShape id="Shape_Task_VL_Koordinacia" bpmnElement="Task_VL_Koordinacia">
+        <dc:Bounds x="1630" y="360" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Edge_SF_VL_09" bpmnElement="SF_VL_09">
+        <di:waypoint x="1770" y="400"/><di:waypoint x="1920" y="400"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNShape id="Shape_End_VL_OK" bpmnElement="EndEvent_VL_OK">
+        <dc:Bounds x="1920" y="272" width="36" height="36"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="1898" y="315" width="80" height="40"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_End_VL_Odoslany" bpmnElement="EndEvent_VL_Odoslany">
+        <dc:Bounds x="1920" y="382" width="36" height="36"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="1898" y="425" width="80" height="40"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- ── POOL 2 KP ── -->
+      <bpmndi:BPMNShape id="Shape_Part_KP" bpmnElement="Participant_KP" isHorizontal="true">
+        <dc:Bounds x="160" y="560" width="2000" height="500"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Start_KP" bpmnElement="StartEvent_KP">
+        <dc:Bounds x="222" y="790" width="36" height="36"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="198" y="833" width="84" height="40"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Edge_SF_KP_01" bpmnElement="SF_KP_01">
+        <di:waypoint x="258" y="808"/><di:waypoint x="310" y="808"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNShape id="Shape_Task_KP_Psychodiag" bpmnElement="Task_KP_Psychodiag">
+        <dc:Bounds x="310" y="768" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Edge_SF_KP_02" bpmnElement="SF_KP_02">
+        <di:waypoint x="450" y="808"/><di:waypoint x="510" y="808"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNShape id="Shape_Task_KP_DiagDep" bpmnElement="Task_KP_DiagDep">
+        <dc:Bounds x="510" y="768" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Edge_SF_KP_03" bpmnElement="SF_KP_03">
+        <di:waypoint x="650" y="808"/><di:waypoint x="710" y="808"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNShape id="Shape_GW_KP_Stupen" bpmnElement="GW_KP_Stupen" isMarkerVisible="true">
+        <dc:Bounds x="710" y="783" width="50" height="50"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="692" y="840" width="86" height="27"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Edge_SF_KP_NizkaInt" bpmnElement="SF_KP_NizkaInt">
+        <di:waypoint x="735" y="783"/><di:waypoint x="735" y="670"/><di:waypoint x="820" y="670"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="738" y="710" width="80" height="27"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_KP_VysokaInt" bpmnElement="SF_KP_VysokaInt">
+        <di:waypoint x="760" y="808"/><di:waypoint x="820" y="808"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="762" y="790" width="56" height="27"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_KP_Krizova" bpmnElement="SF_KP_Krizova">
+        <di:waypoint x="735" y="833"/><di:waypoint x="735" y="950"/><di:waypoint x="820" y="950"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="738" y="888" width="80" height="27"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNShape id="Shape_Task_KP_NizkaInt" bpmnElement="Task_KP_NizkaInt">
+        <dc:Bounds x="820" y="630" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Edge_SF_KP_04" bpmnElement="SF_KP_04">
+        <di:waypoint x="960" y="670"/><di:waypoint x="1010" y="670"/><di:waypoint x="1010" y="768"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNShape id="Shape_Task_KP_VysokaInt" bpmnElement="Task_KP_VysokaInt">
+        <dc:Bounds x="820" y="768" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Edge_SF_KP_05" bpmnElement="SF_KP_05">
+        <di:waypoint x="960" y="808"/><di:waypoint x="1010" y="808"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNShape id="Shape_Task_KP_Krizova" bpmnElement="Task_KP_Krizova">
+        <dc:Bounds x="820" y="910" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Edge_SF_KP_06" bpmnElement="SF_KP_06">
+        <di:waypoint x="960" y="950"/><di:waypoint x="1640" y="950"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNShape id="Shape_Task_KP_TerapeutVztah" bpmnElement="Task_KP_TerapeutVztah">
+        <dc:Bounds x="1010" y="768" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Edge_SF_KP_07" bpmnElement="SF_KP_07">
+        <di:waypoint x="1150" y="808"/><di:waypoint x="1210" y="808"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNShape id="Shape_Task_KP_Terapia" bpmnElement="Task_KP_Terapia">
+        <dc:Bounds x="1210" y="768" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Edge_SF_KP_08" bpmnElement="SF_KP_08">
+        <di:waypoint x="1350" y="808"/><di:waypoint x="1410" y="808"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNShape id="Shape_Task_KP_Monitorovanie" bpmnElement="Task_KP_Monitorovanie">
+        <dc:Bounds x="1410" y="768" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Edge_SF_KP_09" bpmnElement="SF_KP_09">
+        <di:waypoint x="1550" y="808"/><di:waypoint x="1610" y="808"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNShape id="Shape_GW_KP_Odpoved" bpmnElement="GW_KP_Odpoved" isMarkerVisible="true">
+        <dc:Bounds x="1610" y="783" width="50" height="50"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="1592" y="840" width="86" height="27"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Edge_SF_KP_Remisia" bpmnElement="SF_KP_Remisia">
+        <di:waypoint x="1635" y="783"/><di:waypoint x="1635" y="680"/><di:waypoint x="1730" y="680"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="1648" y="720" width="45" height="14"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_KP_Nedostatok" bpmnElement="SF_KP_Nedostatok">
+        <di:waypoint x="1635" y="833"/><di:waypoint x="1635" y="900"/><di:waypoint x="1480" y="900"/><di:waypoint x="1480" y="848"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="1520" y="875" width="80" height="27"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_KP_Zhorsenie" bpmnElement="SF_KP_Zhorsenie">
+        <di:waypoint x="1660" y="808"/><di:waypoint x="1730" y="808"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="1660" y="788" width="60" height="14"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNShape id="Shape_Task_KP_ZintenzivnieLiecby" bpmnElement="Task_KP_ZintenzivnieLiecby">
+        <dc:Bounds x="1280" y="880" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Edge_SF_KP_10" bpmnElement="SF_KP_10">
+        <di:waypoint x="1280" y="920"/><di:waypoint x="1280" y="848"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNShape id="Shape_Task_KP_Udrzba" bpmnElement="Task_KP_Udrzba">
+        <dc:Bounds x="1730" y="640" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Edge_SF_KP_11" bpmnElement="SF_KP_11">
+        <di:waypoint x="1870" y="680"/><di:waypoint x="1932" y="680"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNShape id="Shape_Task_KP_OdoslatPS" bpmnElement="Task_KP_OdoslatPS">
+        <dc:Bounds x="1730" y="768" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Edge_SF_KP_12" bpmnElement="SF_KP_12">
+        <di:waypoint x="1870" y="808"/><di:waypoint x="1932" y="808"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNShape id="Shape_End_KP_Remisia" bpmnElement="EndEvent_KP_Remisia">
+        <dc:Bounds x="1932" y="662" width="36" height="36"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="1910" y="705" width="80" height="40"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_End_KP_Odoslany" bpmnElement="EndEvent_KP_Odoslany">
+        <dc:Bounds x="1932" y="790" width="36" height="36"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="1910" y="833" width="80" height="40"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- ── POOL 3 PS ── -->
+      <bpmndi:BPMNShape id="Shape_Part_PS" bpmnElement="Participant_PS" isHorizontal="true">
+        <dc:Bounds x="160" y="1110" width="2000" height="460"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Start_PS" bpmnElement="StartEvent_PS">
+        <dc:Bounds x="222" y="1310" width="36" height="36"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="198" y="1353" width="84" height="40"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Edge_SF_PS_01" bpmnElement="SF_PS_01">
+        <di:waypoint x="258" y="1328"/><di:waypoint x="310" y="1328"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNShape id="Shape_Task_PS_Vysetrenie" bpmnElement="Task_PS_Vysetrenie">
+        <dc:Bounds x="310" y="1288" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Edge_SF_PS_02" bpmnElement="SF_PS_02">
+        <di:waypoint x="450" y="1328"/><di:waypoint x="510" y="1328"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNShape id="Shape_GW_PS_Hospitalizacia" bpmnElement="GW_PS_Hospitalizacia" isMarkerVisible="true">
+        <dc:Bounds x="510" y="1303" width="50" height="50"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="492" y="1360" width="86" height="27"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Edge_SF_PS_Hosp" bpmnElement="SF_SF_PS_Hosp">
+        <di:waypoint x="535" y="1303"/><di:waypoint x="535" y="1200"/><di:waypoint x="620" y="1200"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="540" y="1240" width="20" height="14"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_PS_Ambulant" bpmnElement="SF_PS_Ambulant">
+        <di:waypoint x="560" y="1328"/><di:waypoint x="620" y="1328"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="570" y="1310" width="22" height="14"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNShape id="Shape_Task_PS_Hospitalizacia" bpmnElement="Task_PS_Hospitalizacia">
+        <dc:Bounds x="620" y="1160" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Edge_SF_PS_03" bpmnElement="SF_PS_03">
+        <di:waypoint x="760" y="1200"/><di:waypoint x="840" y="1200"/><di:waypoint x="840" y="1288"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNShape id="Shape_Task_PS_AmbulantnaLiecba" bpmnElement="Task_PS_AmbulantnaLiecba">
+        <dc:Bounds x="620" y="1288" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Edge_SF_PS_04" bpmnElement="SF_PS_04">
+        <di:waypoint x="760" y="1328"/><di:waypoint x="810" y="1328"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNShape id="Shape_Task_PS_MultidiscTim" bpmnElement="Task_PS_MultidiscTim">
+        <dc:Bounds x="810" y="1288" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Edge_SF_PS_05" bpmnElement="SF_PS_05">
+        <di:waypoint x="950" y="1328"/><di:waypoint x="1010" y="1328"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNShape id="Shape_Task_PS_KBT_Stupen4" bpmnElement="Task_PS_KBT_Stupen4">
+        <dc:Bounds x="1010" y="1288" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Edge_SF_PS_06" bpmnElement="SF_PS_06">
+        <di:waypoint x="1150" y="1328"/><di:waypoint x="1210" y="1328"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNShape id="Shape_Task_PS_Monitoring" bpmnElement="Task_PS_Monitoring">
+        <dc:Bounds x="1210" y="1288" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Edge_SF_PS_07" bpmnElement="SF_PS_07">
+        <di:waypoint x="1350" y="1328"/><di:waypoint x="1410" y="1328"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNShape id="Shape_GW_PS_VysledokLiecby" bpmnElement="GW_PS_VysledokLiecby" isMarkerVisible="true">
+        <dc:Bounds x="1410" y="1303" width="50" height="50"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="1392" y="1360" width="86" height="27"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Edge_SF_PS_Stabilny" bpmnElement="SF_PS_Stabilny">
+        <di:waypoint x="1460" y="1328"/><di:waypoint x="1540" y="1328"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="1462" y="1308" width="70" height="27"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_PS_Refrakter" bpmnElement="SF_PS_Refrakter">
+        <di:waypoint x="1435" y="1353"/><di:waypoint x="1435" y="1430"/><di:waypoint x="1280" y="1430"/><di:waypoint x="1280" y="1368"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="1330" y="1436" width="80" height="14"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNShape id="Shape_Task_PS_Refrakter" bpmnElement="Task_PS_Refrakter">
+        <dc:Bounds x="1210" y="1390" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Edge_SF_PS_08" bpmnElement="SF_PS_08">
+        <di:waypoint x="1280" y="1390"/><di:waypoint x="1280" y="1368"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNShape id="Shape_Task_PS_Prepustenie" bpmnElement="Task_PS_Prepustenie">
+        <dc:Bounds x="1540" y="1288" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Edge_SF_PS_09" bpmnElement="SF_PS_09">
+        <di:waypoint x="1680" y="1328"/><di:waypoint x="1932" y="1328"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNShape id="Shape_End_PS_Stabilny" bpmnElement="EndEvent_PS_Stabilny">
+        <dc:Bounds x="1932" y="1310" width="36" height="36"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="1910" y="1353" width="80" height="40"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- ── MESSAGE FLOWS ── -->
+      <bpmndi:BPMNEdge id="Edge_MF_1" bpmnElement="MF_1">
+        <di:waypoint x="1480" y="440"/><di:waypoint x="1480" y="500"/><di:waypoint x="258" y="500"/><di:waypoint x="258" y="808"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_MF_2" bpmnElement="MF_2">
+        <di:waypoint x="1330" y="440"/><di:waypoint x="1330" y="520"/><di:waypoint x="240" y="520"/><di:waypoint x="240" y="1310"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_MF_3" bpmnElement="MF_3">
+        <di:waypoint x="1800" y="848"/><di:waypoint x="1800" y="1060"/><di:waypoint x="240" y="1060"/><di:waypoint x="240" y="1310"/>
+      </bpmndi:BPMNEdge>
+
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+
+</bpmn:definitions>

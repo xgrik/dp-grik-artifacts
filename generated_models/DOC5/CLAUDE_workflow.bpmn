@@ -1,0 +1,505 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_0cwasaq" targetNamespace="http://bpmn.io/schema/bpmn" xmlns:modeler="http://camunda.org/schema/modeler/1.0" exporter="Camunda Modeler" exporterVersion="5.33.1" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.22.0">
+  <bpmn:process id="Process_0hbbe8d" isExecutable="true" name="Complex Psychological Management of Adult Patient with Depressive Disorder">
+    <bpmn:startEvent id="SE_1" name="Patient presents with depressive symptoms"><bpmn:outgoing>F_SE1_G01</bpmn:outgoing></bpmn:startEvent>
+    <bpmn:exclusiveGateway id="GW_G01" name="How does patient enter care?"><bpmn:incoming>F_SE1_G01</bpmn:incoming><bpmn:outgoing>F_G01_ViaGP</bpmn:outgoing><bpmn:outgoing>F_G01_ViaSpec</bpmn:outgoing><bpmn:outgoing>F_G01_Direct</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:userTask id="UT_GPScreen" name="Conduct initial depression screening (GP)"><bpmn:incoming>F_G01_ViaGP</bpmn:incoming><bpmn:outgoing>F_GPScreen_T02</bpmn:outgoing></bpmn:userTask>
+    <bpmn:userTask id="UT_ExclSomatic" name="Exclude somatic causes of depressive symptoms"><bpmn:incoming>F_G01_ViaSpec</bpmn:incoming><bpmn:outgoing>F_ExclSomatic_G02</bpmn:outgoing></bpmn:userTask>
+    <bpmn:exclusiveGateway id="GW_G02" name="Somatic cause identified?"><bpmn:incoming>F_ExclSomatic_G02</bpmn:incoming><bpmn:outgoing>F_G02_YesSomatic</bpmn:outgoing><bpmn:outgoing>F_G02_NoSomatic</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:endEvent id="EE_Somatic" name="Redirect to somatic medicine pathway"><bpmn:incoming>F_G02_YesSomatic</bpmn:incoming></bpmn:endEvent>
+    <bpmn:userTask id="UT_NotifyGP" name="Notify GP of referral made by other specialist"><bpmn:incoming>F_G02_NoSomatic</bpmn:incoming><bpmn:outgoing>F_NotifyGP_T02</bpmn:outgoing></bpmn:userTask>
+    <bpmn:userTask id="UT_TwoQScreen" name="Administer two-question depression screen (NICE)"><bpmn:incoming>F_GPScreen_T02</bpmn:incoming><bpmn:incoming>F_NotifyGP_T02</bpmn:incoming><bpmn:outgoing>F_TwoQ_T03</bpmn:outgoing></bpmn:userTask>
+    <bpmn:serviceTask id="ST_PHQ9" name="Administer and score PHQ-9 Sk screening questionnaire"><bpmn:incoming>F_TwoQ_T03</bpmn:incoming><bpmn:outgoing>F_PHQ9_G03</bpmn:outgoing></bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="GW_G03" name="Depression screening result positive?"><bpmn:incoming>F_PHQ9_G03</bpmn:incoming><bpmn:outgoing>F_G03_Positive</bpmn:outgoing><bpmn:outgoing>F_G03_Negative</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:userTask id="UT_ActiveMonNeg" name="Conduct active monitoring - no depression detected"><bpmn:incoming>F_G03_Negative</bpmn:incoming><bpmn:outgoing>F_MonNeg_EE</bpmn:outgoing></bpmn:userTask>
+    <bpmn:endEvent id="EE_NoDepr" name="No depression confirmed - discharge or watchful waiting"><bpmn:incoming>F_MonNeg_EE</bpmn:incoming></bpmn:endEvent>
+    <bpmn:userTask id="UT_Psychoed" name="Provide psychoeducation about depression and treatment options"><bpmn:incoming>F_G03_Positive</bpmn:incoming><bpmn:outgoing>F_Psychoed_DiscProb</bpmn:outgoing></bpmn:userTask>
+    <bpmn:userTask id="UT_DiscProb" name="Discuss problem and provide information on depression origin and course"><bpmn:incoming>F_Psychoed_DiscProb</bpmn:incoming><bpmn:outgoing>F_DiscProb_SchedFU</bpmn:outgoing></bpmn:userTask>
+    <bpmn:userTask id="UT_SchedFU" name="Schedule follow-up appointment at two-week interval"><bpmn:incoming>F_DiscProb_SchedFU</bpmn:incoming><bpmn:outgoing>F_SchedFU_SuicAss</bpmn:outgoing></bpmn:userTask>
+    <bpmn:userTask id="UT_ClinExam" name="Conduct psychiatric or clinical-psychological examination"><bpmn:incoming>F_G01_Direct</bpmn:incoming><bpmn:incoming>F_Refer_ClinExam</bpmn:incoming><bpmn:outgoing>F_ClinExam_SuicAss</bpmn:outgoing></bpmn:userTask>
+    <bpmn:userTask id="UT_SuicAss" name="Assess suicidal ideation and intent"><bpmn:incoming>F_SchedFU_SuicAss</bpmn:incoming><bpmn:incoming>F_ClinExam_SuicAss</bpmn:incoming><bpmn:outgoing>F_SuicAss_G10</bpmn:outgoing></bpmn:userTask>
+    <bpmn:exclusiveGateway id="GW_G10" name="Suicidal ideation or intent present?"><bpmn:incoming>F_SuicAss_G10</bpmn:incoming><bpmn:outgoing>F_G10_SuicYes</bpmn:outgoing><bpmn:outgoing>F_G10_SuicNo</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:userTask id="UT_SocSupport" name="Assess adequacy of social support and available help resources"><bpmn:incoming>F_G10_SuicYes</bpmn:incoming><bpmn:outgoing>F_SocSupp_G11</bpmn:outgoing></bpmn:userTask>
+    <bpmn:exclusiveGateway id="GW_G11" name="Level of suicidal risk?"><bpmn:incoming>F_SocSupp_G11</bpmn:incoming><bpmn:outgoing>F_G11_Moderate</bpmn:outgoing><bpmn:outgoing>F_G11_High</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:userTask id="UT_InformFamily" name="Inform patient, family and close persons about warning signs"><bpmn:incoming>F_G11_Moderate</bpmn:incoming><bpmn:outgoing>F_InformFam_LimitMed</bpmn:outgoing></bpmn:userTask>
+    <bpmn:userTask id="UT_LimitMed" name="Limit access to medications to reduce overdose risk"><bpmn:incoming>F_InformFam_LimitMed</bpmn:incoming><bpmn:outgoing>F_LimitMed_IncrContact</bpmn:outgoing></bpmn:userTask>
+    <bpmn:userTask id="UT_IncrContact" name="Increase frequency of patient contacts"><bpmn:incoming>F_LimitMed_IncrContact</bpmn:incoming><bpmn:outgoing>F_IncrContact_G04</bpmn:outgoing></bpmn:userTask>
+    <bpmn:userTask id="UT_UrgRef" name="Issue urgent referral to mental health specialist"><bpmn:incoming>F_G11_High</bpmn:incoming><bpmn:outgoing>F_UrgRef_DecHosp</bpmn:outgoing></bpmn:userTask>
+    <bpmn:userTask id="UT_DecHosp" name="Decide on hospitalisation for high-risk patient"><bpmn:incoming>F_UrgRef_DecHosp</bpmn:incoming><bpmn:outgoing>F_DecHosp_G26</bpmn:outgoing></bpmn:userTask>
+    <bpmn:exclusiveGateway id="GW_G26" name="Hospitalisation required?"><bpmn:incoming>F_DecHosp_G26</bpmn:incoming><bpmn:outgoing>F_G26_Yes</bpmn:outgoing><bpmn:outgoing>F_G26_No</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:userTask id="UT_InpatTreat" name="Deliver high-intensity psychosocial treatment during hospitalisation"><bpmn:incoming>F_G26_Yes</bpmn:incoming><bpmn:outgoing>F_Inpat_EE</bpmn:outgoing></bpmn:userTask>
+    <bpmn:endEvent id="EE_Hosp" name="Patient hospitalised - inpatient pathway handover"><bpmn:incoming>F_Inpat_EE</bpmn:incoming></bpmn:endEvent>
+    <bpmn:exclusiveGateway id="GW_G04" name="Clinician competent to assess mental state?"><bpmn:incoming>F_G10_SuicNo</bpmn:incoming><bpmn:incoming>F_IncrContact_G04</bpmn:incoming><bpmn:incoming>F_G26_No</bpmn:incoming><bpmn:outgoing>F_G04_NotComp</bpmn:outgoing><bpmn:outgoing>F_G04_Comp</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:userTask id="UT_Refer" name="Refer patient to clinical psychologist or psychiatrist"><bpmn:incoming>F_G04_NotComp</bpmn:incoming><bpmn:outgoing>F_Refer_ClinExam</bpmn:outgoing></bpmn:userTask>
+    <bpmn:userTask id="UT_PsychoDiag" name="Conduct psychodiagnostic examination with standardised instruments"><bpmn:incoming>F_G04_Comp</bpmn:incoming><bpmn:outgoing>F_PsychoDiag_G05</bpmn:outgoing></bpmn:userTask>
+    <bpmn:exclusiveGateway id="GW_G05" name="Complex psychological examination indicated?"><bpmn:incoming>F_PsychoDiag_G05</bpmn:incoming><bpmn:outgoing>F_G05_Yes</bpmn:outgoing><bpmn:outgoing>F_G05_No</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:userTask id="UT_ComplexExam" name="Conduct complex psychological examination for cognitive and personality disorders"><bpmn:incoming>F_G05_Yes</bpmn:incoming><bpmn:outgoing>F_ComplexExam_G06</bpmn:outgoing></bpmn:userTask>
+    <bpmn:exclusiveGateway id="GW_G06" name="Stress reactivity assessment indicated?"><bpmn:incoming>F_G05_No</bpmn:incoming><bpmn:incoming>F_ComplexExam_G06</bpmn:incoming><bpmn:outgoing>F_G06_Yes</bpmn:outgoing><bpmn:outgoing>F_G06_No</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:userTask id="UT_StressReact" name="Conduct stress reactivity examination and create stress profile"><bpmn:incoming>F_G06_Yes</bpmn:incoming><bpmn:outgoing>F_StressReact_Diag</bpmn:outgoing></bpmn:userTask>
+    <bpmn:businessRuleTask id="BRT_Diag" name="Apply diagnostic criteria and assign ICD-10 diagnosis F32 or F33"><bpmn:incoming>F_G06_No</bpmn:incoming><bpmn:incoming>F_StressReact_Diag</bpmn:incoming><bpmn:outgoing>F_Diag_DiffDiag</bpmn:outgoing></bpmn:businessRuleTask>
+    <bpmn:userTask id="UT_DiffDiag" name="Conduct differential diagnosis to exclude somatic bipolar and other disorders"><bpmn:incoming>F_Diag_DiffDiag</bpmn:incoming><bpmn:outgoing>F_DiffDiag_G08</bpmn:outgoing></bpmn:userTask>
+    <bpmn:exclusiveGateway id="GW_G08" name="Manic or hypomanic episode in history?"><bpmn:incoming>F_DiffDiag_G08</bpmn:incoming><bpmn:outgoing>F_G08_Bipolar</bpmn:outgoing><bpmn:outgoing>F_G08_Depressive</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:endEvent id="EE_Bipolar" name="Redirect to bipolar affective disorder management pathway"><bpmn:incoming>F_G08_Bipolar</bpmn:incoming></bpmn:endEvent>
+    <bpmn:userTask id="UT_FuncImp" name="Assess functional impairment and psychosocial factors"><bpmn:incoming>F_G08_Depressive</bpmn:incoming><bpmn:outgoing>F_FuncImp_TreatHist</bpmn:outgoing></bpmn:userTask>
+    <bpmn:userTask id="UT_TreatHist" name="Assess treatment history and prior response to interventions"><bpmn:incoming>F_FuncImp_TreatHist</bpmn:incoming><bpmn:outgoing>F_TreatHist_G09</bpmn:outgoing></bpmn:userTask>
+    <bpmn:exclusiveGateway id="GW_G09" name="Severity of current depressive episode?"><bpmn:incoming>F_TreatHist_G09</bpmn:incoming><bpmn:outgoing>F_G09_Mild</bpmn:outgoing><bpmn:outgoing>F_G09_Moderate</bpmn:outgoing><bpmn:outgoing>F_G09_Severe</bpmn:outgoing><bpmn:outgoing>F_G09_SeverePsy</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="GW_G07" name="First episode or recurrent depressive disorder?"><bpmn:incoming>F_G09_Mild</bpmn:incoming><bpmn:incoming>F_G09_Moderate</bpmn:incoming><bpmn:outgoing>F_G07_First</bpmn:outgoing><bpmn:outgoing>F_G07_Recurrent</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:userTask id="UT_Consent" name="Obtain informed consent for treatment"><bpmn:incoming>F_G07_First</bpmn:incoming><bpmn:incoming>F_G07_Recurrent</bpmn:incoming><bpmn:incoming>F_G09_Severe</bpmn:incoming><bpmn:incoming>F_G09_SeverePsy</bpmn:incoming><bpmn:outgoing>F_Consent_StepDet</bpmn:outgoing></bpmn:userTask>
+    <bpmn:businessRuleTask id="BRT_StepDet" name="Determine treatment step level 1 to 4"><bpmn:incoming>F_Consent_StepDet</bpmn:incoming><bpmn:outgoing>F_StepDet_DiscTreat</bpmn:outgoing></bpmn:businessRuleTask>
+    <bpmn:userTask id="UT_DiscTreat" name="Discuss treatment options with patient"><bpmn:incoming>F_StepDet_DiscTreat</bpmn:incoming><bpmn:outgoing>F_DiscTreat_SelTreat</bpmn:outgoing></bpmn:userTask>
+    <bpmn:userTask id="UT_SelTreat" name="Select treatment modality considering patient preference and EBM availability"><bpmn:incoming>F_DiscTreat_SelTreat</bpmn:incoming><bpmn:outgoing>F_SelTreat_RelRisk</bpmn:outgoing></bpmn:userTask>
+    <bpmn:businessRuleTask id="BRT_RelRisk" name="Assess relapse risk factors"><bpmn:incoming>F_SelTreat_RelRisk</bpmn:incoming><bpmn:outgoing>F_RelRisk_G12</bpmn:outgoing></bpmn:businessRuleTask>
+    <bpmn:exclusiveGateway id="GW_G12" name="Assign to stepped care level"><bpmn:incoming>F_RelRisk_G12</bpmn:incoming><bpmn:outgoing>F_G12_S1</bpmn:outgoing><bpmn:outgoing>F_G12_S2</bpmn:outgoing><bpmn:outgoing>F_G12_S3</bpmn:outgoing><bpmn:outgoing>F_G12_S4</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:userTask id="UT_S1Mon" name="Conduct active monitoring and watchful waiting Step 1"><bpmn:incoming>F_G12_S1</bpmn:incoming><bpmn:outgoing>F_S1Mon_S1Rev</bpmn:outgoing></bpmn:userTask>
+    <bpmn:userTask id="UT_S1Rev" name="Schedule follow-up and assess improvement at two-week review"><bpmn:incoming>F_S1Mon_S1Rev</bpmn:incoming><bpmn:outgoing>F_S1Rev_G14</bpmn:outgoing></bpmn:userTask>
+    <bpmn:exclusiveGateway id="GW_G14" name="Improvement following active monitoring Step 1?"><bpmn:incoming>F_S1Rev_G14</bpmn:incoming><bpmn:outgoing>F_G14_Improve</bpmn:outgoing><bpmn:outgoing>F_G14_NoImprove</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="GW_G15" name="Condition likely to improve without psychosocial intervention?"><bpmn:incoming>F_G14_Improve</bpmn:incoming><bpmn:outgoing>F_G15_Yes</bpmn:outgoing><bpmn:outgoing>F_G15_No</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:userTask id="UT_S1Cont" name="Continue active monitoring until remission or escalation needed"><bpmn:incoming>F_G15_Yes</bpmn:incoming><bpmn:outgoing>F_S1Cont_G29</bpmn:outgoing></bpmn:userTask>
+    <bpmn:exclusiveGateway id="GW_G13" name="Comorbid anxiety present - which condition to prioritise?"><bpmn:incoming>F_G12_S2</bpmn:incoming><bpmn:incoming>F_G14_NoImprove</bpmn:incoming><bpmn:incoming>F_G15_No</bpmn:incoming><bpmn:outgoing>F_G13_DeprPrio</bpmn:outgoing><bpmn:outgoing>F_G13_AnxPrio</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:userTask id="UT_SleepHyg" name="Recommend sleep hygiene education if indicated"><bpmn:incoming>F_G13_DeprPrio</bpmn:incoming><bpmn:incoming>F_G13_AnxPrio</bpmn:incoming><bpmn:outgoing>F_SleepHyg_G16</bpmn:outgoing></bpmn:userTask>
+    <bpmn:exclusiveGateway id="GW_G16" name="Patient accepts Step 2 low-intensity treatment SPI?"><bpmn:incoming>F_SleepHyg_G16</bpmn:incoming><bpmn:outgoing>F_G16_Accept</bpmn:outgoing><bpmn:outgoing>F_G16_Refuse</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:inclusiveGateway id="GW_G17" name="Select Step 2 SPI treatment modality"><bpmn:incoming>F_G16_Accept</bpmn:incoming><bpmn:outgoing>F_G17_SelfHelp</bpmn:outgoing><bpmn:outgoing>F_G17_IKBT</bpmn:outgoing><bpmn:outgoing>F_G17_Physical</bpmn:outgoing></bpmn:inclusiveGateway>
+    <bpmn:userTask id="UT_SelfHelp" name="Deliver individual self-help program based on CBT principles 6 to 8 sessions"><bpmn:incoming>F_G17_SelfHelp</bpmn:incoming><bpmn:outgoing>F_SelfHelp_G17J</bpmn:outgoing></bpmn:userTask>
+    <bpmn:serviceTask id="ST_IKBT" name="Deliver computer-based internet CBT program IKBT 9 to 12 weeks"><bpmn:incoming>F_G17_IKBT</bpmn:incoming><bpmn:outgoing>F_IKBT_G17J</bpmn:outgoing></bpmn:serviceTask>
+    <bpmn:userTask id="UT_PhysAct" name="Deliver structured group physical activity program 3 sessions per week"><bpmn:incoming>F_G17_Physical</bpmn:incoming><bpmn:outgoing>F_PhysAct_G17J</bpmn:outgoing></bpmn:userTask>
+    <bpmn:inclusiveGateway id="GW_G17J" name="Step 2 SPI treatment modalities completed"><bpmn:incoming>F_SelfHelp_G17J</bpmn:incoming><bpmn:incoming>F_IKBT_G17J</bpmn:incoming><bpmn:incoming>F_PhysAct_G17J</bpmn:incoming><bpmn:outgoing>F_G17J_G18</bpmn:outgoing></bpmn:inclusiveGateway>
+    <bpmn:userTask id="UT_GroupCBT" name="Deliver group CBT as alternative to individual SPI 10 to 12 sessions"><bpmn:incoming>F_G16_Refuse</bpmn:incoming><bpmn:outgoing>F_GroupCBT_G18</bpmn:outgoing></bpmn:userTask>
+    <bpmn:exclusiveGateway id="GW_G18" name="Pharmacotherapy indicated at Step 2?"><bpmn:incoming>F_G17J_G18</bpmn:incoming><bpmn:incoming>F_GroupCBT_G18</bpmn:incoming><bpmn:outgoing>F_G18_Yes</bpmn:outgoing><bpmn:outgoing>F_G18_No</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:userTask id="UT_PharmaS2" name="Consider and initiate pharmacotherapy at Step 2"><bpmn:incoming>F_G18_Yes</bpmn:incoming><bpmn:outgoing>F_PharmaS2_ScoreS2</bpmn:outgoing></bpmn:userTask>
+    <bpmn:scriptTask id="SCR_ScoreS2" name="Compute and record standardised outcome scores PHQ-9 BDI-II Step 2"><bpmn:incoming>F_G18_No</bpmn:incoming><bpmn:incoming>F_PharmaS2_ScoreS2</bpmn:incoming><bpmn:outgoing>F_ScoreS2_EvalS2</bpmn:outgoing></bpmn:scriptTask>
+    <bpmn:userTask id="UT_EvalS2" name="Evaluate treatment response at defined intervals Step 2"><bpmn:incoming>F_ScoreS2_EvalS2</bpmn:incoming><bpmn:outgoing>F_EvalS2_G19</bpmn:outgoing></bpmn:userTask>
+    <bpmn:exclusiveGateway id="GW_G19" name="Adequate improvement following Step 2 treatment?"><bpmn:incoming>F_EvalS2_G19</bpmn:incoming><bpmn:outgoing>F_G19_Improve</bpmn:outgoing><bpmn:outgoing>F_G19_NoImprove</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="GW_G20" name="Patient refuses pharmacotherapy at Step 3?"><bpmn:incoming>F_G12_S3</bpmn:incoming><bpmn:incoming>F_G19_NoImprove</bpmn:incoming><bpmn:outgoing>F_G20_Accept</bpmn:outgoing><bpmn:outgoing>F_G20_Refuse</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:userTask id="UT_PharmaS3" name="Initiate or continue pharmacotherapy at Step 3"><bpmn:incoming>F_G20_Accept</bpmn:incoming><bpmn:outgoing>F_PharmaS3_G22</bpmn:outgoing></bpmn:userTask>
+    <bpmn:exclusiveGateway id="GW_G22" name="First-line Step 3 therapy available and acceptable?"><bpmn:incoming>F_G20_Refuse</bpmn:incoming><bpmn:incoming>F_PharmaS3_G22</bpmn:incoming><bpmn:outgoing>F_G22_FirstLine</bpmn:outgoing><bpmn:outgoing>F_G22_AltLine</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="GW_G21" name="Select Step 3 high-intensity psychotherapy modality"><bpmn:incoming>F_G22_FirstLine</bpmn:incoming><bpmn:outgoing>F_G21_CBT</bpmn:outgoing><bpmn:outgoing>F_G21_IPT</bpmn:outgoing><bpmn:outgoing>F_G21_BA</bpmn:outgoing><bpmn:outgoing>F_G21_Family</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:userTask id="UT_CBT" name="Deliver individual CBT high-intensity 16 to 20 sessions 3 to 4 months"><bpmn:incoming>F_G21_CBT</bpmn:incoming><bpmn:outgoing>F_CBT_ScoreS3</bpmn:outgoing></bpmn:userTask>
+    <bpmn:userTask id="UT_IPT" name="Deliver individual Interpersonal Psychotherapy IPT 16 to 20 sessions"><bpmn:incoming>F_G21_IPT</bpmn:incoming><bpmn:outgoing>F_IPT_ScoreS3</bpmn:outgoing></bpmn:userTask>
+    <bpmn:userTask id="UT_BA" name="Deliver behavioural activation therapy 16 to 20 sessions 3 to 4 months"><bpmn:incoming>F_G21_BA</bpmn:incoming><bpmn:outgoing>F_BA_ScoreS3</bpmn:outgoing></bpmn:userTask>
+    <bpmn:userTask id="UT_FamilyTher" name="Deliver behavioural couple or family therapy 15 to 20 sessions"><bpmn:incoming>F_G21_Family</bpmn:incoming><bpmn:outgoing>F_FamilyTher_ScoreS3</bpmn:outgoing></bpmn:userTask>
+    <bpmn:userTask id="UT_SuppCouns" name="Deliver individual supportive non-directive counselling 6 to 10 sessions"><bpmn:incoming>F_G22_AltLine</bpmn:incoming><bpmn:outgoing>F_SuppCouns_ScoreS3</bpmn:outgoing></bpmn:userTask>
+    <bpmn:scriptTask id="SCR_ScoreS3" name="Compute and record standardised outcome scores PHQ-9 BDI-II Step 3"><bpmn:incoming>F_CBT_ScoreS3</bpmn:incoming><bpmn:incoming>F_IPT_ScoreS3</bpmn:incoming><bpmn:incoming>F_BA_ScoreS3</bpmn:incoming><bpmn:incoming>F_FamilyTher_ScoreS3</bpmn:incoming><bpmn:incoming>F_SuppCouns_ScoreS3</bpmn:incoming><bpmn:outgoing>F_ScoreS3_G23</bpmn:outgoing></bpmn:scriptTask>
+    <bpmn:exclusiveGateway id="GW_G23" name="Significant improvement after 4 to 8 weeks of psychotherapy?"><bpmn:incoming>F_ScoreS3_G23</bpmn:incoming><bpmn:outgoing>F_G23_Improve</bpmn:outgoing><bpmn:outgoing>F_G23_AddPharma</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:userTask id="UT_AddPharma" name="Add pharmacotherapy to ongoing psychotherapy due to insufficient response"><bpmn:incoming>F_G23_AddPharma</bpmn:incoming><bpmn:outgoing>F_AddPharma_EvalS3</bpmn:outgoing></bpmn:userTask>
+    <bpmn:userTask id="UT_EvalS3" name="Evaluate treatment response at defined intervals Step 3"><bpmn:incoming>F_G23_Improve</bpmn:incoming><bpmn:incoming>F_AddPharma_EvalS3</bpmn:incoming><bpmn:outgoing>F_EvalS3_G24</bpmn:outgoing></bpmn:userTask>
+    <bpmn:exclusiveGateway id="GW_G24" name="Adequate improvement following Step 3 treatment?"><bpmn:incoming>F_EvalS3_G24</bpmn:incoming><bpmn:outgoing>F_G24_Improve</bpmn:outgoing><bpmn:outgoing>F_G24_NoImprove</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="GW_G25" name="Adequate response to combined pharmacotherapy and psychotherapy?"><bpmn:incoming>F_G24_NoImprove</bpmn:incoming><bpmn:outgoing>F_G25_Improve</bpmn:outgoing><bpmn:outgoing>F_G25_NoImprove</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:userTask id="UT_ChangeAppr" name="Change therapeutic approach or refer to psychiatric specialist"><bpmn:incoming>F_G25_NoImprove</bpmn:incoming><bpmn:outgoing>F_ChangeAppr_S4Ass</bpmn:outgoing></bpmn:userTask>
+    <bpmn:userTask id="UT_S4Assess" name="Conduct comprehensive expert assessment Step 4 symptoms risk comorbidities"><bpmn:incoming>F_G12_S4</bpmn:incoming><bpmn:incoming>F_ChangeAppr_S4Ass</bpmn:incoming><bpmn:outgoing>F_S4Ass_G28</bpmn:outgoing></bpmn:userTask>
+    <bpmn:exclusiveGateway id="GW_G28" name="Was previous treatment inadequate or adherence insufficient?"><bpmn:incoming>F_S4Ass_G28</bpmn:incoming><bpmn:outgoing>F_G28_ReIndicate</bpmn:outgoing><bpmn:outgoing>F_G28_NewTreat</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:userTask id="UT_ReIndicate" name="Re-indicate and deliver previously inadequate or non-adhered treatment"><bpmn:incoming>F_G28_ReIndicate</bpmn:incoming><bpmn:outgoing>F_ReIndicate_G27</bpmn:outgoing></bpmn:userTask>
+    <bpmn:exclusiveGateway id="GW_G27" name="ECT indicated for treatment-resistant or severe depression?"><bpmn:incoming>F_G28_NewTreat</bpmn:incoming><bpmn:incoming>F_ReIndicate_G27</bpmn:incoming><bpmn:outgoing>F_G27_ECT</bpmn:outgoing><bpmn:outgoing>F_G27_NoECT</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:userTask id="UT_ECT" name="Indicate and administer electroconvulsive therapy ECT"><bpmn:incoming>F_G27_ECT</bpmn:incoming><bpmn:outgoing>F_ECT_S4Join</bpmn:outgoing></bpmn:userTask>
+    <bpmn:exclusiveGateway id="GW_S4Join" name="Step 4 treatment path rejoined"><bpmn:incoming>F_ECT_S4Join</bpmn:incoming><bpmn:incoming>F_G27_NoECT</bpmn:incoming><bpmn:outgoing>F_S4Join_G29</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="GW_G29" name="Significant relapse risk present?"><bpmn:incoming>F_S1Cont_G29</bpmn:incoming><bpmn:incoming>F_G19_Improve</bpmn:incoming><bpmn:incoming>F_G24_Improve</bpmn:incoming><bpmn:incoming>F_G25_Improve</bpmn:incoming><bpmn:incoming>F_S4Join_G29</bpmn:incoming><bpmn:outgoing>F_G29_High</bpmn:outgoing><bpmn:outgoing>F_G29_Low</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="GW_G33" name="Formal maintenance treatment indicated 3 or more episodes or chronic?"><bpmn:incoming>F_G29_High</bpmn:incoming><bpmn:outgoing>F_G33_Yes</bpmn:outgoing><bpmn:outgoing>F_G33_No</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="GW_G30" name="Three or more prior depressive episodes in remission?"><bpmn:incoming>F_G33_Yes</bpmn:incoming><bpmn:outgoing>F_G30_MBCT</bpmn:outgoing><bpmn:outgoing>F_G30_CBT_IPT</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:userTask id="UT_MBCT" name="Deliver group MBCT for relapse prevention 8 weeks 8 to 15 members"><bpmn:incoming>F_G30_MBCT</bpmn:incoming><bpmn:outgoing>F_MBCT_G32</bpmn:outgoing></bpmn:userTask>
+    <bpmn:exclusiveGateway id="GW_G31" name="Relapsed despite antidepressant medication or significant residual symptoms?"><bpmn:incoming>F_G30_CBT_IPT</bpmn:incoming><bpmn:outgoing>F_G31_RelapsePT</bpmn:outgoing><bpmn:outgoing>F_G31_Standard</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:userTask id="UT_RelPrevPT" name="Deliver individual CBT or IPT for relapse prevention 16 to 20 sessions"><bpmn:incoming>F_G31_RelapsePT</bpmn:incoming><bpmn:outgoing>F_RelPrevPT_G32</bpmn:outgoing></bpmn:userTask>
+    <bpmn:userTask id="UT_MaintPharma" name="Continue antidepressant pharmacotherapy during maintenance phase minimum 6 months"><bpmn:incoming>F_G31_Standard</bpmn:incoming><bpmn:incoming>F_G33_No</bpmn:incoming><bpmn:outgoing>F_MaintPharma_G32</bpmn:outgoing></bpmn:userTask>
+    <bpmn:exclusiveGateway id="GW_G32" name="Extended pharmacotherapy continuation beyond 6 months indicated?"><bpmn:incoming>F_MBCT_G32</bpmn:incoming><bpmn:incoming>F_RelPrevPT_G32</bpmn:incoming><bpmn:incoming>F_MaintPharma_G32</bpmn:incoming><bpmn:outgoing>F_G32_Extend</bpmn:outgoing><bpmn:outgoing>F_G32_Taper</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:userTask id="UT_MaintMon" name="Conduct systematic symptom functioning and quality-of-life assessment maintenance"><bpmn:incoming>F_G32_Extend</bpmn:incoming><bpmn:incoming>F_G32_Taper</bpmn:incoming><bpmn:outgoing>F_MaintMon_RelPrevDisc</bpmn:outgoing></bpmn:userTask>
+    <bpmn:userTask id="UT_RelPrevDisc" name="Discuss relapse prevention strategies with patient"><bpmn:incoming>F_MaintMon_RelPrevDisc</bpmn:incoming><bpmn:outgoing>F_RelPrevDisc_EvalTerm</bpmn:outgoing></bpmn:userTask>
+    <bpmn:userTask id="UT_EvalTerm" name="Evaluate readiness for treatment termination"><bpmn:incoming>F_RelPrevDisc_EvalTerm</bpmn:incoming><bpmn:incoming>F_G29_Low</bpmn:incoming><bpmn:outgoing>F_EvalTerm_G34</bpmn:outgoing></bpmn:userTask>
+    <bpmn:exclusiveGateway id="GW_G34" name="Patient stabilised and ready for treatment termination?"><bpmn:incoming>F_EvalTerm_G34</bpmn:incoming><bpmn:outgoing>F_G34_Terminate</bpmn:outgoing><bpmn:outgoing>F_G34_Continue</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:userTask id="UT_ContTreat" name="Continue current treatment phase pending further stabilisation"><bpmn:incoming>F_G34_Continue</bpmn:incoming><bpmn:outgoing>F_ContTreat_EE</bpmn:outgoing></bpmn:userTask>
+    <bpmn:userTask id="UT_Catamn" name="Conduct catamnestic follow-up and post-treatment monitoring"><bpmn:incoming>F_G34_Terminate</bpmn:incoming><bpmn:outgoing>F_Catamn_EE</bpmn:outgoing></bpmn:userTask>
+    <bpmn:endEvent id="EE_Discharge" name="Remission achieved - treatment concluded and catamnestic follow-up completed"><bpmn:incoming>F_Catamn_EE</bpmn:incoming></bpmn:endEvent>
+    <bpmn:endEvent id="EE_Maintenance" name="Patient entered long-term maintenance care pathway"><bpmn:incoming>F_ContTreat_EE</bpmn:incoming></bpmn:endEvent>
+    <bpmn:sequenceFlow id="F_SE1_G01" sourceRef="SE_1" targetRef="GW_G01"/>
+    <bpmn:sequenceFlow id="F_G01_ViaGP" name="Via general practitioner" sourceRef="GW_G01" targetRef="UT_GPScreen"/>
+    <bpmn:sequenceFlow id="F_G01_ViaSpec" name="Via other specialist after somatic exclusion" sourceRef="GW_G01" targetRef="UT_ExclSomatic"/>
+    <bpmn:sequenceFlow id="F_G01_Direct" name="Direct access to clinical psychologist" sourceRef="GW_G01" targetRef="UT_ClinExam"/>
+    <bpmn:sequenceFlow id="F_GPScreen_T02" sourceRef="UT_GPScreen" targetRef="UT_TwoQScreen"/>
+    <bpmn:sequenceFlow id="F_ExclSomatic_G02" sourceRef="UT_ExclSomatic" targetRef="GW_G02"/>
+    <bpmn:sequenceFlow id="F_G02_YesSomatic" name="Somatic cause confirmed" sourceRef="GW_G02" targetRef="EE_Somatic"/>
+    <bpmn:sequenceFlow id="F_G02_NoSomatic" name="Somatic cause excluded - proceed to psychological pathway" sourceRef="GW_G02" targetRef="UT_NotifyGP"/>
+    <bpmn:sequenceFlow id="F_NotifyGP_T02" sourceRef="UT_NotifyGP" targetRef="UT_TwoQScreen"/>
+    <bpmn:sequenceFlow id="F_TwoQ_T03" sourceRef="UT_TwoQScreen" targetRef="ST_PHQ9"/>
+    <bpmn:sequenceFlow id="F_PHQ9_G03" sourceRef="ST_PHQ9" targetRef="GW_G03"/>
+    <bpmn:sequenceFlow id="F_G03_Positive" name="Screen positive - depression suspected" sourceRef="GW_G03" targetRef="UT_Psychoed"/>
+    <bpmn:sequenceFlow id="F_G03_Negative" name="Screen negative - no depression indicators" sourceRef="GW_G03" targetRef="UT_ActiveMonNeg"/>
+    <bpmn:sequenceFlow id="F_MonNeg_EE" sourceRef="UT_ActiveMonNeg" targetRef="EE_NoDepr"/>
+    <bpmn:sequenceFlow id="F_Psychoed_DiscProb" sourceRef="UT_Psychoed" targetRef="UT_DiscProb"/>
+    <bpmn:sequenceFlow id="F_DiscProb_SchedFU" sourceRef="UT_DiscProb" targetRef="UT_SchedFU"/>
+    <bpmn:sequenceFlow id="F_SchedFU_SuicAss" sourceRef="UT_SchedFU" targetRef="UT_SuicAss"/>
+    <bpmn:sequenceFlow id="F_ClinExam_SuicAss" sourceRef="UT_ClinExam" targetRef="UT_SuicAss"/>
+    <bpmn:sequenceFlow id="F_SuicAss_G10" sourceRef="UT_SuicAss" targetRef="GW_G10"/>
+    <bpmn:sequenceFlow id="F_G10_SuicYes" name="Suicidal ideation or intent present" sourceRef="GW_G10" targetRef="UT_SocSupport"/>
+    <bpmn:sequenceFlow id="F_G10_SuicNo" name="No suicidal ideation - proceed to competency check" sourceRef="GW_G10" targetRef="GW_G04"/>
+    <bpmn:sequenceFlow id="F_SocSupp_G11" sourceRef="UT_SocSupport" targetRef="GW_G11"/>
+    <bpmn:sequenceFlow id="F_G11_Moderate" name="Moderate suicidal risk" sourceRef="GW_G11" targetRef="UT_InformFamily"/>
+    <bpmn:sequenceFlow id="F_G11_High" name="High or imminent suicidal risk" sourceRef="GW_G11" targetRef="UT_UrgRef"/>
+    <bpmn:sequenceFlow id="F_InformFam_LimitMed" sourceRef="UT_InformFamily" targetRef="UT_LimitMed"/>
+    <bpmn:sequenceFlow id="F_LimitMed_IncrContact" sourceRef="UT_LimitMed" targetRef="UT_IncrContact"/>
+    <bpmn:sequenceFlow id="F_IncrContact_G04" sourceRef="UT_IncrContact" targetRef="GW_G04"/>
+    <bpmn:sequenceFlow id="F_UrgRef_DecHosp" sourceRef="UT_UrgRef" targetRef="UT_DecHosp"/>
+    <bpmn:sequenceFlow id="F_DecHosp_G26" sourceRef="UT_DecHosp" targetRef="GW_G26"/>
+    <bpmn:sequenceFlow id="F_G26_Yes" name="Hospitalisation required" sourceRef="GW_G26" targetRef="UT_InpatTreat"/>
+    <bpmn:sequenceFlow id="F_G26_No" name="Hospitalisation not required - continue outpatient" sourceRef="GW_G26" targetRef="GW_G04"/>
+    <bpmn:sequenceFlow id="F_Inpat_EE" sourceRef="UT_InpatTreat" targetRef="EE_Hosp"/>
+    <bpmn:sequenceFlow id="F_G04_NotComp" name="Clinician not competent - refer to specialist" sourceRef="GW_G04" targetRef="UT_Refer"/>
+    <bpmn:sequenceFlow id="F_G04_Comp" name="Clinician competent - proceed with full assessment" sourceRef="GW_G04" targetRef="UT_PsychoDiag"/>
+    <bpmn:sequenceFlow id="F_Refer_ClinExam" sourceRef="UT_Refer" targetRef="UT_ClinExam"/>
+    <bpmn:sequenceFlow id="F_PsychoDiag_G05" sourceRef="UT_PsychoDiag" targetRef="GW_G05"/>
+    <bpmn:sequenceFlow id="F_G05_Yes" name="Suspicion of cognitive or personality disorder" sourceRef="GW_G05" targetRef="UT_ComplexExam"/>
+    <bpmn:sequenceFlow id="F_G05_No" name="No suspicion of cognitive or personality disorder" sourceRef="GW_G05" targetRef="GW_G06"/>
+    <bpmn:sequenceFlow id="F_ComplexExam_G06" sourceRef="UT_ComplexExam" targetRef="GW_G06"/>
+    <bpmn:sequenceFlow id="F_G06_Yes" name="Stress reactivity assessment indicated" sourceRef="GW_G06" targetRef="UT_StressReact"/>
+    <bpmn:sequenceFlow id="F_G06_No" name="Stress reactivity assessment not indicated" sourceRef="GW_G06" targetRef="BRT_Diag"/>
+    <bpmn:sequenceFlow id="F_StressReact_Diag" sourceRef="UT_StressReact" targetRef="BRT_Diag"/>
+    <bpmn:sequenceFlow id="F_Diag_DiffDiag" sourceRef="BRT_Diag" targetRef="UT_DiffDiag"/>
+    <bpmn:sequenceFlow id="F_DiffDiag_G08" sourceRef="UT_DiffDiag" targetRef="GW_G08"/>
+    <bpmn:sequenceFlow id="F_G08_Bipolar" name="Manic or hypomanic episode confirmed - bipolar disorder" sourceRef="GW_G08" targetRef="EE_Bipolar"/>
+    <bpmn:sequenceFlow id="F_G08_Depressive" name="No manic history - depressive disorder confirmed" sourceRef="GW_G08" targetRef="UT_FuncImp"/>
+    <bpmn:sequenceFlow id="F_FuncImp_TreatHist" sourceRef="UT_FuncImp" targetRef="UT_TreatHist"/>
+    <bpmn:sequenceFlow id="F_TreatHist_G09" sourceRef="UT_TreatHist" targetRef="GW_G09"/>
+    <bpmn:sequenceFlow id="F_G09_Mild" name="F32.0 mild depressive episode" sourceRef="GW_G09" targetRef="GW_G07"/>
+    <bpmn:sequenceFlow id="F_G09_Moderate" name="F32.1 moderate depressive episode" sourceRef="GW_G09" targetRef="GW_G07"/>
+    <bpmn:sequenceFlow id="F_G09_Severe" name="F32.2 severe episode without psychotic features" sourceRef="GW_G09" targetRef="UT_Consent"/>
+    <bpmn:sequenceFlow id="F_G09_SeverePsy" name="F32.3 severe episode with psychotic features" sourceRef="GW_G09" targetRef="UT_Consent"/>
+    <bpmn:sequenceFlow id="F_G07_First" name="First depressive episode F32" sourceRef="GW_G07" targetRef="UT_Consent"/>
+    <bpmn:sequenceFlow id="F_G07_Recurrent" name="Recurrent depressive disorder F33" sourceRef="GW_G07" targetRef="UT_Consent"/>
+    <bpmn:sequenceFlow id="F_Consent_StepDet" sourceRef="UT_Consent" targetRef="BRT_StepDet"/>
+    <bpmn:sequenceFlow id="F_StepDet_DiscTreat" sourceRef="BRT_StepDet" targetRef="UT_DiscTreat"/>
+    <bpmn:sequenceFlow id="F_DiscTreat_SelTreat" sourceRef="UT_DiscTreat" targetRef="UT_SelTreat"/>
+    <bpmn:sequenceFlow id="F_SelTreat_RelRisk" sourceRef="UT_SelTreat" targetRef="BRT_RelRisk"/>
+    <bpmn:sequenceFlow id="F_RelRisk_G12" sourceRef="BRT_RelRisk" targetRef="GW_G12"/>
+    <bpmn:sequenceFlow id="F_G12_S1" name="Step 1 active monitoring indicated" sourceRef="GW_G12" targetRef="UT_S1Mon"/>
+    <bpmn:sequenceFlow id="F_G12_S2" name="Step 2 low-intensity psychosocial treatment" sourceRef="GW_G12" targetRef="GW_G13"/>
+    <bpmn:sequenceFlow id="F_G12_S3" name="Step 3 high-intensity psychological treatment" sourceRef="GW_G12" targetRef="GW_G20"/>
+    <bpmn:sequenceFlow id="F_G12_S4" name="Step 4 complex specialist treatment" sourceRef="GW_G12" targetRef="UT_S4Assess"/>
+    <bpmn:sequenceFlow id="F_S1Mon_S1Rev" sourceRef="UT_S1Mon" targetRef="UT_S1Rev"/>
+    <bpmn:sequenceFlow id="F_S1Rev_G14" sourceRef="UT_S1Rev" targetRef="GW_G14"/>
+    <bpmn:sequenceFlow id="F_G14_Improve" name="Improvement occurring" sourceRef="GW_G14" targetRef="GW_G15"/>
+    <bpmn:sequenceFlow id="F_G14_NoImprove" name="No improvement - escalate to Step 2" sourceRef="GW_G14" targetRef="GW_G13"/>
+    <bpmn:sequenceFlow id="F_G15_Yes" name="Likely to improve without psychosocial intervention" sourceRef="GW_G15" targetRef="UT_S1Cont"/>
+    <bpmn:sequenceFlow id="F_G15_No" name="Intervention needed - proceed to Step 2" sourceRef="GW_G15" targetRef="GW_G13"/>
+    <bpmn:sequenceFlow id="F_S1Cont_G29" sourceRef="UT_S1Cont" targetRef="GW_G29"/>
+    <bpmn:sequenceFlow id="F_G13_DeprPrio" name="Depression prioritised - standard pathway" sourceRef="GW_G13" targetRef="UT_SleepHyg"/>
+    <bpmn:sequenceFlow id="F_G13_AnxPrio" name="Anxiety prioritised in justified exception" sourceRef="GW_G13" targetRef="UT_SleepHyg"/>
+    <bpmn:sequenceFlow id="F_SleepHyg_G16" sourceRef="UT_SleepHyg" targetRef="GW_G16"/>
+    <bpmn:sequenceFlow id="F_G16_Accept" name="Patient accepts SPI low-intensity treatment" sourceRef="GW_G16" targetRef="GW_G17"/>
+    <bpmn:sequenceFlow id="F_G16_Refuse" name="Patient refuses SPI - offer group CBT alternative" sourceRef="GW_G16" targetRef="UT_GroupCBT"/>
+    <bpmn:sequenceFlow id="F_G17_SelfHelp" name="Individual self-help CBT program" sourceRef="GW_G17" targetRef="UT_SelfHelp"/>
+    <bpmn:sequenceFlow id="F_G17_IKBT" name="Computer-based internet CBT IKBT" sourceRef="GW_G17" targetRef="ST_IKBT"/>
+    <bpmn:sequenceFlow id="F_G17_Physical" name="Structured group physical activity program" sourceRef="GW_G17" targetRef="UT_PhysAct"/>
+    <bpmn:sequenceFlow id="F_SelfHelp_G17J" sourceRef="UT_SelfHelp" targetRef="GW_G17J"/>
+    <bpmn:sequenceFlow id="F_IKBT_G17J" sourceRef="ST_IKBT" targetRef="GW_G17J"/>
+    <bpmn:sequenceFlow id="F_PhysAct_G17J" sourceRef="UT_PhysAct" targetRef="GW_G17J"/>
+    <bpmn:sequenceFlow id="F_G17J_G18" sourceRef="GW_G17J" targetRef="GW_G18"/>
+    <bpmn:sequenceFlow id="F_GroupCBT_G18" sourceRef="UT_GroupCBT" targetRef="GW_G18"/>
+    <bpmn:sequenceFlow id="F_G18_Yes" name="Pharmacotherapy indicated at Step 2" sourceRef="GW_G18" targetRef="UT_PharmaS2"/>
+    <bpmn:sequenceFlow id="F_G18_No" name="Pharmacotherapy not indicated at Step 2" sourceRef="GW_G18" targetRef="SCR_ScoreS2"/>
+    <bpmn:sequenceFlow id="F_PharmaS2_ScoreS2" sourceRef="UT_PharmaS2" targetRef="SCR_ScoreS2"/>
+    <bpmn:sequenceFlow id="F_ScoreS2_EvalS2" sourceRef="SCR_ScoreS2" targetRef="UT_EvalS2"/>
+    <bpmn:sequenceFlow id="F_EvalS2_G19" sourceRef="UT_EvalS2" targetRef="GW_G19"/>
+    <bpmn:sequenceFlow id="F_G19_Improve" name="Adequate improvement - transition to relapse prevention" sourceRef="GW_G19" targetRef="GW_G29"/>
+    <bpmn:sequenceFlow id="F_G19_NoImprove" name="Inadequate improvement - escalate to Step 3" sourceRef="GW_G19" targetRef="GW_G20"/>
+    <bpmn:sequenceFlow id="F_G20_Accept" name="Patient accepts pharmacotherapy" sourceRef="GW_G20" targetRef="UT_PharmaS3"/>
+    <bpmn:sequenceFlow id="F_G20_Refuse" name="Patient refuses pharmacotherapy" sourceRef="GW_G20" targetRef="GW_G22"/>
+    <bpmn:sequenceFlow id="F_PharmaS3_G22" sourceRef="UT_PharmaS3" targetRef="GW_G22"/>
+    <bpmn:sequenceFlow id="F_G22_FirstLine" name="First-line therapy available and acceptable" sourceRef="GW_G22" targetRef="GW_G21"/>
+    <bpmn:sequenceFlow id="F_G22_AltLine" name="First-line unavailable or refused - alternative therapy" sourceRef="GW_G22" targetRef="UT_SuppCouns"/>
+    <bpmn:sequenceFlow id="F_G21_CBT" name="Individual CBT selected" sourceRef="GW_G21" targetRef="UT_CBT"/>
+    <bpmn:sequenceFlow id="F_G21_IPT" name="Individual IPT selected" sourceRef="GW_G21" targetRef="UT_IPT"/>
+    <bpmn:sequenceFlow id="F_G21_BA" name="Behavioural activation selected" sourceRef="GW_G21" targetRef="UT_BA"/>
+    <bpmn:sequenceFlow id="F_G21_Family" name="Couple or family therapy selected" sourceRef="GW_G21" targetRef="UT_FamilyTher"/>
+    <bpmn:sequenceFlow id="F_CBT_ScoreS3" sourceRef="UT_CBT" targetRef="SCR_ScoreS3"/>
+    <bpmn:sequenceFlow id="F_IPT_ScoreS3" sourceRef="UT_IPT" targetRef="SCR_ScoreS3"/>
+    <bpmn:sequenceFlow id="F_BA_ScoreS3" sourceRef="UT_BA" targetRef="SCR_ScoreS3"/>
+    <bpmn:sequenceFlow id="F_FamilyTher_ScoreS3" sourceRef="UT_FamilyTher" targetRef="SCR_ScoreS3"/>
+    <bpmn:sequenceFlow id="F_SuppCouns_ScoreS3" sourceRef="UT_SuppCouns" targetRef="SCR_ScoreS3"/>
+    <bpmn:sequenceFlow id="F_ScoreS3_G23" sourceRef="SCR_ScoreS3" targetRef="GW_G23"/>
+    <bpmn:sequenceFlow id="F_G23_Improve" name="Significant improvement - continue psychotherapy" sourceRef="GW_G23" targetRef="UT_EvalS3"/>
+    <bpmn:sequenceFlow id="F_G23_AddPharma" name="Insufficient improvement - add pharmacotherapy" sourceRef="GW_G23" targetRef="UT_AddPharma"/>
+    <bpmn:sequenceFlow id="F_AddPharma_EvalS3" sourceRef="UT_AddPharma" targetRef="UT_EvalS3"/>
+    <bpmn:sequenceFlow id="F_EvalS3_G24" sourceRef="UT_EvalS3" targetRef="GW_G24"/>
+    <bpmn:sequenceFlow id="F_G24_Improve" name="Adequate improvement at Step 3" sourceRef="GW_G24" targetRef="GW_G29"/>
+    <bpmn:sequenceFlow id="F_G24_NoImprove" name="Inadequate improvement - review combined response" sourceRef="GW_G24" targetRef="GW_G25"/>
+    <bpmn:sequenceFlow id="F_G25_Improve" name="Adequate response to combined treatment" sourceRef="GW_G25" targetRef="GW_G29"/>
+    <bpmn:sequenceFlow id="F_G25_NoImprove" name="Inadequate response - escalate to Step 4" sourceRef="GW_G25" targetRef="UT_ChangeAppr"/>
+    <bpmn:sequenceFlow id="F_ChangeAppr_S4Ass" sourceRef="UT_ChangeAppr" targetRef="UT_S4Assess"/>
+    <bpmn:sequenceFlow id="F_S4Ass_G28" sourceRef="UT_S4Assess" targetRef="GW_G28"/>
+    <bpmn:sequenceFlow id="F_G28_ReIndicate" name="Previous treatment inadequate or non-adhered" sourceRef="GW_G28" targetRef="UT_ReIndicate"/>
+    <bpmn:sequenceFlow id="F_G28_NewTreat" name="Previous treatment adequate - proceed to new selection" sourceRef="GW_G28" targetRef="GW_G27"/>
+    <bpmn:sequenceFlow id="F_ReIndicate_G27" sourceRef="UT_ReIndicate" targetRef="GW_G27"/>
+    <bpmn:sequenceFlow id="F_G27_ECT" name="ECT indicated - treatment-resistant or severe" sourceRef="GW_G27" targetRef="UT_ECT"/>
+    <bpmn:sequenceFlow id="F_G27_NoECT" name="ECT not indicated - continue pharmacological treatment" sourceRef="GW_G27" targetRef="GW_S4Join"/>
+    <bpmn:sequenceFlow id="F_ECT_S4Join" sourceRef="UT_ECT" targetRef="GW_S4Join"/>
+    <bpmn:sequenceFlow id="F_S4Join_G29" name="Step 4 complete - assess relapse risk" sourceRef="GW_S4Join" targetRef="GW_G29"/>
+    <bpmn:sequenceFlow id="F_G29_High" name="Significant relapse risk identified" sourceRef="GW_G29" targetRef="GW_G33"/>
+    <bpmn:sequenceFlow id="F_G29_Low" name="Low relapse risk - proceed to termination review" sourceRef="GW_G29" targetRef="UT_EvalTerm"/>
+    <bpmn:sequenceFlow id="F_G33_Yes" name="Formal maintenance treatment indicated" sourceRef="GW_G33" targetRef="GW_G30"/>
+    <bpmn:sequenceFlow id="F_G33_No" name="Maintenance not mandated - standard pharmacotherapy" sourceRef="GW_G33" targetRef="UT_MaintPharma"/>
+    <bpmn:sequenceFlow id="F_G30_MBCT" name="Three or more prior episodes in remission - MBCT indicated" sourceRef="GW_G30" targetRef="UT_MBCT"/>
+    <bpmn:sequenceFlow id="F_G30_CBT_IPT" name="Fewer than three episodes - CBT or IPT pathway" sourceRef="GW_G30" targetRef="GW_G31"/>
+    <bpmn:sequenceFlow id="F_G31_RelapsePT" name="Relapsed on medication or significant residual symptoms" sourceRef="GW_G31" targetRef="UT_RelPrevPT"/>
+    <bpmn:sequenceFlow id="F_G31_Standard" name="No relapse on medication - standard maintenance pharmacotherapy" sourceRef="GW_G31" targetRef="UT_MaintPharma"/>
+    <bpmn:sequenceFlow id="F_MBCT_G32" sourceRef="UT_MBCT" targetRef="GW_G32"/>
+    <bpmn:sequenceFlow id="F_RelPrevPT_G32" sourceRef="UT_RelPrevPT" targetRef="GW_G32"/>
+    <bpmn:sequenceFlow id="F_MaintPharma_G32" sourceRef="UT_MaintPharma" targetRef="GW_G32"/>
+    <bpmn:sequenceFlow id="F_G32_Extend" name="Extended pharmacotherapy continuation indicated" sourceRef="GW_G32" targetRef="UT_MaintMon"/>
+    <bpmn:sequenceFlow id="F_G32_Taper" name="Pharmacotherapy tapering and discontinuation planned" sourceRef="GW_G32" targetRef="UT_MaintMon"/>
+    <bpmn:sequenceFlow id="F_MaintMon_RelPrevDisc" sourceRef="UT_MaintMon" targetRef="UT_RelPrevDisc"/>
+    <bpmn:sequenceFlow id="F_RelPrevDisc_EvalTerm" sourceRef="UT_RelPrevDisc" targetRef="UT_EvalTerm"/>
+    <bpmn:sequenceFlow id="F_EvalTerm_G34" sourceRef="UT_EvalTerm" targetRef="GW_G34"/>
+    <bpmn:sequenceFlow id="F_G34_Terminate" name="Patient stabilised - proceed to treatment termination" sourceRef="GW_G34" targetRef="UT_Catamn"/>
+    <bpmn:sequenceFlow id="F_G34_Continue" name="Not yet stabilised - continue treatment" sourceRef="GW_G34" targetRef="UT_ContTreat"/>
+    <bpmn:sequenceFlow id="F_Catamn_EE" sourceRef="UT_Catamn" targetRef="EE_Discharge"/>
+    <bpmn:sequenceFlow id="F_ContTreat_EE" sourceRef="UT_ContTreat" targetRef="EE_Maintenance"/>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_0hbbe8d">
+      <bpmndi:BPMNShape id="SE_1_di" bpmnElement="SE_1"><dc:Bounds x="152" y="462" width="36" height="36"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G01_di" bpmnElement="GW_G01" isMarkerVisible="true"><dc:Bounds x="245" y="455" width="50" height="50"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_GPScreen_di" bpmnElement="UT_GPScreen"><dc:Bounds x="360" y="300" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_ExclSomatic_di" bpmnElement="UT_ExclSomatic"><dc:Bounds x="360" y="440" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G02_di" bpmnElement="GW_G02" isMarkerVisible="true"><dc:Bounds x="555" y="455" width="50" height="50"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EE_Somatic_di" bpmnElement="EE_Somatic"><dc:Bounds x="672" y="552" width="36" height="36"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_NotifyGP_di" bpmnElement="UT_NotifyGP"><dc:Bounds x="660" y="440" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_ClinExam_di" bpmnElement="UT_ClinExam"><dc:Bounds x="360" y="600" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_TwoQScreen_di" bpmnElement="UT_TwoQScreen"><dc:Bounds x="840" y="300" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ST_PHQ9_di" bpmnElement="ST_PHQ9"><dc:Bounds x="1020" y="300" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G03_di" bpmnElement="GW_G03" isMarkerVisible="true"><dc:Bounds x="1215" y="315" width="50" height="50"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_ActiveMonNeg_di" bpmnElement="UT_ActiveMonNeg"><dc:Bounds x="1330" y="420" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EE_NoDepr_di" bpmnElement="EE_NoDepr"><dc:Bounds x="1512" y="442" width="36" height="36"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_Psychoed_di" bpmnElement="UT_Psychoed"><dc:Bounds x="1330" y="180" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_DiscProb_di" bpmnElement="UT_DiscProb"><dc:Bounds x="1510" y="180" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_SchedFU_di" bpmnElement="UT_SchedFU"><dc:Bounds x="1690" y="180" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_SuicAss_di" bpmnElement="UT_SuicAss"><dc:Bounds x="1870" y="180" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G10_di" bpmnElement="GW_G10" isMarkerVisible="true"><dc:Bounds x="2055" y="195" width="50" height="50"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_SocSupport_di" bpmnElement="UT_SocSupport"><dc:Bounds x="2170" y="60" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G11_di" bpmnElement="GW_G11" isMarkerVisible="true"><dc:Bounds x="2355" y="75" width="50" height="50"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_InformFamily_di" bpmnElement="UT_InformFamily"><dc:Bounds x="2470" y="40" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_LimitMed_di" bpmnElement="UT_LimitMed"><dc:Bounds x="2650" y="40" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_IncrContact_di" bpmnElement="UT_IncrContact"><dc:Bounds x="2830" y="40" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_UrgRef_di" bpmnElement="UT_UrgRef"><dc:Bounds x="2470" y="180" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_DecHosp_di" bpmnElement="UT_DecHosp"><dc:Bounds x="2650" y="180" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G26_di" bpmnElement="GW_G26" isMarkerVisible="true"><dc:Bounds x="2835" y="195" width="50" height="50"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_InpatTreat_di" bpmnElement="UT_InpatTreat"><dc:Bounds x="2950" y="180" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EE_Hosp_di" bpmnElement="EE_Hosp"><dc:Bounds x="3132" y="202" width="36" height="36"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G04_di" bpmnElement="GW_G04" isMarkerVisible="true"><dc:Bounds x="3055" y="315" width="50" height="50"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_Refer_di" bpmnElement="UT_Refer"><dc:Bounds x="3170" y="300" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_PsychoDiag_di" bpmnElement="UT_PsychoDiag"><dc:Bounds x="3350" y="300" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G05_di" bpmnElement="GW_G05" isMarkerVisible="true"><dc:Bounds x="3535" y="315" width="50" height="50"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_ComplexExam_di" bpmnElement="UT_ComplexExam"><dc:Bounds x="3650" y="180" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G06_di" bpmnElement="GW_G06" isMarkerVisible="true"><dc:Bounds x="3835" y="315" width="50" height="50"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_StressReact_di" bpmnElement="UT_StressReact"><dc:Bounds x="3950" y="180" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BRT_Diag_di" bpmnElement="BRT_Diag"><dc:Bounds x="4130" y="300" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_DiffDiag_di" bpmnElement="UT_DiffDiag"><dc:Bounds x="4310" y="300" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G08_di" bpmnElement="GW_G08" isMarkerVisible="true"><dc:Bounds x="4495" y="315" width="50" height="50"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EE_Bipolar_di" bpmnElement="EE_Bipolar"><dc:Bounds x="4602" y="412" width="36" height="36"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_FuncImp_di" bpmnElement="UT_FuncImp"><dc:Bounds x="4610" y="300" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_TreatHist_di" bpmnElement="UT_TreatHist"><dc:Bounds x="4790" y="300" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G09_di" bpmnElement="GW_G09" isMarkerVisible="true"><dc:Bounds x="4975" y="315" width="50" height="50"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G07_di" bpmnElement="GW_G07" isMarkerVisible="true"><dc:Bounds x="5095" y="195" width="50" height="50"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_Consent_di" bpmnElement="UT_Consent"><dc:Bounds x="5210" y="300" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BRT_StepDet_di" bpmnElement="BRT_StepDet"><dc:Bounds x="5390" y="300" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_DiscTreat_di" bpmnElement="UT_DiscTreat"><dc:Bounds x="5570" y="300" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_SelTreat_di" bpmnElement="UT_SelTreat"><dc:Bounds x="5750" y="300" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BRT_RelRisk_di" bpmnElement="BRT_RelRisk"><dc:Bounds x="5930" y="300" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G12_di" bpmnElement="GW_G12" isMarkerVisible="true"><dc:Bounds x="6115" y="315" width="50" height="50"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_S1Mon_di" bpmnElement="UT_S1Mon"><dc:Bounds x="6230" y="60" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_S1Rev_di" bpmnElement="UT_S1Rev"><dc:Bounds x="6410" y="60" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G14_di" bpmnElement="GW_G14" isMarkerVisible="true"><dc:Bounds x="6595" y="75" width="50" height="50"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G15_di" bpmnElement="GW_G15" isMarkerVisible="true"><dc:Bounds x="6715" y="75" width="50" height="50"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_S1Cont_di" bpmnElement="UT_S1Cont"><dc:Bounds x="6830" y="60" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G13_di" bpmnElement="GW_G13" isMarkerVisible="true"><dc:Bounds x="6235" y="315" width="50" height="50"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_SleepHyg_di" bpmnElement="UT_SleepHyg"><dc:Bounds x="6350" y="300" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G16_di" bpmnElement="GW_G16" isMarkerVisible="true"><dc:Bounds x="6535" y="315" width="50" height="50"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G17_di" bpmnElement="GW_G17" isMarkerVisible="true"><dc:Bounds x="6655" y="315" width="50" height="50"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_SelfHelp_di" bpmnElement="UT_SelfHelp"><dc:Bounds x="6770" y="180" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ST_IKBT_di" bpmnElement="ST_IKBT"><dc:Bounds x="6770" y="300" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_PhysAct_di" bpmnElement="UT_PhysAct"><dc:Bounds x="6770" y="420" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G17J_di" bpmnElement="GW_G17J" isMarkerVisible="true"><dc:Bounds x="6955" y="315" width="50" height="50"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_GroupCBT_di" bpmnElement="UT_GroupCBT"><dc:Bounds x="6655" y="450" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G18_di" bpmnElement="GW_G18" isMarkerVisible="true"><dc:Bounds x="7075" y="315" width="50" height="50"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_PharmaS2_di" bpmnElement="UT_PharmaS2"><dc:Bounds x="7190" y="180" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="SCR_ScoreS2_di" bpmnElement="SCR_ScoreS2"><dc:Bounds x="7370" y="300" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_EvalS2_di" bpmnElement="UT_EvalS2"><dc:Bounds x="7550" y="300" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G19_di" bpmnElement="GW_G19" isMarkerVisible="true"><dc:Bounds x="7735" y="315" width="50" height="50"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G20_di" bpmnElement="GW_G20" isMarkerVisible="true"><dc:Bounds x="7855" y="315" width="50" height="50"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_PharmaS3_di" bpmnElement="UT_PharmaS3"><dc:Bounds x="7970" y="180" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G22_di" bpmnElement="GW_G22" isMarkerVisible="true"><dc:Bounds x="8155" y="195" width="50" height="50"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G21_di" bpmnElement="GW_G21" isMarkerVisible="true"><dc:Bounds x="8275" y="195" width="50" height="50"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_CBT_di" bpmnElement="UT_CBT"><dc:Bounds x="8390" y="60" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_IPT_di" bpmnElement="UT_IPT"><dc:Bounds x="8390" y="180" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_BA_di" bpmnElement="UT_BA"><dc:Bounds x="8390" y="300" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_FamilyTher_di" bpmnElement="UT_FamilyTher"><dc:Bounds x="8390" y="420" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_SuppCouns_di" bpmnElement="UT_SuppCouns"><dc:Bounds x="8150" y="360" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="SCR_ScoreS3_di" bpmnElement="SCR_ScoreS3"><dc:Bounds x="8570" y="300" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G23_di" bpmnElement="GW_G23" isMarkerVisible="true"><dc:Bounds x="8755" y="315" width="50" height="50"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_AddPharma_di" bpmnElement="UT_AddPharma"><dc:Bounds x="8870" y="180" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_EvalS3_di" bpmnElement="UT_EvalS3"><dc:Bounds x="9050" y="300" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G24_di" bpmnElement="GW_G24" isMarkerVisible="true"><dc:Bounds x="9235" y="315" width="50" height="50"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G25_di" bpmnElement="GW_G25" isMarkerVisible="true"><dc:Bounds x="9355" y="315" width="50" height="50"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_ChangeAppr_di" bpmnElement="UT_ChangeAppr"><dc:Bounds x="9470" y="300" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_S4Assess_di" bpmnElement="UT_S4Assess"><dc:Bounds x="9650" y="300" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G28_di" bpmnElement="GW_G28" isMarkerVisible="true"><dc:Bounds x="9835" y="315" width="50" height="50"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_ReIndicate_di" bpmnElement="UT_ReIndicate"><dc:Bounds x="9950" y="180" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G27_di" bpmnElement="GW_G27" isMarkerVisible="true"><dc:Bounds x="10135" y="315" width="50" height="50"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_ECT_di" bpmnElement="UT_ECT"><dc:Bounds x="10250" y="180" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_S4Join_di" bpmnElement="GW_S4Join" isMarkerVisible="true"><dc:Bounds x="10435" y="315" width="50" height="50"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G29_di" bpmnElement="GW_G29" isMarkerVisible="true"><dc:Bounds x="10615" y="315" width="50" height="50"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G33_di" bpmnElement="GW_G33" isMarkerVisible="true"><dc:Bounds x="10735" y="315" width="50" height="50"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G30_di" bpmnElement="GW_G30" isMarkerVisible="true"><dc:Bounds x="10855" y="195" width="50" height="50"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_MBCT_di" bpmnElement="UT_MBCT"><dc:Bounds x="10970" y="60" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G31_di" bpmnElement="GW_G31" isMarkerVisible="true"><dc:Bounds x="10975" y="195" width="50" height="50"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_RelPrevPT_di" bpmnElement="UT_RelPrevPT"><dc:Bounds x="11090" y="180" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_MaintPharma_di" bpmnElement="UT_MaintPharma"><dc:Bounds x="10850" y="300" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G32_di" bpmnElement="GW_G32" isMarkerVisible="true"><dc:Bounds x="11275" y="195" width="50" height="50"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_MaintMon_di" bpmnElement="UT_MaintMon"><dc:Bounds x="11390" y="180" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_RelPrevDisc_di" bpmnElement="UT_RelPrevDisc"><dc:Bounds x="11570" y="180" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_EvalTerm_di" bpmnElement="UT_EvalTerm"><dc:Bounds x="11750" y="300" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G34_di" bpmnElement="GW_G34" isMarkerVisible="true"><dc:Bounds x="11935" y="315" width="50" height="50"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_Catamn_di" bpmnElement="UT_Catamn"><dc:Bounds x="12050" y="300" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_ContTreat_di" bpmnElement="UT_ContTreat"><dc:Bounds x="12050" y="420" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EE_Discharge_di" bpmnElement="EE_Discharge"><dc:Bounds x="12232" y="322" width="36" height="36"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EE_Maintenance_di" bpmnElement="EE_Maintenance"><dc:Bounds x="12232" y="442" width="36" height="36"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="F_SE1_G01_di" bpmnElement="F_SE1_G01"><di:waypoint x="188" y="480"/><di:waypoint x="245" y="480"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G01_ViaGP_di" bpmnElement="F_G01_ViaGP"><di:waypoint x="270" y="455"/><di:waypoint x="270" y="340"/><di:waypoint x="360" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G01_ViaSpec_di" bpmnElement="F_G01_ViaSpec"><di:waypoint x="295" y="480"/><di:waypoint x="360" y="480"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G01_Direct_di" bpmnElement="F_G01_Direct"><di:waypoint x="270" y="505"/><di:waypoint x="270" y="640"/><di:waypoint x="360" y="640"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_GPScreen_T02_di" bpmnElement="F_GPScreen_T02"><di:waypoint x="480" y="340"/><di:waypoint x="660" y="340"/><di:waypoint x="660" y="340"/><di:waypoint x="840" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_ExclSomatic_G02_di" bpmnElement="F_ExclSomatic_G02"><di:waypoint x="480" y="480"/><di:waypoint x="555" y="480"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G02_YesSomatic_di" bpmnElement="F_G02_YesSomatic"><di:waypoint x="580" y="505"/><di:waypoint x="580" y="570"/><di:waypoint x="672" y="570"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G02_NoSomatic_di" bpmnElement="F_G02_NoSomatic"><di:waypoint x="605" y="480"/><di:waypoint x="660" y="480"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_NotifyGP_T02_di" bpmnElement="F_NotifyGP_T02"><di:waypoint x="780" y="480"/><di:waypoint x="810" y="480"/><di:waypoint x="810" y="340"/><di:waypoint x="840" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_TwoQ_T03_di" bpmnElement="F_TwoQ_T03"><di:waypoint x="960" y="340"/><di:waypoint x="1020" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_PHQ9_G03_di" bpmnElement="F_PHQ9_G03"><di:waypoint x="1140" y="340"/><di:waypoint x="1215" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G03_Positive_di" bpmnElement="F_G03_Positive"><di:waypoint x="1240" y="315"/><di:waypoint x="1240" y="220"/><di:waypoint x="1330" y="220"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G03_Negative_di" bpmnElement="F_G03_Negative"><di:waypoint x="1240" y="365"/><di:waypoint x="1240" y="460"/><di:waypoint x="1330" y="460"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_MonNeg_EE_di" bpmnElement="F_MonNeg_EE"><di:waypoint x="1450" y="460"/><di:waypoint x="1512" y="460"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Psychoed_DiscProb_di" bpmnElement="F_Psychoed_DiscProb"><di:waypoint x="1450" y="220"/><di:waypoint x="1510" y="220"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_DiscProb_SchedFU_di" bpmnElement="F_DiscProb_SchedFU"><di:waypoint x="1630" y="220"/><di:waypoint x="1690" y="220"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_SchedFU_SuicAss_di" bpmnElement="F_SchedFU_SuicAss"><di:waypoint x="1810" y="220"/><di:waypoint x="1870" y="220"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_ClinExam_SuicAss_di" bpmnElement="F_ClinExam_SuicAss"><di:waypoint x="480" y="640"/><di:waypoint x="1930" y="640"/><di:waypoint x="1930" y="260"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_SuicAss_G10_di" bpmnElement="F_SuicAss_G10"><di:waypoint x="1990" y="220"/><di:waypoint x="2055" y="220"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G10_SuicYes_di" bpmnElement="F_G10_SuicYes"><di:waypoint x="2080" y="195"/><di:waypoint x="2080" y="100"/><di:waypoint x="2170" y="100"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G10_SuicNo_di" bpmnElement="F_G10_SuicNo"><di:waypoint x="2105" y="220"/><di:waypoint x="3080" y="220"/><di:waypoint x="3080" y="315"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_SocSupp_G11_di" bpmnElement="F_SocSupp_G11"><di:waypoint x="2290" y="100"/><di:waypoint x="2355" y="100"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G11_Moderate_di" bpmnElement="F_G11_Moderate"><di:waypoint x="2380" y="75"/><di:waypoint x="2380" y="80"/><di:waypoint x="2470" y="80"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G11_High_di" bpmnElement="F_G11_High"><di:waypoint x="2380" y="125"/><di:waypoint x="2380" y="220"/><di:waypoint x="2470" y="220"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_InformFam_LimitMed_di" bpmnElement="F_InformFam_LimitMed"><di:waypoint x="2590" y="80"/><di:waypoint x="2650" y="80"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_LimitMed_IncrContact_di" bpmnElement="F_LimitMed_IncrContact"><di:waypoint x="2770" y="80"/><di:waypoint x="2830" y="80"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_IncrContact_G04_di" bpmnElement="F_IncrContact_G04"><di:waypoint x="2950" y="80"/><di:waypoint x="3080" y="80"/><di:waypoint x="3080" y="315"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_UrgRef_DecHosp_di" bpmnElement="F_UrgRef_DecHosp"><di:waypoint x="2590" y="220"/><di:waypoint x="2650" y="220"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_DecHosp_G26_di" bpmnElement="F_DecHosp_G26"><di:waypoint x="2770" y="220"/><di:waypoint x="2835" y="220"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G26_Yes_di" bpmnElement="F_G26_Yes"><di:waypoint x="2885" y="220"/><di:waypoint x="2950" y="220"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G26_No_di" bpmnElement="F_G26_No"><di:waypoint x="2860" y="245"/><di:waypoint x="2860" y="340"/><di:waypoint x="3055" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Inpat_EE_di" bpmnElement="F_Inpat_EE"><di:waypoint x="3070" y="220"/><di:waypoint x="3132" y="220"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G04_NotComp_di" bpmnElement="F_G04_NotComp"><di:waypoint x="3105" y="340"/><di:waypoint x="3170" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G04_Comp_di" bpmnElement="F_G04_Comp"><di:waypoint x="3080" y="365"/><di:waypoint x="3080" y="420"/><di:waypoint x="3410" y="420"/><di:waypoint x="3410" y="380"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Refer_ClinExam_di" bpmnElement="F_Refer_ClinExam"><di:waypoint x="3290" y="340"/><di:waypoint x="3320" y="340"/><di:waypoint x="3320" y="640"/><di:waypoint x="420" y="640"/><di:waypoint x="420" y="640"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_PsychoDiag_G05_di" bpmnElement="F_PsychoDiag_G05"><di:waypoint x="3470" y="340"/><di:waypoint x="3535" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G05_Yes_di" bpmnElement="F_G05_Yes"><di:waypoint x="3560" y="315"/><di:waypoint x="3560" y="220"/><di:waypoint x="3650" y="220"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G05_No_di" bpmnElement="F_G05_No"><di:waypoint x="3585" y="340"/><di:waypoint x="3835" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_ComplexExam_G06_di" bpmnElement="F_ComplexExam_G06"><di:waypoint x="3770" y="220"/><di:waypoint x="3860" y="220"/><di:waypoint x="3860" y="315"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G06_Yes_di" bpmnElement="F_G06_Yes"><di:waypoint x="3860" y="315"/><di:waypoint x="3860" y="220"/><di:waypoint x="3950" y="220"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G06_No_di" bpmnElement="F_G06_No"><di:waypoint x="3885" y="340"/><di:waypoint x="4130" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_StressReact_Diag_di" bpmnElement="F_StressReact_Diag"><di:waypoint x="4070" y="220"/><di:waypoint x="4190" y="220"/><di:waypoint x="4190" y="300"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Diag_DiffDiag_di" bpmnElement="F_Diag_DiffDiag"><di:waypoint x="4250" y="340"/><di:waypoint x="4310" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_DiffDiag_G08_di" bpmnElement="F_DiffDiag_G08"><di:waypoint x="4430" y="340"/><di:waypoint x="4495" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G08_Bipolar_di" bpmnElement="F_G08_Bipolar"><di:waypoint x="4520" y="365"/><di:waypoint x="4520" y="430"/><di:waypoint x="4602" y="430"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G08_Depressive_di" bpmnElement="F_G08_Depressive"><di:waypoint x="4545" y="340"/><di:waypoint x="4610" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_FuncImp_TreatHist_di" bpmnElement="F_FuncImp_TreatHist"><di:waypoint x="4730" y="340"/><di:waypoint x="4790" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_TreatHist_G09_di" bpmnElement="F_TreatHist_G09"><di:waypoint x="4910" y="340"/><di:waypoint x="4975" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G09_Mild_di" bpmnElement="F_G09_Mild"><di:waypoint x="5000" y="315"/><di:waypoint x="5000" y="220"/><di:waypoint x="5095" y="220"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G09_Moderate_di" bpmnElement="F_G09_Moderate"><di:waypoint x="5025" y="340"/><di:waypoint x="5120" y="340"/><di:waypoint x="5120" y="245"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G09_Severe_di" bpmnElement="F_G09_Severe"><di:waypoint x="5025" y="340"/><di:waypoint x="5210" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G09_SeverePsy_di" bpmnElement="F_G09_SeverePsy"><di:waypoint x="5000" y="365"/><di:waypoint x="5000" y="440"/><di:waypoint x="5270" y="440"/><di:waypoint x="5270" y="380"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G07_First_di" bpmnElement="F_G07_First"><di:waypoint x="5145" y="220"/><di:waypoint x="5270" y="220"/><di:waypoint x="5270" y="300"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G07_Recurrent_di" bpmnElement="F_G07_Recurrent"><di:waypoint x="5120" y="245"/><di:waypoint x="5120" y="360"/><di:waypoint x="5210" y="360"/><di:waypoint x="5210" y="380"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Consent_StepDet_di" bpmnElement="F_Consent_StepDet"><di:waypoint x="5330" y="340"/><di:waypoint x="5390" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_StepDet_DiscTreat_di" bpmnElement="F_StepDet_DiscTreat"><di:waypoint x="5510" y="340"/><di:waypoint x="5570" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_DiscTreat_SelTreat_di" bpmnElement="F_DiscTreat_SelTreat"><di:waypoint x="5690" y="340"/><di:waypoint x="5750" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_SelTreat_RelRisk_di" bpmnElement="F_SelTreat_RelRisk"><di:waypoint x="5870" y="340"/><di:waypoint x="5930" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_RelRisk_G12_di" bpmnElement="F_RelRisk_G12"><di:waypoint x="6050" y="340"/><di:waypoint x="6115" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G12_S1_di" bpmnElement="F_G12_S1"><di:waypoint x="6140" y="315"/><di:waypoint x="6140" y="100"/><di:waypoint x="6230" y="100"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G12_S2_di" bpmnElement="F_G12_S2"><di:waypoint x="6165" y="340"/><di:waypoint x="6235" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G12_S3_di" bpmnElement="F_G12_S3"><di:waypoint x="6140" y="365"/><di:waypoint x="6140" y="500"/><di:waypoint x="7880" y="500"/><di:waypoint x="7880" y="365"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G12_S4_di" bpmnElement="F_G12_S4"><di:waypoint x="6140" y="365"/><di:waypoint x="6140" y="560"/><di:waypoint x="9710" y="560"/><di:waypoint x="9710" y="380"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_S1Mon_S1Rev_di" bpmnElement="F_S1Mon_S1Rev"><di:waypoint x="6350" y="100"/><di:waypoint x="6410" y="100"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_S1Rev_G14_di" bpmnElement="F_S1Rev_G14"><di:waypoint x="6530" y="100"/><di:waypoint x="6595" y="100"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G14_Improve_di" bpmnElement="F_G14_Improve"><di:waypoint x="6645" y="100"/><di:waypoint x="6715" y="100"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G14_NoImprove_di" bpmnElement="F_G14_NoImprove"><di:waypoint x="6620" y="125"/><di:waypoint x="6620" y="340"/><di:waypoint x="6235" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G15_Yes_di" bpmnElement="F_G15_Yes"><di:waypoint x="6765" y="100"/><di:waypoint x="6830" y="100"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G15_No_di" bpmnElement="F_G15_No"><di:waypoint x="6740" y="125"/><di:waypoint x="6740" y="340"/><di:waypoint x="6260" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_S1Cont_G29_di" bpmnElement="F_S1Cont_G29"><di:waypoint x="6950" y="100"/><di:waypoint x="10640" y="100"/><di:waypoint x="10640" y="315"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G13_DeprPrio_di" bpmnElement="F_G13_DeprPrio"><di:waypoint x="6285" y="340"/><di:waypoint x="6350" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G13_AnxPrio_di" bpmnElement="F_G13_AnxPrio"><di:waypoint x="6260" y="365"/><di:waypoint x="6260" y="400"/><di:waypoint x="6410" y="400"/><di:waypoint x="6410" y="380"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_SleepHyg_G16_di" bpmnElement="F_SleepHyg_G16"><di:waypoint x="6470" y="340"/><di:waypoint x="6535" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G16_Accept_di" bpmnElement="F_G16_Accept"><di:waypoint x="6585" y="340"/><di:waypoint x="6655" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G16_Refuse_di" bpmnElement="F_G16_Refuse"><di:waypoint x="6560" y="365"/><di:waypoint x="6560" y="490"/><di:waypoint x="6655" y="490"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G17_SelfHelp_di" bpmnElement="F_G17_SelfHelp"><di:waypoint x="6680" y="315"/><di:waypoint x="6680" y="220"/><di:waypoint x="6770" y="220"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G17_IKBT_di" bpmnElement="F_G17_IKBT"><di:waypoint x="6705" y="340"/><di:waypoint x="6770" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G17_Physical_di" bpmnElement="F_G17_Physical"><di:waypoint x="6680" y="365"/><di:waypoint x="6680" y="460"/><di:waypoint x="6770" y="460"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_SelfHelp_G17J_di" bpmnElement="F_SelfHelp_G17J"><di:waypoint x="6890" y="220"/><di:waypoint x="6980" y="220"/><di:waypoint x="6980" y="315"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_IKBT_G17J_di" bpmnElement="F_IKBT_G17J"><di:waypoint x="6890" y="340"/><di:waypoint x="6955" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_PhysAct_G17J_di" bpmnElement="F_PhysAct_G17J"><di:waypoint x="6890" y="460"/><di:waypoint x="6980" y="460"/><di:waypoint x="6980" y="365"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G17J_G18_di" bpmnElement="F_G17J_G18"><di:waypoint x="7005" y="340"/><di:waypoint x="7075" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_GroupCBT_G18_di" bpmnElement="F_GroupCBT_G18"><di:waypoint x="6775" y="490"/><di:waypoint x="7100" y="490"/><di:waypoint x="7100" y="365"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G18_Yes_di" bpmnElement="F_G18_Yes"><di:waypoint x="7100" y="315"/><di:waypoint x="7100" y="220"/><di:waypoint x="7190" y="220"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G18_No_di" bpmnElement="F_G18_No"><di:waypoint x="7125" y="340"/><di:waypoint x="7370" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_PharmaS2_ScoreS2_di" bpmnElement="F_PharmaS2_ScoreS2"><di:waypoint x="7310" y="220"/><di:waypoint x="7430" y="220"/><di:waypoint x="7430" y="300"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_ScoreS2_EvalS2_di" bpmnElement="F_ScoreS2_EvalS2"><di:waypoint x="7490" y="340"/><di:waypoint x="7550" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_EvalS2_G19_di" bpmnElement="F_EvalS2_G19"><di:waypoint x="7670" y="340"/><di:waypoint x="7735" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G19_Improve_di" bpmnElement="F_G19_Improve"><di:waypoint x="7760" y="315"/><di:waypoint x="7760" y="680"/><di:waypoint x="10640" y="680"/><di:waypoint x="10640" y="365"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G19_NoImprove_di" bpmnElement="F_G19_NoImprove"><di:waypoint x="7785" y="340"/><di:waypoint x="7855" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G20_Accept_di" bpmnElement="F_G20_Accept"><di:waypoint x="7880" y="315"/><di:waypoint x="7880" y="220"/><di:waypoint x="7970" y="220"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G20_Refuse_di" bpmnElement="F_G20_Refuse"><di:waypoint x="7905" y="340"/><di:waypoint x="8000" y="340"/><di:waypoint x="8000" y="280"/><di:waypoint x="8180" y="280"/><di:waypoint x="8180" y="245"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_PharmaS3_G22_di" bpmnElement="F_PharmaS3_G22"><di:waypoint x="8090" y="220"/><di:waypoint x="8155" y="220"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G22_FirstLine_di" bpmnElement="F_G22_FirstLine"><di:waypoint x="8205" y="220"/><di:waypoint x="8275" y="220"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G22_AltLine_di" bpmnElement="F_G22_AltLine"><di:waypoint x="8180" y="245"/><di:waypoint x="8180" y="400"/><di:waypoint x="8150" y="400"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G21_CBT_di" bpmnElement="F_G21_CBT"><di:waypoint x="8300" y="195"/><di:waypoint x="8300" y="100"/><di:waypoint x="8390" y="100"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G21_IPT_di" bpmnElement="F_G21_IPT"><di:waypoint x="8325" y="220"/><di:waypoint x="8390" y="220"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G21_BA_di" bpmnElement="F_G21_BA"><di:waypoint x="8300" y="245"/><di:waypoint x="8300" y="340"/><di:waypoint x="8390" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G21_Family_di" bpmnElement="F_G21_Family"><di:waypoint x="8300" y="245"/><di:waypoint x="8300" y="460"/><di:waypoint x="8390" y="460"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_CBT_ScoreS3_di" bpmnElement="F_CBT_ScoreS3"><di:waypoint x="8510" y="100"/><di:waypoint x="8630" y="100"/><di:waypoint x="8630" y="300"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_IPT_ScoreS3_di" bpmnElement="F_IPT_ScoreS3"><di:waypoint x="8510" y="220"/><di:waypoint x="8570" y="220"/><di:waypoint x="8570" y="300"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_BA_ScoreS3_di" bpmnElement="F_BA_ScoreS3"><di:waypoint x="8510" y="340"/><di:waypoint x="8570" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_FamilyTher_ScoreS3_di" bpmnElement="F_FamilyTher_ScoreS3"><di:waypoint x="8510" y="460"/><di:waypoint x="8630" y="460"/><di:waypoint x="8630" y="380"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_SuppCouns_ScoreS3_di" bpmnElement="F_SuppCouns_ScoreS3"><di:waypoint x="8270" y="400"/><di:waypoint x="8630" y="400"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_ScoreS3_G23_di" bpmnElement="F_ScoreS3_G23"><di:waypoint x="8690" y="340"/><di:waypoint x="8755" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G23_Improve_di" bpmnElement="F_G23_Improve"><di:waypoint x="8805" y="340"/><di:waypoint x="9050" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G23_AddPharma_di" bpmnElement="F_G23_AddPharma"><di:waypoint x="8780" y="315"/><di:waypoint x="8780" y="220"/><di:waypoint x="8870" y="220"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_AddPharma_EvalS3_di" bpmnElement="F_AddPharma_EvalS3"><di:waypoint x="8990" y="220"/><di:waypoint x="9110" y="220"/><di:waypoint x="9110" y="300"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_EvalS3_G24_di" bpmnElement="F_EvalS3_G24"><di:waypoint x="9170" y="340"/><di:waypoint x="9235" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G24_Improve_di" bpmnElement="F_G24_Improve"><di:waypoint x="9260" y="315"/><di:waypoint x="9260" y="730"/><di:waypoint x="10640" y="730"/><di:waypoint x="10640" y="365"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G24_NoImprove_di" bpmnElement="F_G24_NoImprove"><di:waypoint x="9285" y="340"/><di:waypoint x="9355" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G25_Improve_di" bpmnElement="F_G25_Improve"><di:waypoint x="9380" y="315"/><di:waypoint x="9380" y="770"/><di:waypoint x="10640" y="770"/><di:waypoint x="10640" y="365"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G25_NoImprove_di" bpmnElement="F_G25_NoImprove"><di:waypoint x="9405" y="340"/><di:waypoint x="9470" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_ChangeAppr_S4Ass_di" bpmnElement="F_ChangeAppr_S4Ass"><di:waypoint x="9590" y="340"/><di:waypoint x="9650" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_S4Ass_G28_di" bpmnElement="F_S4Ass_G28"><di:waypoint x="9770" y="340"/><di:waypoint x="9835" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G28_ReIndicate_di" bpmnElement="F_G28_ReIndicate"><di:waypoint x="9860" y="315"/><di:waypoint x="9860" y="220"/><di:waypoint x="9950" y="220"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G28_NewTreat_di" bpmnElement="F_G28_NewTreat"><di:waypoint x="9885" y="340"/><di:waypoint x="10135" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_ReIndicate_G27_di" bpmnElement="F_ReIndicate_G27"><di:waypoint x="10070" y="220"/><di:waypoint x="10160" y="220"/><di:waypoint x="10160" y="315"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G27_ECT_di" bpmnElement="F_G27_ECT"><di:waypoint x="10160" y="315"/><di:waypoint x="10160" y="220"/><di:waypoint x="10250" y="220"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G27_NoECT_di" bpmnElement="F_G27_NoECT"><di:waypoint x="10185" y="340"/><di:waypoint x="10435" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_ECT_S4Join_di" bpmnElement="F_ECT_S4Join"><di:waypoint x="10370" y="220"/><di:waypoint x="10460" y="220"/><di:waypoint x="10460" y="315"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_S4Join_G29_di" bpmnElement="F_S4Join_G29"><di:waypoint x="10485" y="340"/><di:waypoint x="10615" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G29_High_di" bpmnElement="F_G29_High"><di:waypoint x="10665" y="340"/><di:waypoint x="10735" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G29_Low_di" bpmnElement="F_G29_Low"><di:waypoint x="10640" y="365"/><di:waypoint x="10640" y="820"/><di:waypoint x="11810" y="820"/><di:waypoint x="11810" y="380"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G33_Yes_di" bpmnElement="F_G33_Yes"><di:waypoint x="10760" y="315"/><di:waypoint x="10760" y="220"/><di:waypoint x="10855" y="220"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G33_No_di" bpmnElement="F_G33_No"><di:waypoint x="10785" y="340"/><di:waypoint x="10850" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G30_MBCT_di" bpmnElement="F_G30_MBCT"><di:waypoint x="10880" y="195"/><di:waypoint x="10880" y="100"/><di:waypoint x="10970" y="100"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G30_CBT_IPT_di" bpmnElement="F_G30_CBT_IPT"><di:waypoint x="10905" y="220"/><di:waypoint x="10975" y="220"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G31_RelapsePT_di" bpmnElement="F_G31_RelapsePT"><di:waypoint x="11025" y="220"/><di:waypoint x="11090" y="220"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G31_Standard_di" bpmnElement="F_G31_Standard"><di:waypoint x="11000" y="245"/><di:waypoint x="11000" y="340"/><di:waypoint x="10970" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_MBCT_G32_di" bpmnElement="F_MBCT_G32"><di:waypoint x="11090" y="100"/><di:waypoint x="11300" y="100"/><di:waypoint x="11300" y="195"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_RelPrevPT_G32_di" bpmnElement="F_RelPrevPT_G32"><di:waypoint x="11210" y="220"/><di:waypoint x="11275" y="220"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_MaintPharma_G32_di" bpmnElement="F_MaintPharma_G32"><di:waypoint x="10970" y="340"/><di:waypoint x="11300" y="340"/><di:waypoint x="11300" y="245"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G32_Extend_di" bpmnElement="F_G32_Extend"><di:waypoint x="11325" y="220"/><di:waypoint x="11390" y="220"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G32_Taper_di" bpmnElement="F_G32_Taper"><di:waypoint x="11300" y="245"/><di:waypoint x="11300" y="280"/><di:waypoint x="11450" y="280"/><di:waypoint x="11450" y="260"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_MaintMon_RelPrevDisc_di" bpmnElement="F_MaintMon_RelPrevDisc"><di:waypoint x="11510" y="220"/><di:waypoint x="11570" y="220"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_RelPrevDisc_EvalTerm_di" bpmnElement="F_RelPrevDisc_EvalTerm"><di:waypoint x="11690" y="220"/><di:waypoint x="11810" y="220"/><di:waypoint x="11810" y="300"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_EvalTerm_G34_di" bpmnElement="F_EvalTerm_G34"><di:waypoint x="11870" y="340"/><di:waypoint x="11935" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G34_Terminate_di" bpmnElement="F_G34_Terminate"><di:waypoint x="11985" y="340"/><di:waypoint x="12050" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_G34_Continue_di" bpmnElement="F_G34_Continue"><di:waypoint x="11960" y="365"/><di:waypoint x="11960" y="460"/><di:waypoint x="12050" y="460"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Catamn_EE_di" bpmnElement="F_Catamn_EE"><di:waypoint x="12170" y="340"/><di:waypoint x="12232" y="340"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_ContTreat_EE_di" bpmnElement="F_ContTreat_EE"><di:waypoint x="12170" y="460"/><di:waypoint x="12232" y="460"/></bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

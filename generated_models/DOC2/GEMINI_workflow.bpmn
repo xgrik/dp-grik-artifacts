@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1bdj0sq" targetNamespace="http://bpmn.io/schema/bpmn" xmlns:modeler="http://camunda.org/schema/modeler/1.0" exporter="Camunda Modeler" exporterVersion="5.33.1" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.22.0">
+  <bpmn:process id="Process_1wlyh5l" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1" name="Somatic Patient Identified">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    
+    <bpmn:userTask id="UT_InitialScreening" name="Initial Screening for Psychosocial Symptoms">
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+    </bpmn:userTask>
+    
+    <bpmn:exclusiveGateway id="GW_ScreeningResult" name="Screening Result Check">
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_NoSymptoms</bpmn:outgoing>
+      <bpmn:outgoing>Flow_SymptomsSuspected</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    
+    <bpmn:endEvent id="EndEvent_NoSymptoms" name="Routine Monitoring">
+      <bpmn:incoming>Flow_NoSymptoms</bpmn:incoming>
+    </bpmn:endEvent>
+    
+    <bpmn:userTask id="UT_DiagnosticInterview" name="Diagnostic Interview and Anamnesis">
+      <bpmn:incoming>Flow_SymptomsSuspected</bpmn:incoming>
+      <bpmn:outgoing>Flow_3</bpmn:outgoing>
+    </bpmn:userTask>
+    
+    <bpmn:exclusiveGateway id="GW_UrgencyCheck" name="Clinical Urgency Check">
+      <bpmn:incoming>Flow_3</bpmn:incoming>
+      <bpmn:outgoing>Flow_Urgent</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Routine</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    
+    <bpmn:endEvent id="EndEvent_Emergency" name="Immediate Psychiatric Referral">
+      <bpmn:incoming>Flow_Urgent</bpmn:incoming>
+    </bpmn:endEvent>
+    
+    <bpmn:userTask id="UT_PatientEducation" name="Patient Education and Clarification">
+      <bpmn:incoming>Flow_Routine</bpmn:incoming>
+      <bpmn:outgoing>Flow_4</bpmn:outgoing>
+    </bpmn:userTask>
+    
+    <bpmn:userTask id="UT_GoalSetting" name="Goal Setting and Treatment Planning">
+      <bpmn:incoming>Flow_4</bpmn:incoming>
+      <bpmn:outgoing>Flow_5</bpmn:outgoing>
+    </bpmn:userTask>
+    
+    <bpmn:userTask id="UT_ProgressMonitoring" name="Progress Monitoring and Evaluation">
+      <bpmn:incoming>Flow_5</bpmn:incoming>
+      <bpmn:outgoing>Flow_6</bpmn:outgoing>
+    </bpmn:userTask>
+    
+    <bpmn:exclusiveGateway id="GW_EfficacyStage1" name="Efficacy Assessment (Stage 1)">
+      <bpmn:incoming>Flow_6</bpmn:incoming>
+      <bpmn:outgoing>Flow_S1Success</bpmn:outgoing>
+      <bpmn:outgoing>Flow_S1Escalate</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    
+    <bpmn:endEvent id="EndEvent_S1Success" name="Continue or Terminate Stage 1">
+      <bpmn:incoming>Flow_S1Success</bpmn:incoming>
+    </bpmn:endEvent>
+    
+    <bpmn:userTask id="UT_ClinicalPsychExam" name="Clinical-Psychological Examination">
+      <bpmn:incoming>Flow_S1Escalate</bpmn:incoming>
+      <bpmn:outgoing>Flow_7</bpmn:outgoing>
+    </bpmn:userTask>
+    
+    <bpmn:exclusiveGateway id="GW_Suitability" name="Patient Suitability Assessment">
+      <bpmn:incoming>Flow_7</bpmn:incoming>
+      <bpmn:outgoing>Flow_NotSuitable</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Suitable</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    
+    <bpmn:endEvent id="EndEvent_NotSuitable" name="Redirect to Other Services">
+      <bpmn:incoming>Flow_NotSuitable</bpmn:incoming>
+    </bpmn:endEvent>
+    
+    <bpmn:userTask id="UT_PsychiatricExam" name="Psychiatric Examination and Pharmacotherapy">
+      <bpmn:incoming>Flow_Suitable</bpmn:incoming>
+      <bpmn:outgoing>Flow_8</bpmn:outgoing>
+    </bpmn:userTask>
+    
+    <bpmn:userTask id="UT_SpecificIntervention" name="Execution of Specific Intervention">
+      <bpmn:incoming>Flow_8</bpmn:incoming>
+      <bpmn:outgoing>Flow_9</bpmn:outgoing>
+    </bpmn:userTask>
+    
+    <bpmn:exclusiveGateway id="GW_EfficacyStage2" name="Efficacy Assessment (Stage 2)">
+      <bpmn:incoming>Flow_9</bpmn:incoming>
+      <bpmn:outgoing>Flow_S2Success</bpmn:outgoing>
+      <bpmn:outgoing>Flow_S2Escalate</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    
+    <bpmn:endEvent id="EndEvent_S2Success" name="Condition Stabilized">
+      <bpmn:incoming>Flow_S2Success</bpmn:incoming>
+    </bpmn:endEvent>
+    
+    <bpmn:userTask id="UT_ReferralMultiCenter" name="Referral to Multidisciplinary Center">
+      <bpmn:incoming>Flow_S2Escalate</bpmn:incoming>
+      <bpmn:outgoing>Flow_10</bpmn:outgoing>
+    </bpmn:userTask>
+    
+    <bpmn:endEvent id="EndEvent_Stage3" name="Stage 3 Care Initiated">
+      <bpmn:incoming>Flow_10</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_1" targetRef="UT_InitialScreening" />
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="UT_InitialScreening" targetRef="GW_ScreeningResult" />
+    <bpmn:sequenceFlow id="Flow_NoSymptoms" name="Symptoms &#60; 5" sourceRef="GW_ScreeningResult" targetRef="EndEvent_NoSymptoms" />
+    <bpmn:sequenceFlow id="Flow_SymptomsSuspected" name="Symptoms &#62;= 5" sourceRef="GW_ScreeningResult" targetRef="UT_DiagnosticInterview" />
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="UT_DiagnosticInterview" targetRef="GW_UrgencyCheck" />
+    <bpmn:sequenceFlow id="Flow_Urgent" name="Suicidal ideation or psychosis" sourceRef="GW_UrgencyCheck" targetRef="EndEvent_Emergency" />
+    <bpmn:sequenceFlow id="Flow_Routine" name="Routine case" sourceRef="GW_UrgencyCheck" targetRef="UT_PatientEducation" />
+    <bpmn:sequenceFlow id="Flow_4" sourceRef="UT_PatientEducation" targetRef="UT_GoalSetting" />
+    <bpmn:sequenceFlow id="Flow_5" sourceRef="UT_GoalSetting" targetRef="UT_ProgressMonitoring" />
+    <bpmn:sequenceFlow id="Flow_6" sourceRef="UT_ProgressMonitoring" targetRef="GW_EfficacyStage1" />
+    <bpmn:sequenceFlow id="Flow_S1Success" name="Condition improved" sourceRef="GW_EfficacyStage1" targetRef="EndEvent_S1Success" />
+    <bpmn:sequenceFlow id="Flow_S1Escalate" name="No improvement after 4-6 weeks" sourceRef="GW_EfficacyStage1" targetRef="UT_ClinicalPsychExam" />
+    <bpmn:sequenceFlow id="Flow_7" sourceRef="UT_ClinicalPsychExam" targetRef="GW_Suitability" />
+    <bpmn:sequenceFlow id="Flow_NotSuitable" name="Not suitable" sourceRef="GW_Suitability" targetRef="EndEvent_NotSuitable" />
+    <bpmn:sequenceFlow id="Flow_Suitable" name="Suitable for intervention" sourceRef="GW_Suitability" targetRef="UT_PsychiatricExam" />
+    <bpmn:sequenceFlow id="Flow_8" sourceRef="UT_PsychiatricExam" targetRef="UT_SpecificIntervention" />
+    <bpmn:sequenceFlow id="Flow_9" sourceRef="UT_SpecificIntervention" targetRef="GW_EfficacyStage2" />
+    <bpmn:sequenceFlow id="Flow_S2Success" name="Treatment goals met" sourceRef="GW_EfficacyStage2" targetRef="EndEvent_S2Success" />
+    <bpmn:sequenceFlow id="Flow_S2Escalate" name="Chronic case / &#62;3 months" sourceRef="GW_EfficacyStage2" targetRef="UT_ReferralMultiCenter" />
+    <bpmn:sequenceFlow id="Flow_10" sourceRef="UT_ReferralMultiCenter" targetRef="EndEvent_Stage3" />
+  </bpmn:process>
+
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1wlyh5l">
+      <bpmndi:BPMNShape id="StartEvent_1_di" bpmnElement="StartEvent_1">
+        <dc:Bounds x="100" y="100" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_InitialScreening_di" bpmnElement="UT_InitialScreening">
+        <dc:Bounds x="200" y="78" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_ScreeningResult_di" bpmnElement="GW_ScreeningResult" isMarkerVisible="true">
+        <dc:Bounds x="350" y="93" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_NoSymptoms_di" bpmnElement="EndEvent_NoSymptoms">
+        <dc:Bounds x="357" y="200" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_DiagnosticInterview_di" bpmnElement="UT_DiagnosticInterview">
+        <dc:Bounds x="450" y="78" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_UrgencyCheck_di" bpmnElement="GW_UrgencyCheck" isMarkerVisible="true">
+        <dc:Bounds x="600" y="93" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_Emergency_di" bpmnElement="EndEvent_Emergency">
+        <dc:Bounds x="607" y="200" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_PatientEducation_di" bpmnElement="UT_PatientEducation">
+        <dc:Bounds x="700" y="78" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_GoalSetting_di" bpmnElement="UT_GoalSetting">
+        <dc:Bounds x="850" y="78" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_ProgressMonitoring_di" bpmnElement="UT_ProgressMonitoring">
+        <dc:Bounds x="1000" y="78" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_EfficacyStage1_di" bpmnElement="GW_EfficacyStage1" isMarkerVisible="true">
+        <dc:Bounds x="1150" y="93" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_S1Success_di" bpmnElement="EndEvent_S1Success">
+        <dc:Bounds x="1157" y="200" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_ClinicalPsychExam_di" bpmnElement="UT_ClinicalPsychExam">
+        <dc:Bounds x="1250" y="78" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_Suitability_di" bpmnElement="GW_Suitability" isMarkerVisible="true">
+        <dc:Bounds x="1400" y="93" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_NotSuitable_di" bpmnElement="EndEvent_NotSuitable">
+        <dc:Bounds x="1407" y="200" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_PsychiatricExam_di" bpmnElement="UT_PsychiatricExam">
+        <dc:Bounds x="1500" y="78" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_SpecificIntervention_di" bpmnElement="UT_SpecificIntervention">
+        <dc:Bounds x="1650" y="78" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_EfficacyStage2_di" bpmnElement="GW_EfficacyStage2" isMarkerVisible="true">
+        <dc:Bounds x="1800" y="93" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_S2Success_di" bpmnElement="EndEvent_S2Success">
+        <dc:Bounds x="1807" y="200" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_ReferralMultiCenter_di" bpmnElement="UT_ReferralMultiCenter">
+        <dc:Bounds x="1900" y="78" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_Stage3_di" bpmnElement="EndEvent_Stage3">
+        <dc:Bounds x="2050" y="100" width="36" height="36" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNEdge id="Flow_1_di" bpmnElement="Flow_1">
+        <di:waypoint x="136" y="118" />
+        <di:waypoint x="200" y="118" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_2_di" bpmnElement="Flow_2">
+        <di:waypoint x="300" y="118" />
+        <di:waypoint x="350" y="118" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_NoSymptoms_di" bpmnElement="Flow_NoSymptoms">
+        <di:waypoint x="375" y="143" />
+        <di:waypoint x="375" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_SymptomsSuspected_di" bpmnElement="Flow_SymptomsSuspected">
+        <di:waypoint x="400" y="118" />
+        <di:waypoint x="450" y="118" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_3_di" bpmnElement="Flow_3">
+        <di:waypoint x="550" y="118" />
+        <di:waypoint x="600" y="118" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Urgent_di" bpmnElement="Flow_Urgent">
+        <di:waypoint x="625" y="143" />
+        <di:waypoint x="625" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Routine_di" bpmnElement="Flow_Routine">
+        <di:waypoint x="650" y="118" />
+        <di:waypoint x="700" y="118" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_4_di" bpmnElement="Flow_4">
+        <di:waypoint x="800" y="118" />
+        <di:waypoint x="850" y="118" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_5_di" bpmnElement="Flow_5">
+        <di:waypoint x="950" y="118" />
+        <di:waypoint x="1000" y="118" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_6_di" bpmnElement="Flow_6">
+        <di:waypoint x="1100" y="118" />
+        <di:waypoint x="1150" y="118" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_S1Success_di" bpmnElement="Flow_S1Success">
+        <di:waypoint x="1175" y="143" />
+        <di:waypoint x="1175" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_S1Escalate_di" bpmnElement="Flow_S1Escalate">
+        <di:waypoint x="1200" y="118" />
+        <di:waypoint x="1250" y="118" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_7_di" bpmnElement="Flow_7">
+        <di:waypoint x="1350" y="118" />
+        <di:waypoint x="1400" y="118" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_NotSuitable_di" bpmnElement="Flow_NotSuitable">
+        <di:waypoint x="1425" y="143" />
+        <di:waypoint x="1425" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Suitable_di" bpmnElement="Flow_Suitable">
+        <di:waypoint x="1450" y="118" />
+        <di:waypoint x="1500" y="118" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_8_di" bpmnElement="Flow_8">
+        <di:waypoint x="1600" y="118" />
+        <di:waypoint x="1650" y="118" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_9_di" bpmnElement="Flow_9">
+        <di:waypoint x="1750" y="118" />
+        <di:waypoint x="1800" y="118" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_S2Success_di" bpmnElement="Flow_S2Success">
+        <di:waypoint x="1825" y="143" />
+        <di:waypoint x="1825" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_S2Escalate_di" bpmnElement="Flow_S2Escalate">
+        <di:waypoint x="1850" y="118" />
+        <di:waypoint x="1900" y="118" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_10_di" bpmnElement="Flow_10">
+        <di:waypoint x="2000" y="118" />
+        <di:waypoint x="2050" y="118" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

@@ -1,0 +1,1813 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  id="Definitions_07bsiln"
+                  targetNamespace="http://bpmn.io/schema/bpmn"
+                  xmlns:modeler="http://camunda.org/schema/modeler/1.0"
+                  exporter="Camunda Modeler"
+                  exporterVersion="5.33.1"
+                  modeler:executionPlatform="Camunda Platform"
+                  modeler:executionPlatformVersion="7.22.0">
+
+  <bpmn:process id="Process_1t103nq" isExecutable="true" name="PTSD Clinical Management Process">
+
+    <!-- ==================== START EVENT ==================== -->
+    <bpmn:startEvent id="StartEvent_1" name="Patient Contact / Post-Trauma Presentation">
+      <bpmn:outgoing>Flow_start_g04</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <!-- ==================== G-04: MASS CASUALTY CONTEXT ==================== -->
+    <bpmn:exclusiveGateway id="G04" name="Mass Casualty / Refugee Context?">
+      <bpmn:incoming>Flow_start_g04</bpmn:incoming>
+      <bpmn:outgoing>Flow_g04_yes_t04</bpmn:outgoing>
+      <bpmn:outgoing>Flow_g04_no_t01</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- T-04: Mass Casualty Screening -->
+    <bpmn:userTask id="T04" name="Conduct Mass Casualty / Refugee PTSD Screening">
+      <bpmn:incoming>Flow_g04_yes_t04</bpmn:incoming>
+      <bpmn:outgoing>Flow_t04_t01</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- T-01: Post-Trauma Risk Assessment -->
+    <bpmn:userTask id="T01" name="Perform Initial Post-Trauma Risk Assessment">
+      <bpmn:incoming>Flow_g04_no_t01</bpmn:incoming>
+      <bpmn:incoming>Flow_t04_t01</bpmn:incoming>
+      <bpmn:outgoing>Flow_t01_t06</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- T-06: Sensitive Trauma Inquiry -->
+    <bpmn:userTask id="T06" name="Ask Sensitive Screening Questions About Traumatic Events">
+      <bpmn:incoming>Flow_t01_t06</bpmn:incoming>
+      <bpmn:outgoing>Flow_t06_t05</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- T-05: MACSCREEN -->
+    <bpmn:userTask id="T05" name="Administer MACSCREEN Orientational Screening Questionnaire">
+      <bpmn:incoming>Flow_t06_t05</bpmn:incoming>
+      <bpmn:outgoing>Flow_t05_g01</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- G-01: Trauma Exposure Confirmed? -->
+    <bpmn:exclusiveGateway id="G01" name="Trauma Exposure Confirmed?">
+      <bpmn:incoming>Flow_t05_g01</bpmn:incoming>
+      <bpmn:outgoing>Flow_g01_no_end1</bpmn:outgoing>
+      <bpmn:outgoing>Flow_g01_yes_g02</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- End: No Trauma -->
+    <bpmn:endEvent id="EndEvent_NoTrauma" name="No Trauma Exposure Identified - Exit PTSD Pathway">
+      <bpmn:incoming>Flow_g01_no_end1</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <!-- G-02: Re-experiencing Symptoms Present? -->
+    <bpmn:exclusiveGateway id="G02" name="Re-Experiencing Symptoms Present?">
+      <bpmn:incoming>Flow_g01_yes_g02</bpmn:incoming>
+      <bpmn:outgoing>Flow_g02_no_g03</bpmn:outgoing>
+      <bpmn:outgoing>Flow_g02_yes_t08</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- G-03: Mild Symptoms < 4 Weeks? -->
+    <bpmn:exclusiveGateway id="G03" name="Symptoms Mild AND Present Less Than 4 Weeks?">
+      <bpmn:incoming>Flow_g02_no_g03</bpmn:incoming>
+      <bpmn:outgoing>Flow_g03_yes_t09</bpmn:outgoing>
+      <bpmn:outgoing>Flow_g03_no_t08</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- T-09: Active Monitoring -->
+    <bpmn:userTask id="T09" name="Implement Active Monitoring">
+      <bpmn:incoming>Flow_g03_yes_t09</bpmn:incoming>
+      <bpmn:outgoing>Flow_t09_t10</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- T-10: Immediate Practical Support -->
+    <bpmn:userTask id="T10" name="Provide Immediate Practical, Social and Emotional Support">
+      <bpmn:incoming>Flow_t09_t10</bpmn:incoming>
+      <bpmn:incoming>Flow_t02_t10</bpmn:incoming>
+      <bpmn:outgoing>Flow_t10_t02</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- T-02: Post-Trauma Screening -->
+    <bpmn:userTask id="T02" name="Administer Post-Trauma Screening for Symptomatic Individuals">
+      <bpmn:incoming>Flow_t10_t02</bpmn:incoming>
+      <bpmn:outgoing>Flow_t02_g02b</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- G02b: Re-check after monitoring -->
+    <bpmn:exclusiveGateway id="G02b" name="Symptoms Developed or Worsened?">
+      <bpmn:incoming>Flow_t02_g02b</bpmn:incoming>
+      <bpmn:outgoing>Flow_g02b_yes_t08</bpmn:outgoing>
+      <bpmn:outgoing>Flow_g02b_no_t03</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- T-03: Preventive KBT -->
+    <bpmn:userTask id="T03" name="Deliver Trauma-Focused KBT for Prevention of Chronic PTSD">
+      <bpmn:incoming>Flow_g02b_no_t03</bpmn:incoming>
+      <bpmn:outgoing>Flow_t03_endprev</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- End: Prevention Complete -->
+    <bpmn:endEvent id="EndEvent_Prevention" name="Preventive Intervention Completed - Monitor">
+      <bpmn:incoming>Flow_t03_endprev</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <!-- T-08: Specialist Referral -->
+    <bpmn:userTask id="T08" name="Issue Referral to Specialist - Psychiatry or Clinical Psychology">
+      <bpmn:incoming>Flow_g02_yes_t08</bpmn:incoming>
+      <bpmn:incoming>Flow_g03_no_t08</bpmn:incoming>
+      <bpmn:incoming>Flow_g02b_yes_t08</bpmn:incoming>
+      <bpmn:outgoing>Flow_t08_t07</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- T-07: Hospital PTSD Identification -->
+    <bpmn:userTask id="T07" name="Identify PTSD Indicators in Hospital Setting">
+      <bpmn:incoming>Flow_t08_t07</bpmn:incoming>
+      <bpmn:outgoing>Flow_t07_t11</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- ==================== PHASE 3: DIAGNOSTIC WORKUP ==================== -->
+
+    <!-- T-11: Psychiatric Examination -->
+    <bpmn:userTask id="T11" name="Perform Psychiatric Examination">
+      <bpmn:incoming>Flow_t07_t11</bpmn:incoming>
+      <bpmn:outgoing>Flow_t11_t12</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- T-12: Somatic Examination -->
+    <bpmn:userTask id="T12" name="Perform Somatic Examination to Exclude Organic Causes">
+      <bpmn:incoming>Flow_t11_t12</bpmn:incoming>
+      <bpmn:outgoing>Flow_t12_g10</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- G-10: Head Injury? -->
+    <bpmn:exclusiveGateway id="G10" name="Head Injury or Physical Trauma Involved?">
+      <bpmn:incoming>Flow_t12_g10</bpmn:incoming>
+      <bpmn:outgoing>Flow_g10_yes_t12b</bpmn:outgoing>
+      <bpmn:outgoing>Flow_g10_no_g06</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- T-12b: Neurological Examination -->
+    <bpmn:userTask id="T12b" name="Perform Detailed Neurological and Somatic Examination">
+      <bpmn:incoming>Flow_g10_yes_t12b</bpmn:incoming>
+      <bpmn:outgoing>Flow_t12b_g06</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- G-06: Somatic Cause Excluded? -->
+    <bpmn:exclusiveGateway id="G06" name="Somatic / Organic Cause Excluded?">
+      <bpmn:incoming>Flow_g10_no_g06</bpmn:incoming>
+      <bpmn:incoming>Flow_t12b_g06</bpmn:incoming>
+      <bpmn:outgoing>Flow_g06_no_endsomatic</bpmn:outgoing>
+      <bpmn:outgoing>Flow_g06_yes_t13</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- End: Organic Cause -->
+    <bpmn:endEvent id="EndEvent_OrganicCause" name="Organic Cause Identified - Refer to Somatic Specialist">
+      <bpmn:incoming>Flow_g06_no_endsomatic</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <!-- T-13: Trauma Event History -->
+    <bpmn:userTask id="T13" name="Compile Trauma Event History - Traumatic Events List">
+      <bpmn:incoming>Flow_g06_yes_t13</bpmn:incoming>
+      <bpmn:outgoing>Flow_t13_t14</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- T-14: LEC-5-SK -->
+    <bpmn:userTask id="T14" name="Administer LEC-5-SK Trauma Checklist">
+      <bpmn:incoming>Flow_t13_t14</bpmn:incoming>
+      <bpmn:outgoing>Flow_t14_t15</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- T-15: PCL-5-SK -->
+    <bpmn:userTask id="T15" name="Administer PCL-5-SK PTSD Symptom Scale">
+      <bpmn:incoming>Flow_t14_t15</bpmn:incoming>
+      <bpmn:outgoing>Flow_t15_t16</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- T-16: PHQ-9-SK -->
+    <bpmn:userTask id="T16" name="Administer PHQ-9-SK Depression Screening Questionnaire">
+      <bpmn:incoming>Flow_t15_t16</bpmn:incoming>
+      <bpmn:outgoing>Flow_t16_t17</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- T-17: GAD-7-SK -->
+    <bpmn:userTask id="T17" name="Administer GAD-7-SK Anxiety Screening Questionnaire">
+      <bpmn:incoming>Flow_t16_t17</bpmn:incoming>
+      <bpmn:outgoing>Flow_t17_t18</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- T-18: CORE-OM Baseline -->
+    <bpmn:userTask id="T18" name="Administer CORE-OM Baseline Outcome Measurement">
+      <bpmn:incoming>Flow_t17_t18</bpmn:incoming>
+      <bpmn:outgoing>Flow_t18_g09</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- G-09: Complex Psychodiagnostics Indicated? -->
+    <bpmn:exclusiveGateway id="G09" name="Complex Psychodiagnostic Examination Indicated?">
+      <bpmn:incoming>Flow_t18_g09</bpmn:incoming>
+      <bpmn:outgoing>Flow_g09_yes_t19</bpmn:outgoing>
+      <bpmn:outgoing>Flow_g09_no_t20</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- T-19: Complex Psychodiagnostics -->
+    <bpmn:userTask id="T19" name="Perform Complex Psychodiagnostic Examination with Projective Methods">
+      <bpmn:incoming>Flow_g09_yes_t19</bpmn:incoming>
+      <bpmn:outgoing>Flow_t19_t20</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- T-20: Psychophysiological Examination -->
+    <bpmn:userTask id="T20" name="Perform Psychophysiological Examination for Arousal Assessment">
+      <bpmn:incoming>Flow_g09_no_t20</bpmn:incoming>
+      <bpmn:incoming>Flow_t19_t20</bpmn:incoming>
+      <bpmn:outgoing>Flow_t20_t25</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- T-25: Symptom Profile Assessment -->
+    <bpmn:userTask id="T25" name="Assess Nature, Intensity and Duration of PTSD Symptoms">
+      <bpmn:incoming>Flow_t20_t25</bpmn:incoming>
+      <bpmn:outgoing>Flow_t25_t21</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- T-21: Differential Diagnosis -->
+    <bpmn:userTask id="T21" name="Conduct Differential Diagnosis Assessment">
+      <bpmn:incoming>Flow_t25_t21</bpmn:incoming>
+      <bpmn:outgoing>Flow_t21_g07</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- G-07: Alternative Diagnosis Better? -->
+    <bpmn:exclusiveGateway id="G07" name="Alternative Diagnosis Explains Symptoms Better?">
+      <bpmn:incoming>Flow_t21_g07</bpmn:incoming>
+      <bpmn:outgoing>Flow_g07_yes_endalt</bpmn:outgoing>
+      <bpmn:outgoing>Flow_g07_no_t22</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- End: Alternative Diagnosis -->
+    <bpmn:endEvent id="EndEvent_AltDx" name="Alternative Diagnosis Confirmed - Exit PTSD Pathway">
+      <bpmn:incoming>Flow_g07_yes_endalt</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <!-- T-22: Comorbidity Assessment -->
+    <bpmn:userTask id="T22" name="Assess Comorbid Psychiatric Disorders">
+      <bpmn:incoming>Flow_g07_no_t22</bpmn:incoming>
+      <bpmn:outgoing>Flow_t22_t23</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- T-23: Risk Assessment -->
+    <bpmn:userTask id="T23" name="Assess Suicide, Self-Harm and Aggression Risk">
+      <bpmn:incoming>Flow_t22_t23</bpmn:incoming>
+      <bpmn:outgoing>Flow_t23_t24</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- T-24: Confirm PTSD Diagnosis -->
+    <bpmn:businessRuleTask id="T24" name="Confirm PTSD Diagnosis Against ICD-10 Criteria A-E">
+      <bpmn:incoming>Flow_t23_t24</bpmn:incoming>
+      <bpmn:outgoing>Flow_t24_g05</bpmn:outgoing>
+    </bpmn:businessRuleTask>
+
+    <!-- G-05: Full ICD-10 Criteria Met? -->
+    <bpmn:exclusiveGateway id="G05" name="Full ICD-10 PTSD Criteria A-E Satisfied?">
+      <bpmn:incoming>Flow_t24_g05</bpmn:incoming>
+      <bpmn:outgoing>Flow_g05_no_endnodiag</bpmn:outgoing>
+      <bpmn:outgoing>Flow_g05_yes_t31</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- End: Criteria Not Met -->
+    <bpmn:endEvent id="EndEvent_NoDiag" name="PTSD Criteria Not Met - Manage Under Appropriate Diagnosis">
+      <bpmn:incoming>Flow_g05_no_endnodiag</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <!-- ==================== PHASE 4: TREATMENT PLANNING ==================== -->
+
+    <!-- T-31: Language / Cultural Assessment -->
+    <bpmn:userTask id="T31" name="Assess Language and Cultural Needs of Patient">
+      <bpmn:incoming>Flow_g05_yes_t31</bpmn:incoming>
+      <bpmn:outgoing>Flow_t31_g23</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- G-23: Language Barrier? -->
+    <bpmn:exclusiveGateway id="G23" name="Language or Cultural Barrier Present?">
+      <bpmn:incoming>Flow_t31_g23</bpmn:incoming>
+      <bpmn:outgoing>Flow_g23_yes_t31b</bpmn:outgoing>
+      <bpmn:outgoing>Flow_g23_no_t30</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- T-31b: Arrange Interpreter -->
+    <bpmn:userTask id="T31b" name="Arrange Interpreter or Refer to Bicultural Therapist">
+      <bpmn:incoming>Flow_g23_yes_t31b</bpmn:incoming>
+      <bpmn:outgoing>Flow_t31b_t30</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- T-30: Psychoeducation -->
+    <bpmn:userTask id="T30" name="Provide Psychoeducation to Patient and Family - Verbal and Written">
+      <bpmn:incoming>Flow_g23_no_t30</bpmn:incoming>
+      <bpmn:incoming>Flow_t31b_t30</bpmn:incoming>
+      <bpmn:outgoing>Flow_t30_t26</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- T-26: Informed Consent -->
+    <bpmn:userTask id="T26" name="Obtain Informed Consent for PTSD Treatment">
+      <bpmn:incoming>Flow_t30_t26</bpmn:incoming>
+      <bpmn:outgoing>Flow_t26_g12</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- G-12: Consent Given? -->
+    <bpmn:exclusiveGateway id="G12" name="Patient Provides Informed Consent?">
+      <bpmn:incoming>Flow_t26_g12</bpmn:incoming>
+      <bpmn:outgoing>Flow_g12_no_endnoconsent</bpmn:outgoing>
+      <bpmn:outgoing>Flow_g12_yes_t27</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- End: No Consent -->
+    <bpmn:endEvent id="EndEvent_NoConsent" name="Consent Refused - Treatment Deferred">
+      <bpmn:incoming>Flow_g12_no_endnoconsent</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <!-- T-27: Elicit Patient Preferences -->
+    <bpmn:userTask id="T27" name="Elicit Patient Treatment Preferences">
+      <bpmn:incoming>Flow_g12_yes_t27</bpmn:incoming>
+      <bpmn:outgoing>Flow_t27_g11</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- G-11: High Risk? -->
+    <bpmn:exclusiveGateway id="G11" name="Patient at High Risk of Self-Harm or Harm to Others?">
+      <bpmn:incoming>Flow_t27_g11</bpmn:incoming>
+      <bpmn:outgoing>Flow_g11_yes_t29</bpmn:outgoing>
+      <bpmn:outgoing>Flow_g11_no_t28</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- T-29: Risk Management Plan -->
+    <bpmn:userTask id="T29" name="Develop Risk Management Plan for High-Risk Patient">
+      <bpmn:incoming>Flow_g11_yes_t29</bpmn:incoming>
+      <bpmn:outgoing>Flow_t29_t28</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- T-28: Individual Treatment Plan -->
+    <bpmn:userTask id="T28" name="Develop Individual Treatment Plan">
+      <bpmn:incoming>Flow_g11_no_t28</bpmn:incoming>
+      <bpmn:incoming>Flow_t29_t28</bpmn:incoming>
+      <bpmn:outgoing>Flow_t28_g08</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- G-08: Comorbidities Present? -->
+    <bpmn:exclusiveGateway id="G08" name="Significant Comorbid Disorders Present?">
+      <bpmn:incoming>Flow_t28_g08</bpmn:incoming>
+      <bpmn:outgoing>Flow_g08_yes_g16</bpmn:outgoing>
+      <bpmn:outgoing>Flow_g08_no_g13</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- G-16: Pharmacotherapy Indicated? -->
+    <bpmn:exclusiveGateway id="G16" name="Pharmacotherapy Indicated as Primary or Augmentation?">
+      <bpmn:incoming>Flow_g08_yes_g16</bpmn:incoming>
+      <bpmn:incoming>Flow_g13_no_g16</bpmn:incoming>
+      <bpmn:outgoing>Flow_g16_yes_t36</bpmn:outgoing>
+      <bpmn:outgoing>Flow_g16_no_g13b</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- T-36: Prescribe Pharmacotherapy -->
+    <bpmn:userTask id="T36" name="Prescribe and Manage Pharmacotherapy">
+      <bpmn:incoming>Flow_g16_yes_t36</bpmn:incoming>
+      <bpmn:outgoing>Flow_t36_t37</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- T-37: Administer Pharmacotherapy -->
+    <bpmn:userTask id="T37" name="Administer Pharmacotherapy to Patient">
+      <bpmn:incoming>Flow_t36_t37</bpmn:incoming>
+      <bpmn:outgoing>Flow_t37_g13b</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- G-13: Trauma-Focused Therapy Available and Preferred? -->
+    <bpmn:exclusiveGateway id="G13" name="Trauma-Focused Psychotherapy Available and Preferred?">
+      <bpmn:incoming>Flow_g08_no_g13</bpmn:incoming>
+      <bpmn:outgoing>Flow_g13_yes_g17</bpmn:outgoing>
+      <bpmn:outgoing>Flow_g13_no_g16</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- G-13b: Join after pharmacotherapy -->
+    <bpmn:exclusiveGateway id="G13b" name="Proceed to Therapy Modality Selection?">
+      <bpmn:incoming>Flow_g16_no_g13b</bpmn:incoming>
+      <bpmn:incoming>Flow_t37_g13b</bpmn:incoming>
+      <bpmn:outgoing>Flow_g13b_g17</bpmn:outgoing>
+      <bpmn:outgoing>Flow_g13b_endt35</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- T-35: KBT for Specific Symptoms -->
+    <bpmn:userTask id="T35" name="Deliver KBT Targeting Specific Residual Symptoms - Sleep or Anger">
+      <bpmn:incoming>Flow_g13b_endt35</bpmn:incoming>
+      <bpmn:outgoing>Flow_t35_monitoring</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- G-17: Clinician Certified? -->
+    <bpmn:exclusiveGateway id="G17" name="Clinician Holds Required CPČ / ŠPI Certification?">
+      <bpmn:incoming>Flow_g13_yes_g17</bpmn:incoming>
+      <bpmn:incoming>Flow_g13b_g17</bpmn:incoming>
+      <bpmn:outgoing>Flow_g17_no_refercert</bpmn:outgoing>
+      <bpmn:outgoing>Flow_g17_yes_g14</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- End: Refer Certified Specialist -->
+    <bpmn:endEvent id="EndEvent_RefCert" name="Refer Patient to Certified Specialist for Specific Psychotherapy">
+      <bpmn:incoming>Flow_g17_no_refercert</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <!-- G-14: Which Modality? -->
+    <bpmn:exclusiveGateway id="G14" name="Which Trauma-Focused Therapy Modality is Selected?">
+      <bpmn:incoming>Flow_g17_yes_g14</bpmn:incoming>
+      <bpmn:outgoing>Flow_g14_kbt_t32</bpmn:outgoing>
+      <bpmn:outgoing>Flow_g14_emdr_t33</bpmn:outgoing>
+      <bpmn:outgoing>Flow_g14_ikbt_g15</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- ==================== PHASE 5: TREATMENT EXECUTION ==================== -->
+
+    <!-- T-32: Trauma-Focused KBT -->
+    <bpmn:userTask id="T32" name="Deliver Trauma-Focused KBT - 8 to 12 Sessions per Validated Manual">
+      <bpmn:incoming>Flow_g14_kbt_t32</bpmn:incoming>
+      <bpmn:outgoing>Flow_t32_monitoring</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- T-33: EMDR -->
+    <bpmn:userTask id="T33" name="Deliver EMDR Therapy Protocol - 8 to 12 Sessions per Validated Manual">
+      <bpmn:incoming>Flow_g14_emdr_t33</bpmn:incoming>
+      <bpmn:outgoing>Flow_t33_monitoring</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- G-15: IKBT Contraindication Check -->
+    <bpmn:exclusiveGateway id="G15" name="Severe Dissociative Symptoms or Risk to Self or Others Present?">
+      <bpmn:incoming>Flow_g14_ikbt_g15</bpmn:incoming>
+      <bpmn:outgoing>Flow_g15_yes_t32b</bpmn:outgoing>
+      <bpmn:outgoing>Flow_g15_no_t34</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- T-32b: Redirect to KBT if IKBT contraindicated -->
+    <bpmn:userTask id="T32b" name="Redirect to Face-to-Face KBT - IKBT Contraindicated">
+      <bpmn:incoming>Flow_g15_yes_t32b</bpmn:incoming>
+      <bpmn:outgoing>Flow_t32b_monitoring</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- T-34: IKBT -->
+    <bpmn:userTask id="T34" name="Deliver Therapist-Guided Computerized KBT - IKBT - 8 to 10 Sessions">
+      <bpmn:incoming>Flow_g15_no_t34</bpmn:incoming>
+      <bpmn:outgoing>Flow_t34_monitoring</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- T-38: Practical Support -->
+    <bpmn:userTask id="T38" name="Provide Practical Support and Social Assistance">
+      <bpmn:incoming>Flow_join_t38</bpmn:incoming>
+      <bpmn:outgoing>Flow_t38_t40</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- T-40: Family Psychoeducation -->
+    <bpmn:userTask id="T40" name="Provide Psychoeducation and Structured Support to Family Members">
+      <bpmn:incoming>Flow_t38_t40</bpmn:incoming>
+      <bpmn:outgoing>Flow_t40_g24</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- G-24: Family Also Affected? -->
+    <bpmn:exclusiveGateway id="G24" name="Family Members Also Affected by Traumatic Event?">
+      <bpmn:incoming>Flow_t40_g24</bpmn:incoming>
+      <bpmn:outgoing>Flow_g24_yes_t42</bpmn:outgoing>
+      <bpmn:outgoing>Flow_g24_no_t41</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- T-42: Assess Family PTSD Risk -->
+    <bpmn:userTask id="T42" name="Assess and Coordinate Family Members Own PTSD Risk and Treatment">
+      <bpmn:incoming>Flow_g24_yes_t42</bpmn:incoming>
+      <bpmn:outgoing>Flow_t42_t41</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- T-41: Refer Family to Support Group -->
+    <bpmn:userTask id="T41" name="Refer Family Members to Peer Support Group">
+      <bpmn:incoming>Flow_g24_no_t41</bpmn:incoming>
+      <bpmn:incoming>Flow_t42_t41</bpmn:incoming>
+      <bpmn:outgoing>Flow_t41_join</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- Join gateway before monitoring -->
+    <bpmn:exclusiveGateway id="JoinMonitoring" name="Converge to Monitoring Phase">
+      <bpmn:incoming>Flow_t32_monitoring</bpmn:incoming>
+      <bpmn:incoming>Flow_t33_monitoring</bpmn:incoming>
+      <bpmn:incoming>Flow_t34_monitoring</bpmn:incoming>
+      <bpmn:incoming>Flow_t32b_monitoring</bpmn:incoming>
+      <bpmn:incoming>Flow_t35_monitoring</bpmn:incoming>
+      <bpmn:incoming>Flow_t41_join</bpmn:incoming>
+      <bpmn:outgoing>Flow_join_t38</bpmn:outgoing>
+      <bpmn:outgoing>Flow_join_t43</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- ==================== PHASE 6: MONITORING ==================== -->
+
+    <!-- T-43: Session Monitoring -->
+    <bpmn:userTask id="T43" name="Administer PHQ-9-SK and GAD-7-SK at Each Therapy Session">
+      <bpmn:incoming>Flow_join_t43</bpmn:incoming>
+      <bpmn:outgoing>Flow_t43_g21</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- G-21: Sessions Missed? -->
+    <bpmn:exclusiveGateway id="G21" name="Patient Missing Therapy Sessions?">
+      <bpmn:incoming>Flow_t43_g21</bpmn:incoming>
+      <bpmn:outgoing>Flow_g21_yes_t45</bpmn:outgoing>
+      <bpmn:outgoing>Flow_g21_no_g18</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- T-45: Active Follow-Up -->
+    <bpmn:userTask id="T45" name="Conduct Active Follow-Up Contact for Missed Sessions">
+      <bpmn:incoming>Flow_g21_yes_t45</bpmn:incoming>
+      <bpmn:outgoing>Flow_t45_g18</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- G-18: Adequate Treatment Response? -->
+    <bpmn:exclusiveGateway id="G18" name="Adequate Treatment Response Achieved?">
+      <bpmn:incoming>Flow_g21_no_g18</bpmn:incoming>
+      <bpmn:incoming>Flow_t45_g18</bpmn:incoming>
+      <bpmn:outgoing>Flow_g18_yes_t44</bpmn:outgoing>
+      <bpmn:outgoing>Flow_g18_no_g22</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- G-22: Residual Symptoms > 3 Months? -->
+    <bpmn:exclusiveGateway id="G22" name="Symptoms Persistent Over 3 Months with Patient Unable or Unwilling for Trauma Therapy?">
+      <bpmn:incoming>Flow_g18_no_g22</bpmn:incoming>
+      <bpmn:outgoing>Flow_g22_yes_t35b</bpmn:outgoing>
+      <bpmn:outgoing>Flow_g22_no_g20</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- T-35b: KBT Specific Symptoms (monitoring loop) -->
+    <bpmn:userTask id="T35b" name="Deliver KBT for Specific Residual Symptoms After Primary Treatment">
+      <bpmn:incoming>Flow_g22_yes_t35b</bpmn:incoming>
+      <bpmn:outgoing>Flow_t35b_g20</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- G-20: Comorbidity Remitting? -->
+    <bpmn:exclusiveGateway id="G20" name="Comorbid Disorders Remitting During PTSD Treatment?">
+      <bpmn:incoming>Flow_g22_no_g20</bpmn:incoming>
+      <bpmn:incoming>Flow_t35b_g20</bpmn:incoming>
+      <bpmn:outgoing>Flow_g20_yes_g19</bpmn:outgoing>
+      <bpmn:outgoing>Flow_g20_no_t49</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- T-49: Switch or Augment Treatment -->
+    <bpmn:userTask id="T49" name="Switch or Augment Treatment Modality Based on Response">
+      <bpmn:incoming>Flow_g20_no_t49</bpmn:incoming>
+      <bpmn:outgoing>Flow_t49_g19</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- G-19: Escalation Beyond Ambulatory Needed? -->
+    <bpmn:exclusiveGateway id="G19" name="Inadequate Response Requires Escalation Beyond Ambulatory Care?">
+      <bpmn:incoming>Flow_g20_yes_g19</bpmn:incoming>
+      <bpmn:incoming>Flow_t49_g19</bpmn:incoming>
+      <bpmn:outgoing>Flow_g19_dayhospital_t47</bpmn:outgoing>
+      <bpmn:outgoing>Flow_g19_hospitalize_t48</bpmn:outgoing>
+      <bpmn:outgoing>Flow_g19_continue_t43</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- T-47: Day Hospital -->
+    <bpmn:userTask id="T47" name="Evaluate and Initiate Day Hospital Psychiatric Treatment">
+      <bpmn:incoming>Flow_g19_dayhospital_t47</bpmn:incoming>
+      <bpmn:outgoing>Flow_t47_t43</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- T-48: Hospitalization Decision -->
+    <bpmn:userTask id="T48" name="Decide and Initiate Inpatient Hospitalization">
+      <bpmn:incoming>Flow_g19_hospitalize_t48</bpmn:incoming>
+      <bpmn:outgoing>Flow_t48_endhospital</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- End: Hospitalization -->
+    <bpmn:endEvent id="EndEvent_Hospital" name="Patient Hospitalized - Transfer to Inpatient PTSD Care">
+      <bpmn:incoming>Flow_t48_endhospital</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <!-- T-44: CORE-OM End of Treatment -->
+    <bpmn:userTask id="T44" name="Administer CORE-OM at Treatment Completion and Evaluate Outcome">
+      <bpmn:incoming>Flow_g18_yes_t44</bpmn:incoming>
+      <bpmn:outgoing>Flow_t44_t46</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- T-46: Record Documentation -->
+    <bpmn:serviceTask id="T46" name="Record Clinical Outcome and Protocol Deviations in HIS">
+      <bpmn:incoming>Flow_t44_t46</bpmn:incoming>
+      <bpmn:outgoing>Flow_t46_end</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <!-- G-25: Acute Crisis (Intermediate Boundary-style event modeled as gateway) -->
+    <bpmn:exclusiveGateway id="G25" name="Acute Crisis State Detected at Any Process Point?">
+      <bpmn:incoming>Flow_g19_continue_t43</bpmn:incoming>
+      <bpmn:incoming>Flow_t47_t43</bpmn:incoming>
+      <bpmn:outgoing>Flow_g25_yes_t39</bpmn:outgoing>
+      <bpmn:outgoing>Flow_g25_no_t43loop</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- T-39: Emergency Management -->
+    <bpmn:userTask id="T39" name="Manage Acute Patient State - Emergency RZP Care">
+      <bpmn:incoming>Flow_g25_yes_t39</bpmn:incoming>
+      <bpmn:outgoing>Flow_t39_t43</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- End: Treatment Complete -->
+    <bpmn:endEvent id="EndEvent_Complete" name="PTSD Treatment Completed - Patient in Remission">
+      <bpmn:incoming>Flow_t46_end</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <!-- ==================== SEQUENCE FLOWS ==================== -->
+
+    <!-- Entry flows -->
+    <bpmn:sequenceFlow id="Flow_start_g04" sourceRef="StartEvent_1" targetRef="G04" />
+    <bpmn:sequenceFlow id="Flow_g04_yes_t04" name="Mass casualty / refugee context confirmed" sourceRef="G04" targetRef="T04" />
+    <bpmn:sequenceFlow id="Flow_g04_no_t01" name="Individual clinical presentation" sourceRef="G04" targetRef="T01" />
+    <bpmn:sequenceFlow id="Flow_t04_t01" sourceRef="T04" targetRef="T01" />
+
+    <!-- Phase 1: Primary care -->
+    <bpmn:sequenceFlow id="Flow_t01_t06" sourceRef="T01" targetRef="T06" />
+    <bpmn:sequenceFlow id="Flow_t06_t05" sourceRef="T06" targetRef="T05" />
+    <bpmn:sequenceFlow id="Flow_t05_g01" sourceRef="T05" targetRef="G01" />
+    <bpmn:sequenceFlow id="Flow_g01_no_end1" name="No trauma exposure identified" sourceRef="G01" targetRef="EndEvent_NoTrauma" />
+    <bpmn:sequenceFlow id="Flow_g01_yes_g02" name="Trauma exposure confirmed" sourceRef="G01" targetRef="G02" />
+    <bpmn:sequenceFlow id="Flow_g02_no_g03" name="No re-experiencing symptoms detected" sourceRef="G02" targetRef="G03" />
+    <bpmn:sequenceFlow id="Flow_g02_yes_t08" name="Re-experiencing symptoms present" sourceRef="G02" targetRef="T08" />
+    <bpmn:sequenceFlow id="Flow_g03_yes_t09" name="Mild symptoms and less than 4 weeks post-trauma" sourceRef="G03" targetRef="T09" />
+    <bpmn:sequenceFlow id="Flow_g03_no_t08" name="Symptoms not mild or more than 4 weeks" sourceRef="G03" targetRef="T08" />
+    <bpmn:sequenceFlow id="Flow_t09_t10" sourceRef="T09" targetRef="T10" />
+    <bpmn:sequenceFlow id="Flow_t02_t10" sourceRef="T02" targetRef="T10" />
+    <bpmn:sequenceFlow id="Flow_t10_t02" sourceRef="T10" targetRef="T02" />
+    <bpmn:sequenceFlow id="Flow_t02_g02b" sourceRef="T02" targetRef="G02b" />
+    <bpmn:sequenceFlow id="Flow_g02b_yes_t08" name="Symptoms developed or worsened - referral required" sourceRef="G02b" targetRef="T08" />
+    <bpmn:sequenceFlow id="Flow_g02b_no_t03" name="Symptoms stable or resolved - preventive intervention" sourceRef="G02b" targetRef="T03" />
+    <bpmn:sequenceFlow id="Flow_t03_endprev" sourceRef="T03" targetRef="EndEvent_Prevention" />
+    <bpmn:sequenceFlow id="Flow_t08_t07" sourceRef="T08" targetRef="T07" />
+
+    <!-- Phase 3: Diagnostic -->
+    <bpmn:sequenceFlow id="Flow_t07_t11" sourceRef="T07" targetRef="T11" />
+    <bpmn:sequenceFlow id="Flow_t11_t12" sourceRef="T11" targetRef="T12" />
+    <bpmn:sequenceFlow id="Flow_t12_g10" sourceRef="T12" targetRef="G10" />
+    <bpmn:sequenceFlow id="Flow_g10_yes_t12b" name="Head injury or physical trauma involved" sourceRef="G10" targetRef="T12b" />
+    <bpmn:sequenceFlow id="Flow_g10_no_g06" name="No injury involved - standard somatic exclusion" sourceRef="G10" targetRef="G06" />
+    <bpmn:sequenceFlow id="Flow_t12b_g06" sourceRef="T12b" targetRef="G06" />
+    <bpmn:sequenceFlow id="Flow_g06_no_endsomatic" name="Organic cause identified - refer to somatic specialist" sourceRef="G06" targetRef="EndEvent_OrganicCause" />
+    <bpmn:sequenceFlow id="Flow_g06_yes_t13" name="Somatic cause excluded - proceed to psychodiagnostics" sourceRef="G06" targetRef="T13" />
+    <bpmn:sequenceFlow id="Flow_t13_t14" sourceRef="T13" targetRef="T14" />
+    <bpmn:sequenceFlow id="Flow_t14_t15" sourceRef="T14" targetRef="T15" />
+    <bpmn:sequenceFlow id="Flow_t15_t16" sourceRef="T15" targetRef="T16" />
+    <bpmn:sequenceFlow id="Flow_t16_t17" sourceRef="T16" targetRef="T17" />
+    <bpmn:sequenceFlow id="Flow_t17_t18" sourceRef="T17" targetRef="T18" />
+    <bpmn:sequenceFlow id="Flow_t18_g09" sourceRef="T18" targetRef="G09" />
+    <bpmn:sequenceFlow id="Flow_g09_yes_t19" name="Complex psychodiagnostic examination indicated" sourceRef="G09" targetRef="T19" />
+    <bpmn:sequenceFlow id="Flow_g09_no_t20" name="Standard battery sufficient - proceed" sourceRef="G09" targetRef="T20" />
+    <bpmn:sequenceFlow id="Flow_t19_t20" sourceRef="T19" targetRef="T20" />
+    <bpmn:sequenceFlow id="Flow_t20_t25" sourceRef="T20" targetRef="T25" />
+    <bpmn:sequenceFlow id="Flow_t25_t21" sourceRef="T25" targetRef="T21" />
+    <bpmn:sequenceFlow id="Flow_t21_g07" sourceRef="T21" targetRef="G07" />
+    <bpmn:sequenceFlow id="Flow_g07_yes_endalt" name="Alternative diagnosis better explains symptoms" sourceRef="G07" targetRef="EndEvent_AltDx" />
+    <bpmn:sequenceFlow id="Flow_g07_no_t22" name="PTSD remains primary diagnosis" sourceRef="G07" targetRef="T22" />
+    <bpmn:sequenceFlow id="Flow_t22_t23" sourceRef="T22" targetRef="T23" />
+    <bpmn:sequenceFlow id="Flow_t23_t24" sourceRef="T23" targetRef="T24" />
+    <bpmn:sequenceFlow id="Flow_t24_g05" sourceRef="T24" targetRef="G05" />
+    <bpmn:sequenceFlow id="Flow_g05_no_endnodiag" name="ICD-10 criteria not fully met" sourceRef="G05" targetRef="EndEvent_NoDiag" />
+    <bpmn:sequenceFlow id="Flow_g05_yes_t31" name="Full ICD-10 criteria A through E confirmed" sourceRef="G05" targetRef="T31" />
+
+    <!-- Phase 4: Treatment Planning -->
+    <bpmn:sequenceFlow id="Flow_t31_g23" sourceRef="T31" targetRef="G23" />
+    <bpmn:sequenceFlow id="Flow_g23_yes_t31b" name="Language or cultural barrier identified" sourceRef="G23" targetRef="T31b" />
+    <bpmn:sequenceFlow id="Flow_g23_no_t30" name="No language or cultural barrier" sourceRef="G23" targetRef="T30" />
+    <bpmn:sequenceFlow id="Flow_t31b_t30" sourceRef="T31b" targetRef="T30" />
+    <bpmn:sequenceFlow id="Flow_t30_t26" sourceRef="T30" targetRef="T26" />
+    <bpmn:sequenceFlow id="Flow_t26_g12" sourceRef="T26" targetRef="G12" />
+    <bpmn:sequenceFlow id="Flow_g12_no_endnoconsent" name="Patient refuses or cannot provide consent" sourceRef="G12" targetRef="EndEvent_NoConsent" />
+    <bpmn:sequenceFlow id="Flow_g12_yes_t27" name="Informed consent obtained" sourceRef="G12" targetRef="T27" />
+    <bpmn:sequenceFlow id="Flow_t27_g11" sourceRef="T27" targetRef="G11" />
+    <bpmn:sequenceFlow id="Flow_g11_yes_t29" name="High risk of self-harm or harm to others confirmed" sourceRef="G11" targetRef="T29" />
+    <bpmn:sequenceFlow id="Flow_g11_no_t28" name="No elevated risk identified" sourceRef="G11" targetRef="T28" />
+    <bpmn:sequenceFlow id="Flow_t29_t28" sourceRef="T29" targetRef="T28" />
+    <bpmn:sequenceFlow id="Flow_t28_g08" sourceRef="T28" targetRef="G08" />
+    <bpmn:sequenceFlow id="Flow_g08_yes_g16" name="Significant comorbidities present - consider pharmacotherapy" sourceRef="G08" targetRef="G16" />
+    <bpmn:sequenceFlow id="Flow_g08_no_g13" name="No significant comorbidities" sourceRef="G08" targetRef="G13" />
+    <bpmn:sequenceFlow id="Flow_g13_yes_g17" name="Trauma-focused psychotherapy available and preferred" sourceRef="G13" targetRef="G17" />
+    <bpmn:sequenceFlow id="Flow_g13_no_g16" name="Trauma-focused therapy not available or not preferred" sourceRef="G13" targetRef="G16" />
+    <bpmn:sequenceFlow id="Flow_g16_yes_t36" name="Pharmacotherapy indicated as primary or augmentation" sourceRef="G16" targetRef="T36" />
+    <bpmn:sequenceFlow id="Flow_g16_no_g13b" name="Pharmacotherapy not indicated" sourceRef="G16" targetRef="G13b" />
+    <bpmn:sequenceFlow id="Flow_t36_t37" sourceRef="T36" targetRef="T37" />
+    <bpmn:sequenceFlow id="Flow_t37_g13b" sourceRef="T37" targetRef="G13b" />
+    <bpmn:sequenceFlow id="Flow_g13b_g17" name="Proceed to trauma-focused therapy modality selection" sourceRef="G13b" targetRef="G17" />
+    <bpmn:sequenceFlow id="Flow_g13b_endt35" name="Patient unable or unwilling for trauma therapy - symptom-specific KBT" sourceRef="G13b" targetRef="T35" />
+    <bpmn:sequenceFlow id="Flow_g17_no_refercert" name="Clinician not certified - refer to certified specialist" sourceRef="G17" targetRef="EndEvent_RefCert" />
+    <bpmn:sequenceFlow id="Flow_g17_yes_g14" name="Required certification confirmed" sourceRef="G17" targetRef="G14" />
+    <bpmn:sequenceFlow id="Flow_g14_kbt_t32" name="Trauma-focused KBT selected" sourceRef="G14" targetRef="T32" />
+    <bpmn:sequenceFlow id="Flow_g14_emdr_t33" name="EMDR selected" sourceRef="G14" targetRef="T33" />
+    <bpmn:sequenceFlow id="Flow_g14_ikbt_g15" name="Computerized KBT selected - check contraindications" sourceRef="G14" targetRef="G15" />
+
+    <!-- Phase 5: Treatment Execution -->
+    <bpmn:sequenceFlow id="Flow_g15_yes_t32b" name="IKBT contraindicated - severe dissociation or safety risk" sourceRef="G15" targetRef="T32b" />
+    <bpmn:sequenceFlow id="Flow_g15_no_t34" name="No contraindications - IKBT eligible" sourceRef="G15" targetRef="T34" />
+    <bpmn:sequenceFlow id="Flow_t32_monitoring" sourceRef="T32" targetRef="JoinMonitoring" />
+    <bpmn:sequenceFlow id="Flow_t33_monitoring" sourceRef="T33" targetRef="JoinMonitoring" />
+    <bpmn:sequenceFlow id="Flow_t34_monitoring" sourceRef="T34" targetRef="JoinMonitoring" />
+    <bpmn:sequenceFlow id="Flow_t32b_monitoring" sourceRef="T32b" targetRef="JoinMonitoring" />
+    <bpmn:sequenceFlow id="Flow_t35_monitoring" sourceRef="T35" targetRef="JoinMonitoring" />
+    <bpmn:sequenceFlow id="Flow_t41_join" sourceRef="T41" targetRef="JoinMonitoring" />
+    <bpmn:sequenceFlow id="Flow_join_t38" name="Provide family and social support" sourceRef="JoinMonitoring" targetRef="T38" />
+    <bpmn:sequenceFlow id="Flow_join_t43" name="Proceed to session monitoring" sourceRef="JoinMonitoring" targetRef="T43" />
+    <bpmn:sequenceFlow id="Flow_t38_t40" sourceRef="T38" targetRef="T40" />
+    <bpmn:sequenceFlow id="Flow_t40_g24" sourceRef="T40" targetRef="G24" />
+    <bpmn:sequenceFlow id="Flow_g24_yes_t42" name="Family members also affected by trauma" sourceRef="G24" targetRef="T42" />
+    <bpmn:sequenceFlow id="Flow_g24_no_t41" name="Only index patient affected" sourceRef="G24" targetRef="T41" />
+    <bpmn:sequenceFlow id="Flow_t42_t41" sourceRef="T42" targetRef="T41" />
+
+    <!-- Phase 6: Monitoring -->
+    <bpmn:sequenceFlow id="Flow_t43_g21" sourceRef="T43" targetRef="G21" />
+    <bpmn:sequenceFlow id="Flow_g21_yes_t45" name="Patient missing sessions - active follow-up required" sourceRef="G21" targetRef="T45" />
+    <bpmn:sequenceFlow id="Flow_g21_no_g18" name="Sessions attended - evaluate treatment response" sourceRef="G21" targetRef="G18" />
+    <bpmn:sequenceFlow id="Flow_t45_g18" sourceRef="T45" targetRef="G18" />
+    <bpmn:sequenceFlow id="Flow_g18_yes_t44" name="Adequate treatment response achieved" sourceRef="G18" targetRef="T44" />
+    <bpmn:sequenceFlow id="Flow_g18_no_g22" name="Inadequate treatment response" sourceRef="G18" targetRef="G22" />
+    <bpmn:sequenceFlow id="Flow_g22_yes_t35b" name="Symptoms persistent over 3 months and patient unwilling or unable" sourceRef="G22" targetRef="T35b" />
+    <bpmn:sequenceFlow id="Flow_g22_no_g20" name="Consider comorbidity status and treatment switch" sourceRef="G22" targetRef="G20" />
+    <bpmn:sequenceFlow id="Flow_t35b_g20" sourceRef="T35b" targetRef="G20" />
+    <bpmn:sequenceFlow id="Flow_g20_yes_g19" name="Comorbidity remitting - evaluate escalation need" sourceRef="G20" targetRef="G19" />
+    <bpmn:sequenceFlow id="Flow_g20_no_t49" name="Comorbidity persists or impedes PTSD treatment" sourceRef="G20" targetRef="T49" />
+    <bpmn:sequenceFlow id="Flow_t49_g19" sourceRef="T49" targetRef="G19" />
+    <bpmn:sequenceFlow id="Flow_g19_dayhospital_t47" name="Persistent symptoms requiring day hospital intensification" sourceRef="G19" targetRef="T47" />
+    <bpmn:sequenceFlow id="Flow_g19_hospitalize_t48" name="Severe non-response or high risk - inpatient hospitalization" sourceRef="G19" targetRef="T48" />
+    <bpmn:sequenceFlow id="Flow_g19_continue_t43" name="Modality switch sufficient - continue ambulatory" sourceRef="G19" targetRef="G25" />
+    <bpmn:sequenceFlow id="Flow_t47_t43" sourceRef="T47" targetRef="G25" />
+    <bpmn:sequenceFlow id="Flow_g25_yes_t39" name="Acute crisis state detected" sourceRef="G25" targetRef="T39" />
+    <bpmn:sequenceFlow id="Flow_g25_no_t43loop" name="No acute crisis - continue monitoring cycle" sourceRef="G25" targetRef="T43" />
+    <bpmn:sequenceFlow id="Flow_t39_t43" sourceRef="T39" targetRef="T43" />
+    <bpmn:sequenceFlow id="Flow_t48_endhospital" sourceRef="T48" targetRef="EndEvent_Hospital" />
+    <bpmn:sequenceFlow id="Flow_t44_t46" sourceRef="T44" targetRef="T46" />
+    <bpmn:sequenceFlow id="Flow_t46_end" sourceRef="T46" targetRef="EndEvent_Complete" />
+
+  </bpmn:process>
+
+  <!-- ==================== BPMN DI ==================== -->
+
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1t103nq">
+
+      <!-- START -->
+      <bpmndi:BPMNShape id="StartEvent_1_di" bpmnElement="StartEvent_1">
+        <dc:Bounds x="152" y="362" width="36" height="36" />
+      </bpmndi:BPMNShape>
+
+      <!-- G04 -->
+      <bpmndi:BPMNShape id="G04_di" bpmnElement="G04" isMarkerVisible="true">
+        <dc:Bounds x="235" y="355" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <!-- T04 -->
+      <bpmndi:BPMNShape id="T04_di" bpmnElement="T04">
+        <dc:Bounds x="330" y="240" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- T01 -->
+      <bpmndi:BPMNShape id="T01_di" bpmnElement="T01">
+        <dc:Bounds x="330" y="340" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- T06 -->
+      <bpmndi:BPMNShape id="T06_di" bpmnElement="T06">
+        <dc:Bounds x="540" y="340" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- T05 -->
+      <bpmndi:BPMNShape id="T05_di" bpmnElement="T05">
+        <dc:Bounds x="750" y="340" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- G01 -->
+      <bpmndi:BPMNShape id="G01_di" bpmnElement="G01" isMarkerVisible="true">
+        <dc:Bounds x="965" y="355" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <!-- EndEvent_NoTrauma -->
+      <bpmndi:BPMNShape id="EndEvent_NoTrauma_di" bpmnElement="EndEvent_NoTrauma">
+        <dc:Bounds x="967" y="242" width="36" height="36" />
+      </bpmndi:BPMNShape>
+
+      <!-- G02 -->
+      <bpmndi:BPMNShape id="G02_di" bpmnElement="G02" isMarkerVisible="true">
+        <dc:Bounds x="1065" y="355" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <!-- G03 -->
+      <bpmndi:BPMNShape id="G03_di" bpmnElement="G03" isMarkerVisible="true">
+        <dc:Bounds x="1065" y="495" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <!-- T09 -->
+      <bpmndi:BPMNShape id="T09_di" bpmnElement="T09">
+        <dc:Bounds x="1160" y="480" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- T10 -->
+      <bpmndi:BPMNShape id="T10_di" bpmnElement="T10">
+        <dc:Bounds x="1370" y="480" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- T02 -->
+      <bpmndi:BPMNShape id="T02_di" bpmnElement="T02">
+        <dc:Bounds x="1370" y="600" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- G02b -->
+      <bpmndi:BPMNShape id="G02b_di" bpmnElement="G02b" isMarkerVisible="true">
+        <dc:Bounds x="1575" y="615" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <!-- T03 -->
+      <bpmndi:BPMNShape id="T03_di" bpmnElement="T03">
+        <dc:Bounds x="1660" y="600" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- EndEvent_Prevention -->
+      <bpmndi:BPMNShape id="EndEvent_Prevention_di" bpmnElement="EndEvent_Prevention">
+        <dc:Bounds x="1862" y="622" width="36" height="36" />
+      </bpmndi:BPMNShape>
+
+      <!-- T08 -->
+      <bpmndi:BPMNShape id="T08_di" bpmnElement="T08">
+        <dc:Bounds x="1160" y="340" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- T07 -->
+      <bpmndi:BPMNShape id="T07_di" bpmnElement="T07">
+        <dc:Bounds x="1370" y="340" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- T11 -->
+      <bpmndi:BPMNShape id="T11_di" bpmnElement="T11">
+        <dc:Bounds x="1580" y="340" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- T12 -->
+      <bpmndi:BPMNShape id="T12_di" bpmnElement="T12">
+        <dc:Bounds x="1790" y="340" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- G10 -->
+      <bpmndi:BPMNShape id="G10_di" bpmnElement="G10" isMarkerVisible="true">
+        <dc:Bounds x="2005" y="355" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <!-- T12b -->
+      <bpmndi:BPMNShape id="T12b_di" bpmnElement="T12b">
+        <dc:Bounds x="2100" y="240" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- G06 -->
+      <bpmndi:BPMNShape id="G06_di" bpmnElement="G06" isMarkerVisible="true">
+        <dc:Bounds x="2205" y="355" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <!-- EndEvent_OrganicCause -->
+      <bpmndi:BPMNShape id="EndEvent_OrganicCause_di" bpmnElement="EndEvent_OrganicCause">
+        <dc:Bounds x="2207" y="242" width="36" height="36" />
+      </bpmndi:BPMNShape>
+
+      <!-- T13 -->
+      <bpmndi:BPMNShape id="T13_di" bpmnElement="T13">
+        <dc:Bounds x="2300" y="340" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- T14 -->
+      <bpmndi:BPMNShape id="T14_di" bpmnElement="T14">
+        <dc:Bounds x="2510" y="340" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- T15 -->
+      <bpmndi:BPMNShape id="T15_di" bpmnElement="T15">
+        <dc:Bounds x="2720" y="340" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- T16 -->
+      <bpmndi:BPMNShape id="T16_di" bpmnElement="T16">
+        <dc:Bounds x="2930" y="340" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- T17 -->
+      <bpmndi:BPMNShape id="T17_di" bpmnElement="T17">
+        <dc:Bounds x="3140" y="340" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- T18 -->
+      <bpmndi:BPMNShape id="T18_di" bpmnElement="T18">
+        <dc:Bounds x="3350" y="340" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- G09 -->
+      <bpmndi:BPMNShape id="G09_di" bpmnElement="G09" isMarkerVisible="true">
+        <dc:Bounds x="3565" y="355" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <!-- T19 -->
+      <bpmndi:BPMNShape id="T19_di" bpmnElement="T19">
+        <dc:Bounds x="3660" y="240" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- T20 -->
+      <bpmndi:BPMNShape id="T20_di" bpmnElement="T20">
+        <dc:Bounds x="3870" y="340" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- T25 -->
+      <bpmndi:BPMNShape id="T25_di" bpmnElement="T25">
+        <dc:Bounds x="4080" y="340" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- T21 -->
+      <bpmndi:BPMNShape id="T21_di" bpmnElement="T21">
+        <dc:Bounds x="4290" y="340" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- G07 -->
+      <bpmndi:BPMNShape id="G07_di" bpmnElement="G07" isMarkerVisible="true">
+        <dc:Bounds x="4505" y="355" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <!-- EndEvent_AltDx -->
+      <bpmndi:BPMNShape id="EndEvent_AltDx_di" bpmnElement="EndEvent_AltDx">
+        <dc:Bounds x="4507" y="242" width="36" height="36" />
+      </bpmndi:BPMNShape>
+
+      <!-- T22 -->
+      <bpmndi:BPMNShape id="T22_di" bpmnElement="T22">
+        <dc:Bounds x="4600" y="340" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- T23 -->
+      <bpmndi:BPMNShape id="T23_di" bpmnElement="T23">
+        <dc:Bounds x="4810" y="340" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- T24 -->
+      <bpmndi:BPMNShape id="T24_di" bpmnElement="T24">
+        <dc:Bounds x="5020" y="340" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- G05 -->
+      <bpmndi:BPMNShape id="G05_di" bpmnElement="G05" isMarkerVisible="true">
+        <dc:Bounds x="5235" y="355" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <!-- EndEvent_NoDiag -->
+      <bpmndi:BPMNShape id="EndEvent_NoDiag_di" bpmnElement="EndEvent_NoDiag">
+        <dc:Bounds x="5237" y="242" width="36" height="36" />
+      </bpmndi:BPMNShape>
+
+      <!-- T31 -->
+      <bpmndi:BPMNShape id="T31_di" bpmnElement="T31">
+        <dc:Bounds x="5330" y="340" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- G23 -->
+      <bpmndi:BPMNShape id="G23_di" bpmnElement="G23" isMarkerVisible="true">
+        <dc:Bounds x="5545" y="355" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <!-- T31b -->
+      <bpmndi:BPMNShape id="T31b_di" bpmnElement="T31b">
+        <dc:Bounds x="5640" y="240" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- T30 -->
+      <bpmndi:BPMNShape id="T30_di" bpmnElement="T30">
+        <dc:Bounds x="5840" y="340" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- T26 -->
+      <bpmndi:BPMNShape id="T26_di" bpmnElement="T26">
+        <dc:Bounds x="6050" y="340" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- G12 -->
+      <bpmndi:BPMNShape id="G12_di" bpmnElement="G12" isMarkerVisible="true">
+        <dc:Bounds x="6265" y="355" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <!-- EndEvent_NoConsent -->
+      <bpmndi:BPMNShape id="EndEvent_NoConsent_di" bpmnElement="EndEvent_NoConsent">
+        <dc:Bounds x="6267" y="242" width="36" height="36" />
+      </bpmndi:BPMNShape>
+
+      <!-- T27 -->
+      <bpmndi:BPMNShape id="T27_di" bpmnElement="T27">
+        <dc:Bounds x="6360" y="340" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- G11 -->
+      <bpmndi:BPMNShape id="G11_di" bpmnElement="G11" isMarkerVisible="true">
+        <dc:Bounds x="6575" y="355" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <!-- T29 -->
+      <bpmndi:BPMNShape id="T29_di" bpmnElement="T29">
+        <dc:Bounds x="6670" y="240" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- T28 -->
+      <bpmndi:BPMNShape id="T28_di" bpmnElement="T28">
+        <dc:Bounds x="6880" y="340" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- G08 -->
+      <bpmndi:BPMNShape id="G08_di" bpmnElement="G08" isMarkerVisible="true">
+        <dc:Bounds x="7095" y="355" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <!-- G13 -->
+      <bpmndi:BPMNShape id="G13_di" bpmnElement="G13" isMarkerVisible="true">
+        <dc:Bounds x="7095" y="495" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <!-- G16 -->
+      <bpmndi:BPMNShape id="G16_di" bpmnElement="G16" isMarkerVisible="true">
+        <dc:Bounds x="7195" y="355" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <!-- T36 -->
+      <bpmndi:BPMNShape id="T36_di" bpmnElement="T36">
+        <dc:Bounds x="7290" y="240" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- T37 -->
+      <bpmndi:BPMNShape id="T37_di" bpmnElement="T37">
+        <dc:Bounds x="7500" y="240" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- G13b -->
+      <bpmndi:BPMNShape id="G13b_di" bpmnElement="G13b" isMarkerVisible="true">
+        <dc:Bounds x="7695" y="355" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <!-- T35 -->
+      <bpmndi:BPMNShape id="T35_di" bpmnElement="T35">
+        <dc:Bounds x="7790" y="480" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- G17 -->
+      <bpmndi:BPMNShape id="G17_di" bpmnElement="G17" isMarkerVisible="true">
+        <dc:Bounds x="7895" y="355" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <!-- EndEvent_RefCert -->
+      <bpmndi:BPMNShape id="EndEvent_RefCert_di" bpmnElement="EndEvent_RefCert">
+        <dc:Bounds x="7897" y="242" width="36" height="36" />
+      </bpmndi:BPMNShape>
+
+      <!-- G14 -->
+      <bpmndi:BPMNShape id="G14_di" bpmnElement="G14" isMarkerVisible="true">
+        <dc:Bounds x="7995" y="355" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <!-- T32 -->
+      <bpmndi:BPMNShape id="T32_di" bpmnElement="T32">
+        <dc:Bounds x="8090" y="240" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- T33 -->
+      <bpmndi:BPMNShape id="T33_di" bpmnElement="T33">
+        <dc:Bounds x="8090" y="340" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- G15 -->
+      <bpmndi:BPMNShape id="G15_di" bpmnElement="G15" isMarkerVisible="true">
+        <dc:Bounds x="8095" y="495" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <!-- T32b -->
+      <bpmndi:BPMNShape id="T32b_di" bpmnElement="T32b">
+        <dc:Bounds x="8190" y="600" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- T34 -->
+      <bpmndi:BPMNShape id="T34_di" bpmnElement="T34">
+        <dc:Bounds x="8190" y="480" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- JoinMonitoring -->
+      <bpmndi:BPMNShape id="JoinMonitoring_di" bpmnElement="JoinMonitoring" isMarkerVisible="true">
+        <dc:Bounds x="8405" y="355" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <!-- T38 -->
+      <bpmndi:BPMNShape id="T38_di" bpmnElement="T38">
+        <dc:Bounds x="8500" y="240" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- T40 -->
+      <bpmndi:BPMNShape id="T40_di" bpmnElement="T40">
+        <dc:Bounds x="8710" y="240" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- G24 -->
+      <bpmndi:BPMNShape id="G24_di" bpmnElement="G24" isMarkerVisible="true">
+        <dc:Bounds x="8925" y="255" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <!-- T42 -->
+      <bpmndi:BPMNShape id="T42_di" bpmnElement="T42">
+        <dc:Bounds x="9020" y="140" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- T41 -->
+      <bpmndi:BPMNShape id="T41_di" bpmnElement="T41">
+        <dc:Bounds x="9020" y="240" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- T43 -->
+      <bpmndi:BPMNShape id="T43_di" bpmnElement="T43">
+        <dc:Bounds x="8500" y="340" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- G21 -->
+      <bpmndi:BPMNShape id="G21_di" bpmnElement="G21" isMarkerVisible="true">
+        <dc:Bounds x="8715" y="355" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <!-- T45 -->
+      <bpmndi:BPMNShape id="T45_di" bpmnElement="T45">
+        <dc:Bounds x="8810" y="480" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- G18 -->
+      <bpmndi:BPMNShape id="G18_di" bpmnElement="G18" isMarkerVisible="true">
+        <dc:Bounds x="8925" y="355" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <!-- T44 -->
+      <bpmndi:BPMNShape id="T44_di" bpmnElement="T44">
+        <dc:Bounds x="9020" y="340" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- T46 -->
+      <bpmndi:BPMNShape id="T46_di" bpmnElement="T46">
+        <dc:Bounds x="9230" y="340" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- EndEvent_Complete -->
+      <bpmndi:BPMNShape id="EndEvent_Complete_di" bpmnElement="EndEvent_Complete">
+        <dc:Bounds x="9442" y="362" width="36" height="36" />
+      </bpmndi:BPMNShape>
+
+      <!-- G22 -->
+      <bpmndi:BPMNShape id="G22_di" bpmnElement="G22" isMarkerVisible="true">
+        <dc:Bounds x="8925" y="495" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <!-- T35b -->
+      <bpmndi:BPMNShape id="T35b_di" bpmnElement="T35b">
+        <dc:Bounds x="9020" y="480" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- G20 -->
+      <bpmndi:BPMNShape id="G20_di" bpmnElement="G20" isMarkerVisible="true">
+        <dc:Bounds x="9235" y="495" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <!-- T49 -->
+      <bpmndi:BPMNShape id="T49_di" bpmnElement="T49">
+        <dc:Bounds x="9330" y="480" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- G19 -->
+      <bpmndi:BPMNShape id="G19_di" bpmnElement="G19" isMarkerVisible="true">
+        <dc:Bounds x="9545" y="495" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <!-- T47 -->
+      <bpmndi:BPMNShape id="T47_di" bpmnElement="T47">
+        <dc:Bounds x="9640" y="480" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- T48 -->
+      <bpmndi:BPMNShape id="T48_di" bpmnElement="T48">
+        <dc:Bounds x="9640" y="600" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- EndEvent_Hospital -->
+      <bpmndi:BPMNShape id="EndEvent_Hospital_di" bpmnElement="EndEvent_Hospital">
+        <dc:Bounds x="9852" y="622" width="36" height="36" />
+      </bpmndi:BPMNShape>
+
+      <!-- G25 -->
+      <bpmndi:BPMNShape id="G25_di" bpmnElement="G25" isMarkerVisible="true">
+        <dc:Bounds x="9645" y="355" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <!-- T39 -->
+      <bpmndi:BPMNShape id="T39_di" bpmnElement="T39">
+        <dc:Bounds x="9740" y="340" width="160" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- ==================== SEQUENCE FLOW EDGES ==================== -->
+
+      <bpmndi:BPMNEdge id="Flow_start_g04_di" bpmnElement="Flow_start_g04">
+        <di:waypoint x="188" y="380" />
+        <di:waypoint x="235" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g04_yes_t04_di" bpmnElement="Flow_g04_yes_t04">
+        <di:waypoint x="260" y="355" />
+        <di:waypoint x="260" y="280" />
+        <di:waypoint x="330" y="280" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g04_no_t01_di" bpmnElement="Flow_g04_no_t01">
+        <di:waypoint x="285" y="380" />
+        <di:waypoint x="330" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t04_t01_di" bpmnElement="Flow_t04_t01">
+        <di:waypoint x="490" y="280" />
+        <di:waypoint x="510" y="280" />
+        <di:waypoint x="510" y="380" />
+        <di:waypoint x="330" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t01_t06_di" bpmnElement="Flow_t01_t06">
+        <di:waypoint x="490" y="380" />
+        <di:waypoint x="540" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t06_t05_di" bpmnElement="Flow_t06_t05">
+        <di:waypoint x="700" y="380" />
+        <di:waypoint x="750" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t05_g01_di" bpmnElement="Flow_t05_g01">
+        <di:waypoint x="910" y="380" />
+        <di:waypoint x="965" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g01_no_end1_di" bpmnElement="Flow_g01_no_end1">
+        <di:waypoint x="990" y="355" />
+        <di:waypoint x="990" y="278" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g01_yes_g02_di" bpmnElement="Flow_g01_yes_g02">
+        <di:waypoint x="1015" y="380" />
+        <di:waypoint x="1065" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g02_no_g03_di" bpmnElement="Flow_g02_no_g03">
+        <di:waypoint x="1090" y="405" />
+        <di:waypoint x="1090" y="495" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g02_yes_t08_di" bpmnElement="Flow_g02_yes_t08">
+        <di:waypoint x="1115" y="380" />
+        <di:waypoint x="1160" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g03_yes_t09_di" bpmnElement="Flow_g03_yes_t09">
+        <di:waypoint x="1115" y="520" />
+        <di:waypoint x="1160" y="520" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g03_no_t08_di" bpmnElement="Flow_g03_no_t08">
+        <di:waypoint x="1090" y="495" />
+        <di:waypoint x="1090" y="380" />
+        <di:waypoint x="1160" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t09_t10_di" bpmnElement="Flow_t09_t10">
+        <di:waypoint x="1320" y="520" />
+        <di:waypoint x="1370" y="520" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t10_t02_di" bpmnElement="Flow_t10_t02">
+        <di:waypoint x="1530" y="520" />
+        <di:waypoint x="1530" y="640" />
+        <di:waypoint x="1370" y="640" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t02_t10_di" bpmnElement="Flow_t02_t10">
+        <di:waypoint x="1450" y="600" />
+        <di:waypoint x="1450" y="560" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t02_g02b_di" bpmnElement="Flow_t02_g02b">
+        <di:waypoint x="1530" y="640" />
+        <di:waypoint x="1575" y="640" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g02b_yes_t08_di" bpmnElement="Flow_g02b_yes_t08">
+        <di:waypoint x="1600" y="615" />
+        <di:waypoint x="1600" y="380" />
+        <di:waypoint x="1160" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g02b_no_t03_di" bpmnElement="Flow_g02b_no_t03">
+        <di:waypoint x="1625" y="640" />
+        <di:waypoint x="1660" y="640" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t03_endprev_di" bpmnElement="Flow_t03_endprev">
+        <di:waypoint x="1820" y="640" />
+        <di:waypoint x="1862" y="640" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t08_t07_di" bpmnElement="Flow_t08_t07">
+        <di:waypoint x="1320" y="380" />
+        <di:waypoint x="1370" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t07_t11_di" bpmnElement="Flow_t07_t11">
+        <di:waypoint x="1530" y="380" />
+        <di:waypoint x="1580" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t11_t12_di" bpmnElement="Flow_t11_t12">
+        <di:waypoint x="1740" y="380" />
+        <di:waypoint x="1790" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t12_g10_di" bpmnElement="Flow_t12_g10">
+        <di:waypoint x="1950" y="380" />
+        <di:waypoint x="2005" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g10_yes_t12b_di" bpmnElement="Flow_g10_yes_t12b">
+        <di:waypoint x="2030" y="355" />
+        <di:waypoint x="2030" y="280" />
+        <di:waypoint x="2100" y="280" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g10_no_g06_di" bpmnElement="Flow_g10_no_g06">
+        <di:waypoint x="2055" y="380" />
+        <di:waypoint x="2205" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t12b_g06_di" bpmnElement="Flow_t12b_g06">
+        <di:waypoint x="2260" y="280" />
+        <di:waypoint x="2230" y="280" />
+        <di:waypoint x="2230" y="355" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g06_no_endsomatic_di" bpmnElement="Flow_g06_no_endsomatic">
+        <di:waypoint x="2230" y="355" />
+        <di:waypoint x="2230" y="278" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g06_yes_t13_di" bpmnElement="Flow_g06_yes_t13">
+        <di:waypoint x="2255" y="380" />
+        <di:waypoint x="2300" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t13_t14_di" bpmnElement="Flow_t13_t14">
+        <di:waypoint x="2460" y="380" />
+        <di:waypoint x="2510" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t14_t15_di" bpmnElement="Flow_t14_t15">
+        <di:waypoint x="2670" y="380" />
+        <di:waypoint x="2720" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t15_t16_di" bpmnElement="Flow_t15_t16">
+        <di:waypoint x="2880" y="380" />
+        <di:waypoint x="2930" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t16_t17_di" bpmnElement="Flow_t16_t17">
+        <di:waypoint x="3090" y="380" />
+        <di:waypoint x="3140" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t17_t18_di" bpmnElement="Flow_t17_t18">
+        <di:waypoint x="3300" y="380" />
+        <di:waypoint x="3350" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t18_g09_di" bpmnElement="Flow_t18_g09">
+        <di:waypoint x="3510" y="380" />
+        <di:waypoint x="3565" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g09_yes_t19_di" bpmnElement="Flow_g09_yes_t19">
+        <di:waypoint x="3590" y="355" />
+        <di:waypoint x="3590" y="280" />
+        <di:waypoint x="3660" y="280" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g09_no_t20_di" bpmnElement="Flow_g09_no_t20">
+        <di:waypoint x="3615" y="380" />
+        <di:waypoint x="3870" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t19_t20_di" bpmnElement="Flow_t19_t20">
+        <di:waypoint x="3820" y="280" />
+        <di:waypoint x="3950" y="280" />
+        <di:waypoint x="3950" y="340" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t20_t25_di" bpmnElement="Flow_t20_t25">
+        <di:waypoint x="4030" y="380" />
+        <di:waypoint x="4080" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t25_t21_di" bpmnElement="Flow_t25_t21">
+        <di:waypoint x="4240" y="380" />
+        <di:waypoint x="4290" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t21_g07_di" bpmnElement="Flow_t21_g07">
+        <di:waypoint x="4450" y="380" />
+        <di:waypoint x="4505" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g07_yes_endalt_di" bpmnElement="Flow_g07_yes_endalt">
+        <di:waypoint x="4530" y="355" />
+        <di:waypoint x="4530" y="278" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g07_no_t22_di" bpmnElement="Flow_g07_no_t22">
+        <di:waypoint x="4555" y="380" />
+        <di:waypoint x="4600" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t22_t23_di" bpmnElement="Flow_t22_t23">
+        <di:waypoint x="4760" y="380" />
+        <di:waypoint x="4810" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t23_t24_di" bpmnElement="Flow_t23_t24">
+        <di:waypoint x="4970" y="380" />
+        <di:waypoint x="5020" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t24_g05_di" bpmnElement="Flow_t24_g05">
+        <di:waypoint x="5180" y="380" />
+        <di:waypoint x="5235" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g05_no_endnodiag_di" bpmnElement="Flow_g05_no_endnodiag">
+        <di:waypoint x="5260" y="355" />
+        <di:waypoint x="5260" y="278" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g05_yes_t31_di" bpmnElement="Flow_g05_yes_t31">
+        <di:waypoint x="5285" y="380" />
+        <di:waypoint x="5330" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t31_g23_di" bpmnElement="Flow_t31_g23">
+        <di:waypoint x="5490" y="380" />
+        <di:waypoint x="5545" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g23_yes_t31b_di" bpmnElement="Flow_g23_yes_t31b">
+        <di:waypoint x="5570" y="355" />
+        <di:waypoint x="5570" y="280" />
+        <di:waypoint x="5640" y="280" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g23_no_t30_di" bpmnElement="Flow_g23_no_t30">
+        <di:waypoint x="5595" y="380" />
+        <di:waypoint x="5840" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t31b_t30_di" bpmnElement="Flow_t31b_t30">
+        <di:waypoint x="5800" y="280" />
+        <di:waypoint x="5920" y="280" />
+        <di:waypoint x="5920" y="340" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t30_t26_di" bpmnElement="Flow_t30_t26">
+        <di:waypoint x="6000" y="380" />
+        <di:waypoint x="6050" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t26_g12_di" bpmnElement="Flow_t26_g12">
+        <di:waypoint x="6210" y="380" />
+        <di:waypoint x="6265" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g12_no_endnoconsent_di" bpmnElement="Flow_g12_no_endnoconsent">
+        <di:waypoint x="6290" y="355" />
+        <di:waypoint x="6290" y="278" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g12_yes_t27_di" bpmnElement="Flow_g12_yes_t27">
+        <di:waypoint x="6315" y="380" />
+        <di:waypoint x="6360" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t27_g11_di" bpmnElement="Flow_t27_g11">
+        <di:waypoint x="6520" y="380" />
+        <di:waypoint x="6575" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g11_yes_t29_di" bpmnElement="Flow_g11_yes_t29">
+        <di:waypoint x="6600" y="355" />
+        <di:waypoint x="6600" y="280" />
+        <di:waypoint x="6670" y="280" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g11_no_t28_di" bpmnElement="Flow_g11_no_t28">
+        <di:waypoint x="6625" y="380" />
+        <di:waypoint x="6880" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t29_t28_di" bpmnElement="Flow_t29_t28">
+        <di:waypoint x="6830" y="280" />
+        <di:waypoint x="6960" y="280" />
+        <di:waypoint x="6960" y="340" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t28_g08_di" bpmnElement="Flow_t28_g08">
+        <di:waypoint x="7040" y="380" />
+        <di:waypoint x="7095" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g08_yes_g16_di" bpmnElement="Flow_g08_yes_g16">
+        <di:waypoint x="7145" y="380" />
+        <di:waypoint x="7195" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g08_no_g13_di" bpmnElement="Flow_g08_no_g13">
+        <di:waypoint x="7120" y="405" />
+        <di:waypoint x="7120" y="495" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g13_yes_g17_di" bpmnElement="Flow_g13_yes_g17">
+        <di:waypoint x="7145" y="520" />
+        <di:waypoint x="7920" y="520" />
+        <di:waypoint x="7920" y="405" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g13_no_g16_di" bpmnElement="Flow_g13_no_g16">
+        <di:waypoint x="7120" y="495" />
+        <di:waypoint x="7120" y="380" />
+        <di:waypoint x="7195" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g16_yes_t36_di" bpmnElement="Flow_g16_yes_t36">
+        <di:waypoint x="7220" y="355" />
+        <di:waypoint x="7220" y="280" />
+        <di:waypoint x="7290" y="280" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g16_no_g13b_di" bpmnElement="Flow_g16_no_g13b">
+        <di:waypoint x="7245" y="380" />
+        <di:waypoint x="7695" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t36_t37_di" bpmnElement="Flow_t36_t37">
+        <di:waypoint x="7450" y="280" />
+        <di:waypoint x="7500" y="280" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t37_g13b_di" bpmnElement="Flow_t37_g13b">
+        <di:waypoint x="7660" y="280" />
+        <di:waypoint x="7720" y="280" />
+        <di:waypoint x="7720" y="355" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g13b_g17_di" bpmnElement="Flow_g13b_g17">
+        <di:waypoint x="7745" y="380" />
+        <di:waypoint x="7895" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g13b_endt35_di" bpmnElement="Flow_g13b_endt35">
+        <di:waypoint x="7720" y="405" />
+        <di:waypoint x="7720" y="520" />
+        <di:waypoint x="7790" y="520" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g17_no_refercert_di" bpmnElement="Flow_g17_no_refercert">
+        <di:waypoint x="7920" y="355" />
+        <di:waypoint x="7920" y="278" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g17_yes_g14_di" bpmnElement="Flow_g17_yes_g14">
+        <di:waypoint x="7945" y="380" />
+        <di:waypoint x="7995" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g14_kbt_t32_di" bpmnElement="Flow_g14_kbt_t32">
+        <di:waypoint x="8020" y="355" />
+        <di:waypoint x="8020" y="280" />
+        <di:waypoint x="8090" y="280" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g14_emdr_t33_di" bpmnElement="Flow_g14_emdr_t33">
+        <di:waypoint x="8045" y="380" />
+        <di:waypoint x="8090" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g14_ikbt_g15_di" bpmnElement="Flow_g14_ikbt_g15">
+        <di:waypoint x="8020" y="405" />
+        <di:waypoint x="8020" y="520" />
+        <di:waypoint x="8095" y="520" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g15_yes_t32b_di" bpmnElement="Flow_g15_yes_t32b">
+        <di:waypoint x="8120" y="545" />
+        <di:waypoint x="8120" y="640" />
+        <di:waypoint x="8190" y="640" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g15_no_t34_di" bpmnElement="Flow_g15_no_t34">
+        <di:waypoint x="8145" y="520" />
+        <di:waypoint x="8190" y="520" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t32_monitoring_di" bpmnElement="Flow_t32_monitoring">
+        <di:waypoint x="8250" y="280" />
+        <di:waypoint x="8430" y="280" />
+        <di:waypoint x="8430" y="355" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t33_monitoring_di" bpmnElement="Flow_t33_monitoring">
+        <di:waypoint x="8250" y="380" />
+        <di:waypoint x="8405" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t34_monitoring_di" bpmnElement="Flow_t34_monitoring">
+        <di:waypoint x="8350" y="520" />
+        <di:waypoint x="8430" y="520" />
+        <di:waypoint x="8430" y="405" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t32b_monitoring_di" bpmnElement="Flow_t32b_monitoring">
+        <di:waypoint x="8350" y="640" />
+        <di:waypoint x="8430" y="640" />
+        <di:waypoint x="8430" y="405" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t35_monitoring_di" bpmnElement="Flow_t35_monitoring">
+        <di:waypoint x="7950" y="520" />
+        <di:waypoint x="8430" y="520" />
+        <di:waypoint x="8430" y="405" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t41_join_di" bpmnElement="Flow_t41_join">
+        <di:waypoint x="9100" y="280" />
+        <di:waypoint x="9100" y="200" />
+        <di:waypoint x="8430" y="200" />
+        <di:waypoint x="8430" y="355" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_join_t38_di" bpmnElement="Flow_join_t38">
+        <di:waypoint x="8430" y="355" />
+        <di:waypoint x="8430" y="280" />
+        <di:waypoint x="8500" y="280" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_join_t43_di" bpmnElement="Flow_join_t43">
+        <di:waypoint x="8455" y="380" />
+        <di:waypoint x="8500" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t38_t40_di" bpmnElement="Flow_t38_t40">
+        <di:waypoint x="8660" y="280" />
+        <di:waypoint x="8710" y="280" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t40_g24_di" bpmnElement="Flow_t40_g24">
+        <di:waypoint x="8870" y="280" />
+        <di:waypoint x="8925" y="280" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g24_yes_t42_di" bpmnElement="Flow_g24_yes_t42">
+        <di:waypoint x="8950" y="255" />
+        <di:waypoint x="8950" y="180" />
+        <di:waypoint x="9020" y="180" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g24_no_t41_di" bpmnElement="Flow_g24_no_t41">
+        <di:waypoint x="8975" y="280" />
+        <di:waypoint x="9020" y="280" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t42_t41_di" bpmnElement="Flow_t42_t41">
+        <di:waypoint x="9100" y="220" />
+        <di:waypoint x="9100" y="240" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t43_g21_di" bpmnElement="Flow_t43_g21">
+        <di:waypoint x="8660" y="380" />
+        <di:waypoint x="8715" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g21_yes_t45_di" bpmnElement="Flow_g21_yes_t45">
+        <di:waypoint x="8740" y="405" />
+        <di:waypoint x="8740" y="520" />
+        <di:waypoint x="8810" y="520" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g21_no_g18_di" bpmnElement="Flow_g21_no_g18">
+        <di:waypoint x="8765" y="380" />
+        <di:waypoint x="8925" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t45_g18_di" bpmnElement="Flow_t45_g18">
+        <di:waypoint x="8970" y="520" />
+        <di:waypoint x="8950" y="520" />
+        <di:waypoint x="8950" y="405" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g18_yes_t44_di" bpmnElement="Flow_g18_yes_t44">
+        <di:waypoint x="8975" y="380" />
+        <di:waypoint x="9020" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g18_no_g22_di" bpmnElement="Flow_g18_no_g22">
+        <di:waypoint x="8950" y="405" />
+        <di:waypoint x="8950" y="495" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g22_yes_t35b_di" bpmnElement="Flow_g22_yes_t35b">
+        <di:waypoint x="8975" y="520" />
+        <di:waypoint x="9020" y="520" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g22_no_g20_di" bpmnElement="Flow_g22_no_g20">
+        <di:waypoint x="8975" y="520" />
+        <di:waypoint x="9235" y="520" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t35b_g20_di" bpmnElement="Flow_t35b_g20">
+        <di:waypoint x="9180" y="520" />
+        <di:waypoint x="9235" y="520" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g20_yes_g19_di" bpmnElement="Flow_g20_yes_g19">
+        <di:waypoint x="9285" y="520" />
+        <di:waypoint x="9545" y="520" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g20_no_t49_di" bpmnElement="Flow_g20_no_t49">
+        <di:waypoint x="9260" y="545" />
+        <di:waypoint x="9260" y="600" />
+        <di:waypoint x="9330" y="600" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t49_g19_di" bpmnElement="Flow_t49_g19">
+        <di:waypoint x="9490" y="560" />
+        <di:waypoint x="9570" y="560" />
+        <di:waypoint x="9570" y="545" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g19_dayhospital_t47_di" bpmnElement="Flow_g19_dayhospital_t47">
+        <di:waypoint x="9595" y="520" />
+        <di:waypoint x="9640" y="520" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g19_hospitalize_t48_di" bpmnElement="Flow_g19_hospitalize_t48">
+        <di:waypoint x="9570" y="545" />
+        <di:waypoint x="9570" y="640" />
+        <di:waypoint x="9640" y="640" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g19_continue_t43_di" bpmnElement="Flow_g19_continue_t43">
+        <di:waypoint x="9570" y="495" />
+        <di:waypoint x="9570" y="380" />
+        <di:waypoint x="9670" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t47_t43_di" bpmnElement="Flow_t47_t43">
+        <di:waypoint x="9720" y="480" />
+        <di:waypoint x="9720" y="400" />
+        <di:waypoint x="9670" y="400" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g25_yes_t39_di" bpmnElement="Flow_g25_yes_t39">
+        <di:waypoint x="9695" y="380" />
+        <di:waypoint x="9740" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_g25_no_t43loop_di" bpmnElement="Flow_g25_no_t43loop">
+        <di:waypoint x="9670" y="355" />
+        <di:waypoint x="9670" y="320" />
+        <di:waypoint x="8580" y="320" />
+        <di:waypoint x="8580" y="340" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t39_t43_di" bpmnElement="Flow_t39_t43">
+        <di:waypoint x="9900" y="380" />
+        <di:waypoint x="9920" y="380" />
+        <di:waypoint x="9920" y="320" />
+        <di:waypoint x="8580" y="320" />
+        <di:waypoint x="8580" y="340" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t48_endhospital_di" bpmnElement="Flow_t48_endhospital">
+        <di:waypoint x="9800" y="640" />
+        <di:waypoint x="9852" y="640" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t44_t46_di" bpmnElement="Flow_t44_t46">
+        <di:waypoint x="9180" y="380" />
+        <di:waypoint x="9230" y="380" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_t46_end_di" bpmnElement="Flow_t46_end">
+        <di:waypoint x="9390" y="380" />
+        <di:waypoint x="9442" y="380" />
+      </bpmndi:BPMNEdge>
+
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+
+</bpmn:definitions>

@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" xmlns:dmndi="https://www.omg.org/spec/DMN/20191111/DMNDI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:modeler="http://camunda.org/schema/modeler/1.0" xmlns:biodi="http://bpmn.io/schema/dmn/biodi/2.0" id="Definitions_0eck6tk" name="DRD" namespace="http://camunda.org/schema/1.0/dmn" exporter="Camunda Modeler" exporterVersion="5.33.1" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.22.0">
+  <decision id="vyhodnotenie_bdi" name="Vyhodnotenie BDI-II">
+    <decisionTable id="DecisionTable_144k0og" biodi:annotationsWidth="400">
+      <input id="Input_1" label="BDI-II skóre">
+        <inputExpression id="InputExpression_1" typeRef="integer">
+          <text>bdiScore</text>
+        </inputExpression>
+      </input>
+      <output id="Output_1" label="Interpretácia" name="bdiInterpretation" typeRef="string" biodi:width="250" />
+      <rule id="DecisionRule_018u32l">
+        <inputEntry id="UnaryTests_1g6tkvi">
+          <text>[0..13]</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_095r4yp">
+          <text>"Minimálna/žiadna depresia"</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_1x9leky">
+        <inputEntry id="UnaryTests_1gz3i5j">
+          <text>[14..19]</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_0xradul">
+          <text>"Ľahká depresia"</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_01gxo8t">
+        <inputEntry id="UnaryTests_0fk9s2n">
+          <text>[20..28]</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_17t09wf">
+          <text>"Stredne ťažká depresia"</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_1ahbxmu">
+        <inputEntry id="UnaryTests_02ia0ro">
+          <text>[29..63]</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_1tq2y0h">
+          <text>"Ťažká depresia"</text>
+        </outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+  <decision id="vyhodnotenie_bai" name="Vyhodnotenie BAI">
+    <decisionTable id="DecisionTable_0lkc7cw">
+      <input id="InputClause_0qopllc" label="BAI skóre">
+        <inputExpression id="LiteralExpression_040xcbb" typeRef="integer">
+          <text>baiScore</text>
+        </inputExpression>
+      </input>
+      <output id="OutputClause_0c0tasp" label="Interpretácia" name="baiInterpretation" typeRef="string" />
+      <rule id="DecisionRule_06u5rdx">
+        <inputEntry id="UnaryTests_08j6lm1">
+          <text>[0..7]</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_1cdx9yg">
+          <text>"Minimálna úzkosť"</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_0puy8wz">
+        <inputEntry id="UnaryTests_16bltil">
+          <text>[8..15]</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_1hw7n52">
+          <text>"Ľahká úzkosť"</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_0oon8qq">
+        <inputEntry id="UnaryTests_168xssh">
+          <text>[16..25]</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_0t43uye">
+          <text>"Stredná úzkosť"</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_16uxg3w">
+        <inputEntry id="UnaryTests_0m49ifb">
+          <text>[26..63]</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_0x803h7">
+          <text>"Ťažká úzkosť"</text>
+        </outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+  <decision id="vyhodnotenie_pokracovania_v_studii" name="Vyhodnotenie pokračovania v štúdií">
+    <decisionTable id="DecisionTable_0stbzlq" hitPolicy="FIRST">
+      <input id="InputClause_1yfxi44" label="BDI-II" biodi:width="302">
+        <inputExpression id="LiteralExpression_1nbut98" typeRef="string">
+          <text>bdiInterpretation</text>
+        </inputExpression>
+      </input>
+      <input id="InputClause_1k3qcrm" label="BAI" biodi:width="230">
+        <inputExpression id="LiteralExpression_0umoej2" typeRef="string">
+          <text>baiInterpretation</text>
+        </inputExpression>
+      </input>
+      <input id="InputClause_1ed1j1c" label="Sucidiálne myšlienky">
+        <inputExpression id="LiteralExpression_0fnpv60" typeRef="integer">
+          <text>suicidalThoughtsScore</text>
+        </inputExpression>
+      </input>
+      <output id="OutputClause_0ogq6pc" label="Výsledok" name="pokracovanieVStudii" typeRef="string" />
+      <output id="OutputClause_02fabyc" label="Poznámka" name="poznamkaPokracovaniaVStudii" typeRef="string" biodi:width="318" />
+      <rule id="DecisionRule_1gf8lrq">
+        <inputEntry id="UnaryTests_0y8vw67">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_1eiog9p">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_0hw7w9f">
+          <text>[1..3]</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_17i7py7">
+          <text>"Exklúzia pacienta"</text>
+        </outputEntry>
+        <outputEntry id="LiteralExpression_0ng9r11">
+          <text>"Pacient je vyradený zo štúdie, pretože, má samovražedné sklony."</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_15aipso">
+        <inputEntry id="UnaryTests_07540v3">
+          <text>"Minimálna/žiadna depresia"</text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_05wdztt">
+          <text>"Minimálna úzkosť"</text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_0276f4s">
+          <text>0</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_0l3i59i">
+          <text>"Exklúzia pacienta"</text>
+        </outputEntry>
+        <outputEntry id="LiteralExpression_0vy4p8u">
+          <text>"Pacient je vyradený zo štúdie, pretože, nemá známky depresie ani úzkosti."</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_0hmdjzm">
+        <inputEntry id="UnaryTests_1g7zhlj">
+          <text>["Ľahká depresia", "Stredne ťažká depresia", "Ťažká depresia"]</text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_1jkokkt">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_1ulnn1s">
+          <text>0</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_1xdxt41">
+          <text>"Inklúzia pacienta"</text>
+        </outputEntry>
+        <outputEntry id="LiteralExpression_0nmooaq">
+          <text>"Pacient pokračuje v štúdií."</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_0bbqf4m">
+        <inputEntry id="UnaryTests_05priib">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_05gr0y1">
+          <text>["Ľahká úzkosť", "Stredná úzkosť", "Ťažká úzkosť"]</text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_0ew2brc">
+          <text>0</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_1wuq3wo">
+          <text>"Inklúzia pacienta"</text>
+        </outputEntry>
+        <outputEntry id="LiteralExpression_0cg53s1">
+          <text>"Pacient pokračuje v štúdií."</text>
+        </outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+  <decision id="vyhodnotenie_bdi_final" name="Vyhodnotenie BDI-II - výstupné">
+    <decisionTable id="DecisionTable_0tc0an8">
+      <input id="InputClause_1dsme7i" label="BDI-II skóre - final">
+        <inputExpression id="LiteralExpression_18ikiuz" typeRef="integer">
+          <text>finalBdiScore</text>
+        </inputExpression>
+      </input>
+      <output id="OutputClause_01cp2g0" label="Interpretácia" name="finalBdiInterpretation" typeRef="string" biodi:width="270" />
+      <rule id="DecisionRule_18ge7ta">
+        <inputEntry id="UnaryTests_0aqvwn2">
+          <text>[0..13]</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_0iajchw">
+          <text>"Minimálna/žiadna depresia"</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_1wu0mv7">
+        <inputEntry id="UnaryTests_02yyrrf">
+          <text>[14..19]</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_1jyiygh">
+          <text>"Ľahká depresia"</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_0psykqr">
+        <inputEntry id="UnaryTests_06sunkj">
+          <text>[20..28]</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_05r53sw">
+          <text>"Stredne ťažká depresia"</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_0q5gykb">
+        <inputEntry id="UnaryTests_0036rwb">
+          <text>[29..63]</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_1gq3nd2">
+          <text>"Ťažká depresia"</text>
+        </outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+  <decision id="vyhodnotenie_bai_final" name="Vyhodnotenie BAI - výstupné">
+    <decisionTable id="DecisionTable_07qsoes">
+      <input id="InputClause_01ym1a4" label="BAI skóre - final">
+        <inputExpression id="LiteralExpression_1f2xz8y" typeRef="integer">
+          <text>finalBaiScore</text>
+        </inputExpression>
+      </input>
+      <output id="OutputClause_0ee8rxr" label="Interpretácia" name="finalBaiInterpretation" typeRef="string" />
+      <rule id="DecisionRule_1asbtpx">
+        <inputEntry id="UnaryTests_1qdorur">
+          <text>[0..7]</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_12ny4k7">
+          <text>"Minimálna úzkosť"</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_118wwi8">
+        <inputEntry id="UnaryTests_0xn4ijy">
+          <text>[8..15]</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_1pvdvqb">
+          <text>"Ľahká úzkosť"</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_1tpli4q">
+        <inputEntry id="UnaryTests_1uuqosq">
+          <text>[16..25]</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_12he785">
+          <text>"Stredná úzkosť"</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_1lw3tj7">
+        <inputEntry id="UnaryTests_0l5souw">
+          <text>[26..63]</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_054qoeq">
+          <text>"Ťažká úzkosť"</text>
+        </outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram>
+      <dmndi:DMNShape dmnElementRef="vyhodnotenie_bdi">
+        <dc:Bounds height="80" width="180" x="180" y="100" />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="DMNShape_0nxn38f" dmnElementRef="vyhodnotenie_bai">
+        <dc:Bounds height="80" width="180" x="460" y="100" />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="DMNShape_19m1cox" dmnElementRef="vyhodnotenie_pokracovania_v_studii">
+        <dc:Bounds height="80" width="180" x="310" y="230" />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="DMNShape_07y4fk2" dmnElementRef="vyhodnotenie_bdi_final">
+        <dc:Bounds height="80" width="180" x="180" y="360" />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="DMNShape_1onhdxn" dmnElementRef="vyhodnotenie_bai_final">
+        <dc:Bounds height="80" width="180" x="460" y="360" />
+      </dmndi:DMNShape>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</definitions>

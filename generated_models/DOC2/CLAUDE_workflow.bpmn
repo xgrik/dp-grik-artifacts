@@ -1,0 +1,1837 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+  id="Definitions_1bdj0sq"
+  targetNamespace="http://bpmn.io/schema/bpmn"
+  xmlns:modeler="http://camunda.org/schema/modeler/1.0"
+  exporter="Camunda Modeler"
+  exporterVersion="5.33.1"
+  modeler:executionPlatform="Camunda Platform"
+  modeler:executionPlatformVersion="7.22.0">
+
+  <bpmn:process id="Process_1wlyh5l" isExecutable="true" name="Comprehensive Psychological Management of Patient with Somatic Disease">
+
+    <!-- ==================== START EVENT ==================== -->
+    <bpmn:startEvent id="SE_1" name="Patient with Somatic Disease Presents for Care">
+      <bpmn:outgoing>SF_SE1_UT_T01</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <!-- ==================== PHASE 0: ENTRY AND SCREENING ==================== -->
+
+    <bpmn:userTask id="UT_T01" name="Conduct Initial Patient Contact and Somatic Assessment">
+      <bpmn:incoming>SF_SE1_UT_T01</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T01_UT_T02</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="UT_T02" name="Administer Psychological Screening Questionnaire (4 Questions)">
+      <bpmn:incoming>SF_UT_T01_UT_T02</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T02_GW_G01</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_G01" name="Screening Result: Concurrent Psychological Problems Detected?">
+      <bpmn:incoming>SF_UT_T02_GW_G01</bpmn:incoming>
+      <bpmn:outgoing>SF_GW_G01_YES_UT_T03</bpmn:outgoing>
+      <bpmn:outgoing>SF_GW_G01_NO_EE_5</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="UT_T03" name="Administer Depression Identification Questions (2 Questions)">
+      <bpmn:incoming>SF_GW_G01_YES_UT_T03</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T03_GW_G03</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_G03" name="Depression Identification Screen Positive?">
+      <bpmn:incoming>SF_UT_T03_GW_G03</bpmn:incoming>
+      <bpmn:outgoing>SF_GW_G03_YES_GW_G02</bpmn:outgoing>
+      <bpmn:outgoing>SF_GW_G03_NO_EE_5</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:exclusiveGateway id="GW_G02" name="GP Competent to Assess Mental Status?">
+      <bpmn:incoming>SF_GW_G03_YES_GW_G02</bpmn:incoming>
+      <bpmn:outgoing>SF_GW_G02_YES_UT_T04</bpmn:outgoing>
+      <bpmn:outgoing>SF_GW_G02_NO_UT_T47</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="UT_T04" name="Administer Extended Depression Assessment (3 Additional Questions)">
+      <bpmn:incoming>SF_GW_G02_YES_UT_T04</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T04_UT_T08</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- ==================== PHASE 1: ASSESSMENT AND DIAGNOSIS ==================== -->
+
+    <bpmn:userTask id="UT_T08" name="Take Detailed Patient Anamnesis">
+      <bpmn:incoming>SF_UT_T04_UT_T08</bpmn:incoming>
+      <bpmn:incoming>SF_UT_T47_UT_T08</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T08_UT_T05</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="UT_T05" name="Administer Standardized Psychometric Instruments (PHQ-9, GAD-7, BDI-II, HAMD, HAI)">
+      <bpmn:incoming>SF_UT_T08_UT_T05</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T05_UT_T10</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="UT_T10" name="Assess Mental Status and Functional Impairment">
+      <bpmn:incoming>SF_UT_T05_UT_T10</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T10_UT_T11</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="UT_T11" name="Assess Suicidal Risk">
+      <bpmn:incoming>SF_UT_T10_UT_T11</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T11_GW_G06</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_G06" name="Immediate Suicidal or Safety Risk Present?">
+      <bpmn:incoming>SF_UT_T11_GW_G06</bpmn:incoming>
+      <bpmn:outgoing>SF_GW_G06_YES_UT_T49</bpmn:outgoing>
+      <bpmn:outgoing>SF_GW_G06_NO_GW_G07</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="UT_T49" name="Issue Urgent Referral to Specialized Mental Health Services">
+      <bpmn:incoming>SF_GW_G06_YES_UT_T49</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T49_EE_2</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_G07" name="Degree of Suicidal Risk">
+      <bpmn:incoming>SF_GW_G06_NO_GW_G07</bpmn:incoming>
+      <bpmn:outgoing>SF_GW_G07_HIGH_UT_T12</bpmn:outgoing>
+      <bpmn:outgoing>SF_GW_G07_LOW_UT_T12b</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="UT_T12" name="Perform Differential Diagnosis (High Risk Path)">
+      <bpmn:incoming>SF_GW_G07_HIGH_UT_T12</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T12_GW_G10</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="UT_T12b" name="Perform Differential Diagnosis (Standard Path)">
+      <bpmn:incoming>SF_GW_G07_LOW_UT_T12b</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T12b_GW_G10</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_G10" name="Differential Diagnosis Outcome">
+      <bpmn:incoming>SF_UT_T12_GW_G10</bpmn:incoming>
+      <bpmn:incoming>SF_UT_T12b_GW_G10</bpmn:incoming>
+      <bpmn:outgoing>SF_GW_G10_ADJUST_UT_T13</bpmn:outgoing>
+      <bpmn:outgoing>SF_GW_G10_DEP_UT_T13</bpmn:outgoing>
+      <bpmn:outgoing>SF_GW_G10_OTHER_UT_T48</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="UT_T13" name="Establish Comorbid Psychiatric Diagnosis">
+      <bpmn:incoming>SF_GW_G10_ADJUST_UT_T13</bpmn:incoming>
+      <bpmn:incoming>SF_GW_G10_DEP_UT_T13</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T13_GW_G11</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_G11" name="Dual Diagnosis Required?">
+      <bpmn:incoming>SF_UT_T13_GW_G11</bpmn:incoming>
+      <bpmn:outgoing>SF_GW_G11_YES_BRT_T14</bpmn:outgoing>
+      <bpmn:outgoing>SF_GW_G11_NO_BRT_T14</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:businessRuleTask id="BRT_T14" name="Classify Depression Severity">
+      <bpmn:incoming>SF_GW_G11_YES_BRT_T14</bpmn:incoming>
+      <bpmn:incoming>SF_GW_G11_NO_BRT_T14</bpmn:incoming>
+      <bpmn:outgoing>SF_BRT_T14_GW_G12</bpmn:outgoing>
+    </bpmn:businessRuleTask>
+
+    <bpmn:exclusiveGateway id="GW_G12" name="Specific Learning or Cognitive Disorders Present?">
+      <bpmn:incoming>SF_BRT_T14_GW_G12</bpmn:incoming>
+      <bpmn:outgoing>SF_GW_G12_YES_UT_T15</bpmn:outgoing>
+      <bpmn:outgoing>SF_GW_G12_NO_UT_T15b</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="UT_T15" name="Evaluate Need for Somatic Specialist Consultation (with Cognitive Disorder Adaptation)">
+      <bpmn:incoming>SF_GW_G12_YES_UT_T15</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T15_GW_G09</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="UT_T15b" name="Evaluate Need for Somatic Specialist Consultation">
+      <bpmn:incoming>SF_GW_G12_NO_UT_T15b</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T15b_GW_G09</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_G09" name="Comorbid Anxiety Disorder Present?">
+      <bpmn:incoming>SF_UT_T15_GW_G09</bpmn:incoming>
+      <bpmn:incoming>SF_UT_T15b_GW_G09</bpmn:incoming>
+      <bpmn:outgoing>SF_GW_G09_DEP_ANXI_UT_T19</bpmn:outgoing>
+      <bpmn:outgoing>SF_GW_G09_DEP_ONLY_UT_T19</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- ==================== PHASE 2: TREATMENT PLANNING ==================== -->
+
+    <bpmn:userTask id="UT_T19" name="Communicate Diagnosis to Patient">
+      <bpmn:incoming>SF_GW_G09_DEP_ANXI_UT_T19</bpmn:incoming>
+      <bpmn:incoming>SF_GW_G09_DEP_ONLY_UT_T19</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T19_UT_T18</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="UT_T18" name="Obtain Patient Informed Consent">
+      <bpmn:incoming>SF_UT_T19_UT_T18</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T18_UT_T20</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="UT_T20" name="Provide Psychoeducation to Patient and Family">
+      <bpmn:incoming>SF_UT_T18_UT_T20</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T20_GW_G28</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_G28" name="Family or Caregiver Actively Involved?">
+      <bpmn:incoming>SF_UT_T20_GW_G28</bpmn:incoming>
+      <bpmn:outgoing>SF_GW_G28_YES_UT_T56</bpmn:outgoing>
+      <bpmn:outgoing>SF_GW_G28_NO_UT_T16</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="UT_T56" name="Provide Information to Family and Caregivers">
+      <bpmn:incoming>SF_GW_G28_YES_UT_T56</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T56_UT_T57</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="UT_T57" name="Assess Caregiver Support Needs">
+      <bpmn:incoming>SF_UT_T56_UT_T57</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T57_UT_T16</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="UT_T16" name="Formulate Individual Treatment Plan - Step 1">
+      <bpmn:incoming>SF_GW_G28_NO_UT_T16</bpmn:incoming>
+      <bpmn:incoming>SF_UT_T57_UT_T16</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T16_GW_G33</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_G33" name="Standard Procedure Applicable?">
+      <bpmn:incoming>SF_UT_T16_GW_G33</bpmn:incoming>
+      <bpmn:outgoing>SF_GW_G33_STD_GW_G08</bpmn:outgoing>
+      <bpmn:outgoing>SF_GW_G33_ALT_UT_T55</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="UT_T55" name="Document Clinical Decision and Treatment Deviation">
+      <bpmn:incoming>SF_GW_G33_ALT_UT_T55</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T55_GW_G08</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_G08" name="Depression Severity Classification Outcome">
+      <bpmn:incoming>SF_GW_G33_STD_GW_G08</bpmn:incoming>
+      <bpmn:incoming>SF_UT_T55_GW_G08</bpmn:incoming>
+      <bpmn:outgoing>SF_GW_G08_SUBCLX_UT_T21</bpmn:outgoing>
+      <bpmn:outgoing>SF_GW_G08_MILD_UT_T21</bpmn:outgoing>
+      <bpmn:outgoing>SF_GW_G08_MOD_UT_T17</bpmn:outgoing>
+      <bpmn:outgoing>SF_GW_G08_SEV_UT_T17</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- ==================== PHASE 3: TREATMENT STEP 1 ==================== -->
+
+    <bpmn:userTask id="UT_T21" name="Execute Active Monitoring (Watchful Waiting)">
+      <bpmn:incoming>SF_GW_G08_SUBCLX_UT_T21</bpmn:incoming>
+      <bpmn:incoming>SF_GW_G08_MILD_UT_T21</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T21_GW_G22</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_G22" name="Patient Accepts Psychological Treatment?">
+      <bpmn:incoming>SF_UT_T21_GW_G22</bpmn:incoming>
+      <bpmn:outgoing>SF_GW_G22_YES_GW_G25</bpmn:outgoing>
+      <bpmn:outgoing>SF_GW_G22_NO_UT_T42</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:exclusiveGateway id="GW_G25" name="Active Monitoring: Recovery Without Intervention Likely?">
+      <bpmn:incoming>SF_GW_G22_YES_GW_G25</bpmn:incoming>
+      <bpmn:outgoing>SF_GW_G25_YES_UT_T41</bpmn:outgoing>
+      <bpmn:outgoing>SF_GW_G25_NO_GW_G13</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:exclusiveGateway id="GW_G13" name="Step 1 Treatment Response: Escalation to Step 2 Required?">
+      <bpmn:incoming>SF_GW_G25_NO_GW_G13</bpmn:incoming>
+      <bpmn:incoming>SF_UT_T41_GW_G13</bpmn:incoming>
+      <bpmn:outgoing>SF_GW_G13_ADEQUATE_UT_T41</bpmn:outgoing>
+      <bpmn:outgoing>SF_GW_G13_ESCALATE_UT_T17</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="UT_T41" name="Schedule and Conduct Follow-Up Appointment">
+      <bpmn:incoming>SF_GW_G25_YES_UT_T41</bpmn:incoming>
+      <bpmn:incoming>SF_GW_G13_ADEQUATE_UT_T41</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T41_UT_T42</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="UT_T42" name="Monitor Symptom Progression Using Self-Rating Scales">
+      <bpmn:incoming>SF_GW_G22_NO_UT_T42</bpmn:incoming>
+      <bpmn:incoming>SF_UT_T41_UT_T42</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T42_UT_T43</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="UT_T43" name="Review Patient Self-Monitoring Records">
+      <bpmn:incoming>SF_UT_T42_UT_T43</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T43_GW_G26</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_G26" name="Symptom Worsening During Treatment Detected?">
+      <bpmn:incoming>SF_UT_T43_GW_G26</bpmn:incoming>
+      <bpmn:outgoing>SF_GW_G26_WORSEN_GW_G06b</bpmn:outgoing>
+      <bpmn:outgoing>SF_GW_G26_STABLE_GW_G13</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:exclusiveGateway id="GW_G06b" name="Immediate Risk After Worsening?">
+      <bpmn:incoming>SF_GW_G26_WORSEN_GW_G06b</bpmn:incoming>
+      <bpmn:outgoing>SF_GW_G06b_URGENT_UT_T49b</bpmn:outgoing>
+      <bpmn:outgoing>SF_GW_G06b_NOURGENT_GW_G13</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="UT_T49b" name="Issue Urgent Referral to Specialized Mental Health Services (Worsening)">
+      <bpmn:incoming>SF_GW_G06b_URGENT_UT_T49b</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T49b_EE_2b</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- ==================== PHASE 3: TREATMENT STEP 2 ==================== -->
+
+    <bpmn:userTask id="UT_T17" name="Formulate Multidisciplinary Treatment Plan - Steps 2-3">
+      <bpmn:incoming>SF_GW_G08_MOD_UT_T17</bpmn:incoming>
+      <bpmn:incoming>SF_GW_G08_SEV_UT_T17</bpmn:incoming>
+      <bpmn:incoming>SF_GW_G13_ESCALATE_UT_T17</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T17_GW_G18</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_G18" name="Pharmacotherapy Indicated at Step 2?">
+      <bpmn:incoming>SF_UT_T17_GW_G18</bpmn:incoming>
+      <bpmn:outgoing>SF_GW_G18_YES_UT_T32</bpmn:outgoing>
+      <bpmn:outgoing>SF_GW_G18_NO_GW_G21</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="UT_T32" name="Prescribe Pharmacotherapy (Antidepressants)">
+      <bpmn:incoming>SF_GW_G18_YES_UT_T32</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T32_UT_T33</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="UT_T33" name="Administer Pharmacotherapy">
+      <bpmn:incoming>SF_UT_T32_UT_T33</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T33_GW_G21</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_G21" name="Patient Can Access In-Person Treatment?">
+      <bpmn:incoming>SF_GW_G18_NO_GW_G21</bpmn:incoming>
+      <bpmn:incoming>SF_UT_T33_GW_G21</bpmn:incoming>
+      <bpmn:outgoing>SF_GW_G21_YES_UT_T22</bpmn:outgoing>
+      <bpmn:outgoing>SF_GW_G21_NO_UT_T24</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="UT_T22" name="Deliver Physical Activity Program">
+      <bpmn:incoming>SF_GW_G21_YES_UT_T22</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T22_UT_T23</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="UT_T23" name="Deliver Group Mutual Support Program (Self-Help)">
+      <bpmn:incoming>SF_UT_T22_UT_T23</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T23_GW_G14</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="UT_T24" name="Deliver Individual Guided CBT Self-Help Program">
+      <bpmn:incoming>SF_GW_G21_NO_UT_T24</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T24_GW_G14</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_G14" name="Step 2 Treatment Response: Escalation to Step 3 Required?">
+      <bpmn:incoming>SF_UT_T23_GW_G14</bpmn:incoming>
+      <bpmn:incoming>SF_UT_T24_GW_G14</bpmn:incoming>
+      <bpmn:outgoing>SF_GW_G14_ADEQUATE_UT_T44</bpmn:outgoing>
+      <bpmn:outgoing>SF_GW_G14_ESCALATE_GW_G19</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- ==================== PHASE 3: TREATMENT STEP 3 ==================== -->
+
+    <bpmn:exclusiveGateway id="GW_G19" name="Group or Individual CBT at Step 3?">
+      <bpmn:incoming>SF_GW_G14_ESCALATE_GW_G19</bpmn:incoming>
+      <bpmn:outgoing>SF_GW_G19_GROUP_UT_T26</bpmn:outgoing>
+      <bpmn:outgoing>SF_GW_G19_MOD_UT_T27</bpmn:outgoing>
+      <bpmn:outgoing>SF_GW_G19_SEV_UT_T28</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="UT_T26" name="Deliver Group CBT - High Intensity">
+      <bpmn:incoming>SF_GW_G19_GROUP_UT_T26</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T26_GW_G20</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="UT_T27" name="Deliver Individual CBT - Moderate Depression">
+      <bpmn:incoming>SF_GW_G19_MOD_UT_T27</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T27_GW_G20</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="UT_T28" name="Deliver Individual CBT - Severe Depression">
+      <bpmn:incoming>SF_GW_G19_SEV_UT_T28</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T28_GW_G20</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_G20" name="Couples Therapy Indicated?">
+      <bpmn:incoming>SF_UT_T26_GW_G20</bpmn:incoming>
+      <bpmn:incoming>SF_UT_T27_GW_G20</bpmn:incoming>
+      <bpmn:incoming>SF_UT_T28_GW_G20</bpmn:incoming>
+      <bpmn:outgoing>SF_GW_G20_YES_UT_T31</bpmn:outgoing>
+      <bpmn:outgoing>SF_GW_G20_NO_GW_G27</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="UT_T31" name="Deliver Couples / Pair Therapy">
+      <bpmn:incoming>SF_GW_G20_YES_UT_T31</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T31_GW_G27</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_G27" name="Post-CBT: Further Sessions Beneficial?">
+      <bpmn:incoming>SF_GW_G20_NO_GW_G27</bpmn:incoming>
+      <bpmn:incoming>SF_UT_T31_GW_G27</bpmn:incoming>
+      <bpmn:outgoing>SF_GW_G27_REMISSION_UT_T46</bpmn:outgoing>
+      <bpmn:outgoing>SF_GW_G27_EXTEND_UT_T29</bpmn:outgoing>
+      <bpmn:outgoing>SF_GW_G27_INSUF_GW_G15</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="UT_T29" name="Deliver Behavioral Activation Therapy">
+      <bpmn:incoming>SF_GW_G27_EXTEND_UT_T29</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T29_UT_T30</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="UT_T30" name="Deliver Interpersonal Therapy (IPT)">
+      <bpmn:incoming>SF_UT_T29_UT_T30</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T30_GW_G15</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_G15" name="Severe Depression or Life Risk: Step 4 Required?">
+      <bpmn:incoming>SF_GW_G27_INSUF_GW_G15</bpmn:incoming>
+      <bpmn:incoming>SF_UT_T30_GW_G15</bpmn:incoming>
+      <bpmn:outgoing>SF_GW_G15_YES_UT_T39</bpmn:outgoing>
+      <bpmn:outgoing>SF_GW_G15_NO_GW_G16</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- ==================== PHASE 3: TREATMENT STEP 4 ==================== -->
+
+    <bpmn:userTask id="UT_T39" name="Deliver Electroconvulsive Therapy (ECT)">
+      <bpmn:incoming>SF_GW_G15_YES_UT_T39</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T39_UT_T40</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="UT_T40" name="Execute Crisis Intervention">
+      <bpmn:incoming>SF_UT_T39_UT_T40</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T40_GW_G32</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_G32" name="Hospitalization Required?">
+      <bpmn:incoming>SF_UT_T40_GW_G32</bpmn:incoming>
+      <bpmn:outgoing>SF_GW_G32_YES_UT_T52</bpmn:outgoing>
+      <bpmn:outgoing>SF_GW_G32_NO_GW_G29</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="UT_T52" name="Decide on and Execute Hospitalization">
+      <bpmn:incoming>SF_GW_G32_YES_UT_T52</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T52_GW_G29</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_G29" name="Psychological Comorbidity Suspected During Hospitalization?">
+      <bpmn:incoming>SF_GW_G32_NO_GW_G29</bpmn:incoming>
+      <bpmn:incoming>SF_UT_T52_GW_G29</bpmn:incoming>
+      <bpmn:outgoing>SF_GW_G29_YES_UT_T54</bpmn:outgoing>
+      <bpmn:outgoing>SF_GW_G29_NO_GW_G30</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="UT_T54" name="Coordinate Care Between Primary and Secondary Services">
+      <bpmn:incoming>SF_GW_G29_YES_UT_T54</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T54_GW_G30</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_G30" name="Outpatient Psychological Care Required Post-Discharge?">
+      <bpmn:incoming>SF_GW_G29_NO_GW_G30</bpmn:incoming>
+      <bpmn:incoming>SF_UT_T54_GW_G30</bpmn:incoming>
+      <bpmn:outgoing>SF_GW_G30_YES_UT_T47b</bpmn:outgoing>
+      <bpmn:outgoing>SF_GW_G30_NO_EE_3</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="UT_T47b" name="Issue Referral to Clinical Psychologist (Post-Discharge)">
+      <bpmn:incoming>SF_GW_G30_YES_UT_T47b</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T47b_EE_3</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- ==================== PHASE 4: MONITORING AND FOLLOW-UP ==================== -->
+
+    <bpmn:userTask id="UT_T44" name="Conduct Quarterly Outcome Reassessment (Mood, Anxiety, Quality of Life)">
+      <bpmn:incoming>SF_GW_G14_ADEQUATE_UT_T44</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T44_GW_G16</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="UT_T46" name="Conduct Post-Treatment Control Sessions (CBT Follow-Up)">
+      <bpmn:incoming>SF_GW_G27_REMISSION_UT_T46</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T46_GW_G16</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_G16" name="Treatment Duration Threshold Exceeded (3 Months)?">
+      <bpmn:incoming>SF_UT_T44_GW_G16</bpmn:incoming>
+      <bpmn:incoming>SF_UT_T46_GW_G16</bpmn:incoming>
+      <bpmn:outgoing>SF_GW_G16_YES_UT_T51</bpmn:outgoing>
+      <bpmn:outgoing>SF_GW_G16_NO_GW_G17</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="UT_T51" name="Contact Multidisciplinary Specialized Center - Step 3 Escalation">
+      <bpmn:incoming>SF_GW_G16_YES_UT_T51</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T51_EE_1</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_G17" name="Active Treatment in Progress?">
+      <bpmn:incoming>SF_GW_G16_NO_GW_G17</bpmn:incoming>
+      <bpmn:outgoing>SF_GW_G17_ACTIVE_EE_1</bpmn:outgoing>
+      <bpmn:outgoing>SF_GW_G17_INACTIVE_GW_G31</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:exclusiveGateway id="GW_G31" name="Required Specialist Referral Level">
+      <bpmn:incoming>SF_GW_G17_INACTIVE_GW_G31</bpmn:incoming>
+      <bpmn:outgoing>SF_GW_G31_GP_UT_T21b</bpmn:outgoing>
+      <bpmn:outgoing>SF_GW_G31_PSYCH_UT_T47</bpmn:outgoing>
+      <bpmn:outgoing>SF_GW_G31_PSYCHIAT_UT_T48</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="UT_T21b" name="Execute Active Monitoring - Annual Review">
+      <bpmn:incoming>SF_GW_G31_GP_UT_T21b</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T21b_EE_1</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- ==================== PHASE 5: REFERRAL PATHWAY ==================== -->
+
+    <bpmn:userTask id="UT_T47" name="Issue Referral to Clinical Psychologist">
+      <bpmn:incoming>SF_GW_G02_NO_UT_T47</bpmn:incoming>
+      <bpmn:incoming>SF_GW_G31_PSYCH_UT_T47</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T47_GW_G04</bpmn:outgoing>
+      <bpmn:outgoing>SF_UT_T47_UT_T08</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_G04" name="Initiating Physician is Patient&#39;s Own GP?">
+      <bpmn:incoming>SF_UT_T47_GW_G04</bpmn:incoming>
+      <bpmn:outgoing>SF_GW_G04_YES_EE_1</bpmn:outgoing>
+      <bpmn:outgoing>SF_GW_G04_NO_UT_T50</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="UT_T50" name="Notify Patient&#39;s GP of Referral">
+      <bpmn:incoming>SF_GW_G04_NO_UT_T50</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T50_EE_1</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="UT_T48" name="Issue Referral to Psychiatrist">
+      <bpmn:incoming>SF_GW_G10_OTHER_UT_T48</bpmn:incoming>
+      <bpmn:incoming>SF_GW_G31_PSYCHIAT_UT_T48</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T48_UT_T09</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="UT_T09" name="Conduct Psychiatric Examination">
+      <bpmn:incoming>SF_UT_T48_UT_T09</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T09_EE_1</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- ==================== E-HEALTH SUBPROCESS PATH ==================== -->
+
+    <bpmn:userTask id="UT_T06" name="Complete Online Screening Questionnaire (E-Health Entry)">
+      <bpmn:incoming>SF_SE_EH_UT_T06</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T06_ST_T07</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:serviceTask id="ST_T07" name="Generate Personal Profile Chart (E-Health System)">
+      <bpmn:incoming>SF_UT_T06_ST_T07</bpmn:incoming>
+      <bpmn:outgoing>SF_ST_T07_GW_G05</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:exclusiveGateway id="GW_G05" name="E-Health Risk Profile Classification">
+      <bpmn:incoming>SF_ST_T07_GW_G05</bpmn:incoming>
+      <bpmn:outgoing>SF_GW_G05_RISK_UT_T53</bpmn:outgoing>
+      <bpmn:outgoing>SF_GW_G05_NORISK_EE_4</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="UT_T53" name="Execute Extended Screening - E-Health Elevated Risk">">
+      <bpmn:incoming>SF_GW_G05_RISK_UT_T53</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T53_UT_T25</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="UT_T25" name="Deliver Computer-Based iCBT (Supervised by Clinical Psychologist)">
+      <bpmn:incoming>SF_UT_T53_UT_T25</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T25_ST_T45</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:serviceTask id="ST_T45" name="Execute Follow-Up Monitoring and Progress Visualization (E-Health System)">
+      <bpmn:incoming>SF_UT_T25_ST_T45</bpmn:incoming>
+      <bpmn:outgoing>SF_ST_T45_EE_4</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <!-- ==================== CARDIAC CBT SUBPROCESS PATH ==================== -->
+
+    <bpmn:userTask id="UT_T34" name="Deliver Psychoeducation - CBT Cardiac Model Step 1">
+      <bpmn:incoming>SF_SE_CAR_UT_T34</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T34_UT_T35</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="UT_T35" name="Conduct Initial Psychological Assessment - Cardiac CBT Model">
+      <bpmn:incoming>SF_UT_T34_UT_T35</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T35_GW_G23</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="GW_G23" name="Patient Suitable for Current Cardiac CBT Step?">
+      <bpmn:incoming>SF_UT_T35_GW_G23</bpmn:incoming>
+      <bpmn:outgoing>SF_GW_G23_YES_GW_G24</bpmn:outgoing>
+      <bpmn:outgoing>SF_GW_G23_NO_EE_1b</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:exclusiveGateway id="GW_G24" name="Elliott Cardiac Step Assignment by Severity">
+      <bpmn:incoming>SF_GW_G23_YES_GW_G24</bpmn:incoming>
+      <bpmn:outgoing>SF_GW_G24_S2_UT_T36</bpmn:outgoing>
+      <bpmn:outgoing>SF_GW_G24_S3_UT_T37</bpmn:outgoing>
+      <bpmn:outgoing>SF_GW_G24_S4_UT_T38</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="UT_T36" name="Deliver Low-Intensity CBT - Cardiac Step 2 (Telephone)">
+      <bpmn:incoming>SF_GW_G24_S2_UT_T36</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T36_EE_1c</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="UT_T37" name="Deliver High-Intensity CBT - Cardiac Step 3 (In-Person)">
+      <bpmn:incoming>SF_GW_G24_S3_UT_T37</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T37_EE_1c</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="UT_T38" name="Deliver Specialist CBT - Cardiac Step 4 (Clinical Psychologist)">
+      <bpmn:incoming>SF_GW_G24_S4_UT_T38</bpmn:incoming>
+      <bpmn:outgoing>SF_UT_T38_EE_1c</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- ==================== END EVENTS ==================== -->
+
+    <bpmn:endEvent id="EE_1" name="Process Completed - Patient Discharged from Psychological Care">
+      <bpmn:incoming>SF_UT_T51_EE_1</bpmn:incoming>
+      <bpmn:incoming>SF_GW_G17_ACTIVE_EE_1</bpmn:incoming>
+      <bpmn:incoming>SF_UT_T21b_EE_1</bpmn:incoming>
+      <bpmn:incoming>SF_GW_G04_YES_EE_1</bpmn:incoming>
+      <bpmn:incoming>SF_UT_T50_EE_1</bpmn:incoming>
+      <bpmn:incoming>SF_UT_T09_EE_1</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:endEvent id="EE_2" name="Process Terminated - Urgent Referral Issued (Initial Risk)">
+      <bpmn:incoming>SF_UT_T49_EE_2</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:endEvent id="EE_2b" name="Process Terminated - Urgent Referral Issued (Worsening)">
+      <bpmn:incoming>SF_UT_T49b_EE_2b</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:endEvent id="EE_3" name="Process Completed - Hospitalization Pathway Concluded">
+      <bpmn:incoming>SF_GW_G30_NO_EE_3</bpmn:incoming>
+      <bpmn:incoming>SF_UT_T47b_EE_3</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:endEvent id="EE_4" name="Process Completed - E-Health Pathway Concluded">
+      <bpmn:incoming>SF_GW_G05_NORISK_EE_4</bpmn:incoming>
+      <bpmn:incoming>SF_ST_T45_EE_4</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:endEvent id="EE_5" name="Process Completed - No Psychological Comorbidity Detected">
+      <bpmn:incoming>SF_GW_G01_NO_EE_5</bpmn:incoming>
+      <bpmn:incoming>SF_GW_G03_NO_EE_5</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:endEvent id="EE_1b" name="Process Completed - Cardiac Patient Referred to Alternative Service">
+      <bpmn:incoming>SF_GW_G23_NO_EE_1b</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:endEvent id="EE_1c" name="Process Completed - Cardiac CBT Pathway Concluded">
+      <bpmn:incoming>SF_UT_T36_EE_1c</bpmn:incoming>
+      <bpmn:incoming>SF_UT_T37_EE_1c</bpmn:incoming>
+      <bpmn:incoming>SF_UT_T38_EE_1c</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <!-- Additional start events for sub-paths -->
+    <bpmn:startEvent id="SE_EH" name="Patient Enters E-Health Care Pathway">
+      <bpmn:outgoing>SF_SE_EH_UT_T06</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <bpmn:startEvent id="SE_CAR" name="Cardiac Patient Enters CBT Pathway">
+      <bpmn:outgoing>SF_SE_CAR_UT_T34</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <!-- ==================== SEQUENCE FLOWS ==================== -->
+
+    <!-- Phase 0 flows -->
+    <bpmn:sequenceFlow id="SF_SE1_UT_T01" sourceRef="SE_1" targetRef="UT_T01" />
+    <bpmn:sequenceFlow id="SF_UT_T01_UT_T02" sourceRef="UT_T01" targetRef="UT_T02" />
+    <bpmn:sequenceFlow id="SF_UT_T02_GW_G01" sourceRef="UT_T02" targetRef="GW_G01" />
+    <bpmn:sequenceFlow id="SF_GW_G01_YES_UT_T03" name="Yes - At least one positive response" sourceRef="GW_G01" targetRef="UT_T03" />
+    <bpmn:sequenceFlow id="SF_GW_G01_NO_EE_5" name="No - All responses negative" sourceRef="GW_G01" targetRef="EE_5" />
+    <bpmn:sequenceFlow id="SF_UT_T03_GW_G03" sourceRef="UT_T03" targetRef="GW_G03" />
+    <bpmn:sequenceFlow id="SF_GW_G03_YES_GW_G02" name="Yes - Positive on at least one question" sourceRef="GW_G03" targetRef="GW_G02" />
+    <bpmn:sequenceFlow id="SF_GW_G03_NO_EE_5" name="No - Negative on both questions" sourceRef="GW_G03" targetRef="EE_5" />
+    <bpmn:sequenceFlow id="SF_GW_G02_YES_UT_T04" name="Yes - GP competent to assess" sourceRef="GW_G02" targetRef="UT_T04" />
+    <bpmn:sequenceFlow id="SF_GW_G02_NO_UT_T47" name="No - GP not competent; refer directly" sourceRef="GW_G02" targetRef="UT_T47" />
+    <bpmn:sequenceFlow id="SF_UT_T04_UT_T08" sourceRef="UT_T04" targetRef="UT_T08" />
+
+    <!-- Phase 1 flows -->
+    <bpmn:sequenceFlow id="SF_UT_T47_UT_T08" sourceRef="UT_T47" targetRef="UT_T08" />
+    <bpmn:sequenceFlow id="SF_UT_T08_UT_T05" sourceRef="UT_T08" targetRef="UT_T05" />
+    <bpmn:sequenceFlow id="SF_UT_T05_UT_T10" sourceRef="UT_T05" targetRef="UT_T10" />
+    <bpmn:sequenceFlow id="SF_UT_T10_UT_T11" sourceRef="UT_T10" targetRef="UT_T11" />
+    <bpmn:sequenceFlow id="SF_UT_T11_GW_G06" sourceRef="UT_T11" targetRef="GW_G06" />
+    <bpmn:sequenceFlow id="SF_GW_G06_YES_UT_T49" name="Yes - Immediate risk; urgent referral required" sourceRef="GW_G06" targetRef="UT_T49" />
+    <bpmn:sequenceFlow id="SF_GW_G06_NO_GW_G07" name="No - No immediate risk; proceed to risk grading" sourceRef="GW_G06" targetRef="GW_G07" />
+    <bpmn:sequenceFlow id="SF_UT_T49_EE_2" sourceRef="UT_T49" targetRef="EE_2" />
+    <bpmn:sequenceFlow id="SF_GW_G07_HIGH_UT_T12" name="High suicidal risk - limit medication access and increase monitoring" sourceRef="GW_G07" targetRef="UT_T12" />
+    <bpmn:sequenceFlow id="SF_GW_G07_LOW_UT_T12b" name="Low or moderate suicidal risk - continue standard assessment" sourceRef="GW_G07" targetRef="UT_T12b" />
+    <bpmn:sequenceFlow id="SF_UT_T12_GW_G10" sourceRef="UT_T12" targetRef="GW_G10" />
+    <bpmn:sequenceFlow id="SF_UT_T12b_GW_G10" sourceRef="UT_T12b" targetRef="GW_G10" />
+    <bpmn:sequenceFlow id="SF_GW_G10_ADJUST_UT_T13" name="Adjustment disorder F43.2 - reaction to illness" sourceRef="GW_G10" targetRef="UT_T13" />
+    <bpmn:sequenceFlow id="SF_GW_G10_DEP_UT_T13" name="Depressive disorder - threshold criteria met" sourceRef="GW_G10" targetRef="UT_T13" />
+    <bpmn:sequenceFlow id="SF_GW_G10_OTHER_UT_T48" name="Other serious mental disorder - psychiatric referral required" sourceRef="GW_G10" targetRef="UT_T48" />
+    <bpmn:sequenceFlow id="SF_UT_T13_GW_G11" sourceRef="UT_T13" targetRef="GW_G11" />
+    <bpmn:sequenceFlow id="SF_GW_G11_YES_BRT_T14" name="Yes - Dual diagnosis warranted; both conditions treated independently" sourceRef="GW_G11" targetRef="BRT_T14" />
+    <bpmn:sequenceFlow id="SF_GW_G11_NO_BRT_T14" name="No - Single primary diagnosis sufficient" sourceRef="GW_G11" targetRef="BRT_T14" />
+    <bpmn:sequenceFlow id="SF_BRT_T14_GW_G12" sourceRef="BRT_T14" targetRef="GW_G12" />
+    <bpmn:sequenceFlow id="SF_GW_G12_YES_UT_T15" name="Yes - Consult specialist and adapt intervention modality" sourceRef="GW_G12" targetRef="UT_T15" />
+    <bpmn:sequenceFlow id="SF_GW_G12_NO_UT_T15b" name="No - Standard assessment approach applies" sourceRef="GW_G12" targetRef="UT_T15b" />
+    <bpmn:sequenceFlow id="SF_UT_T15_GW_G09" sourceRef="UT_T15" targetRef="GW_G09" />
+    <bpmn:sequenceFlow id="SF_UT_T15b_GW_G09" sourceRef="UT_T15b" targetRef="GW_G09" />
+    <bpmn:sequenceFlow id="SF_GW_G09_DEP_ANXI_UT_T19" name="Anxiety disorder primary - prioritize anxiety treatment" sourceRef="GW_G09" targetRef="UT_T19" />
+    <bpmn:sequenceFlow id="SF_GW_G09_DEP_ONLY_UT_T19" name="Depression only - standard depression treatment pathway" sourceRef="GW_G09" targetRef="UT_T19" />
+
+    <!-- Phase 2 flows -->
+    <bpmn:sequenceFlow id="SF_UT_T19_UT_T18" sourceRef="UT_T19" targetRef="UT_T18" />
+    <bpmn:sequenceFlow id="SF_UT_T18_UT_T20" sourceRef="UT_T18" targetRef="UT_T20" />
+    <bpmn:sequenceFlow id="SF_UT_T20_GW_G28" sourceRef="UT_T20" targetRef="GW_G28" />
+    <bpmn:sequenceFlow id="SF_GW_G28_YES_UT_T56" name="Yes - Family or caregiver involved in patient support" sourceRef="GW_G28" targetRef="UT_T56" />
+    <bpmn:sequenceFlow id="SF_GW_G28_NO_UT_T16" name="No - No family or caregiver involvement" sourceRef="GW_G28" targetRef="UT_T16" />
+    <bpmn:sequenceFlow id="SF_UT_T56_UT_T57" sourceRef="UT_T56" targetRef="UT_T57" />
+    <bpmn:sequenceFlow id="SF_UT_T57_UT_T16" sourceRef="UT_T57" targetRef="UT_T16" />
+    <bpmn:sequenceFlow id="SF_UT_T16_GW_G33" sourceRef="UT_T16" targetRef="GW_G33" />
+    <bpmn:sequenceFlow id="SF_GW_G33_STD_GW_G08" name="Standard procedure applicable - follow stepped-care pathway" sourceRef="GW_G33" targetRef="GW_G08" />
+    <bpmn:sequenceFlow id="SF_GW_G33_ALT_UT_T55" name="Alternative approach required - document clinical deviation" sourceRef="GW_G33" targetRef="UT_T55" />
+    <bpmn:sequenceFlow id="SF_UT_T55_GW_G08" sourceRef="UT_T55" targetRef="GW_G08" />
+    <bpmn:sequenceFlow id="SF_GW_G08_SUBCLX_UT_T21" name="Subclinical symptoms - active monitoring at Step 1" sourceRef="GW_G08" targetRef="UT_T21" />
+    <bpmn:sequenceFlow id="SF_GW_G08_MILD_UT_T21" name="Mild depression - Step 1 management with monitoring" sourceRef="GW_G08" targetRef="UT_T21" />
+    <bpmn:sequenceFlow id="SF_GW_G08_MOD_UT_T17" name="Moderate depression - multidisciplinary Step 2-3 plan required" sourceRef="GW_G08" targetRef="UT_T17" />
+    <bpmn:sequenceFlow id="SF_GW_G08_SEV_UT_T17" name="Severe depression - immediate Step 3-4 plan required" sourceRef="GW_G08" targetRef="UT_T17" />
+
+    <!-- Phase 3 Step 1 flows -->
+    <bpmn:sequenceFlow id="SF_UT_T21_GW_G22" sourceRef="UT_T21" targetRef="GW_G22" />
+    <bpmn:sequenceFlow id="SF_GW_G22_YES_GW_G25" name="Yes - Patient accepts psychological treatment" sourceRef="GW_G22" targetRef="GW_G25" />
+    <bpmn:sequenceFlow id="SF_GW_G22_NO_UT_T42" name="No - Patient declines; apply monitoring and alternatives" sourceRef="GW_G22" targetRef="UT_T42" />
+    <bpmn:sequenceFlow id="SF_GW_G25_YES_UT_T41" name="Yes - Self-recovery likely; continue monitoring" sourceRef="GW_G25" targetRef="UT_T41" />
+    <bpmn:sequenceFlow id="SF_GW_G25_NO_GW_G13" name="No - Intervention required" sourceRef="GW_G25" targetRef="GW_G13" />
+    <bpmn:sequenceFlow id="SF_GW_G13_ADEQUATE_UT_T41" name="Step 1 adequate - continue and schedule follow-up" sourceRef="GW_G13" targetRef="UT_T41" />
+    <bpmn:sequenceFlow id="SF_GW_G13_ESCALATE_UT_T17" name="Step 1 inadequate - escalate to Step 2 multidisciplinary plan" sourceRef="GW_G13" targetRef="UT_T17" />
+    <bpmn:sequenceFlow id="SF_UT_T41_UT_T42" sourceRef="UT_T41" targetRef="UT_T42" />
+    <bpmn:sequenceFlow id="SF_UT_T42_UT_T43" sourceRef="UT_T42" targetRef="UT_T43" />
+    <bpmn:sequenceFlow id="SF_UT_T43_GW_G26" sourceRef="UT_T43" targetRef="GW_G26" />
+    <bpmn:sequenceFlow id="SF_GW_G26_WORSEN_GW_G06b" name="Yes - Significant or prolonged worsening detected" sourceRef="GW_G26" targetRef="GW_G06b" />
+    <bpmn:sequenceFlow id="SF_GW_G26_STABLE_GW_G13" name="No - Stable or improving; continue current step" sourceRef="GW_G26" targetRef="GW_G13" />
+    <bpmn:sequenceFlow id="SF_GW_G06b_URGENT_UT_T49b" name="Yes - Immediate risk after worsening; urgent referral" sourceRef="GW_G06b" targetRef="UT_T49b" />
+    <bpmn:sequenceFlow id="SF_GW_G06b_NOURGENT_GW_G13" name="No - No immediate risk; reassess treatment step" sourceRef="GW_G06b" targetRef="GW_G13" />
+    <bpmn:sequenceFlow id="SF_UT_T49b_EE_2b" sourceRef="UT_T49b" targetRef="EE_2b" />
+    <bpmn:sequenceFlow id="SF_UT_T41_GW_G13" sourceRef="UT_T41" targetRef="GW_G13" />
+
+    <!-- Phase 3 Step 2 flows -->
+    <bpmn:sequenceFlow id="SF_UT_T17_GW_G18" sourceRef="UT_T17" targetRef="GW_G18" />
+    <bpmn:sequenceFlow id="SF_GW_G18_YES_UT_T32" name="Yes - Patient meets pharmacotherapy criteria" sourceRef="GW_G18" targetRef="UT_T32" />
+    <bpmn:sequenceFlow id="SF_GW_G18_NO_GW_G21" name="No - Pharmacotherapy criteria not met; proceed with psychological interventions" sourceRef="GW_G18" targetRef="GW_G21" />
+    <bpmn:sequenceFlow id="SF_UT_T32_UT_T33" sourceRef="UT_T32" targetRef="UT_T33" />
+    <bpmn:sequenceFlow id="SF_UT_T33_GW_G21" sourceRef="UT_T33" targetRef="GW_G21" />
+    <bpmn:sequenceFlow id="SF_GW_G21_YES_UT_T22" name="Yes - Patient can attend in-person; group interventions available" sourceRef="GW_G21" targetRef="UT_T22" />
+    <bpmn:sequenceFlow id="SF_GW_G21_NO_UT_T24" name="No - Patient immobile or access-restricted; telephone or self-help format" sourceRef="GW_G21" targetRef="UT_T24" />
+    <bpmn:sequenceFlow id="SF_UT_T22_UT_T23" sourceRef="UT_T22" targetRef="UT_T23" />
+    <bpmn:sequenceFlow id="SF_UT_T23_GW_G14" sourceRef="UT_T23" targetRef="GW_G14" />
+    <bpmn:sequenceFlow id="SF_UT_T24_GW_G14" sourceRef="UT_T24" targetRef="GW_G14" />
+    <bpmn:sequenceFlow id="SF_GW_G14_ADEQUATE_UT_T44" name="Step 2 adequate - proceed to quarterly outcome reassessment" sourceRef="GW_G14" targetRef="UT_T44" />
+    <bpmn:sequenceFlow id="SF_GW_G14_ESCALATE_GW_G19" name="Step 2 inadequate - escalate to Step 3 high-intensity interventions" sourceRef="GW_G14" targetRef="GW_G19" />
+
+    <!-- Phase 3 Step 3 flows -->
+    <bpmn:sequenceFlow id="SF_GW_G19_GROUP_UT_T26" name="Group CBT appropriate and accepted by patient" sourceRef="GW_G19" targetRef="UT_T26" />
+    <bpmn:sequenceFlow id="SF_GW_G19_MOD_UT_T27" name="Individual CBT for moderate depression; group refused or unavailable" sourceRef="GW_G19" targetRef="UT_T27" />
+    <bpmn:sequenceFlow id="SF_GW_G19_SEV_UT_T28" name="Individual CBT for severe depression; intensive sessions required" sourceRef="GW_G19" targetRef="UT_T28" />
+    <bpmn:sequenceFlow id="SF_UT_T26_GW_G20" sourceRef="UT_T26" targetRef="GW_G20" />
+    <bpmn:sequenceFlow id="SF_UT_T27_GW_G20" sourceRef="UT_T27" targetRef="GW_G20" />
+    <bpmn:sequenceFlow id="SF_UT_T28_GW_G20" sourceRef="UT_T28" targetRef="GW_G20" />
+    <bpmn:sequenceFlow id="SF_GW_G20_YES_UT_T31" name="Yes - Relationship contributes to depression or partner involvement beneficial" sourceRef="GW_G20" targetRef="UT_T31" />
+    <bpmn:sequenceFlow id="SF_GW_G20_NO_GW_G27" name="No - Couples therapy conditions not met" sourceRef="GW_G20" targetRef="GW_G27" />
+    <bpmn:sequenceFlow id="SF_UT_T31_GW_G27" sourceRef="UT_T31" targetRef="GW_G27" />
+    <bpmn:sequenceFlow id="SF_GW_G27_REMISSION_UT_T46" name="Remission achieved - shorten treatment; proceed to post-treatment control" sourceRef="GW_G27" targetRef="UT_T46" />
+    <bpmn:sequenceFlow id="SF_GW_G27_EXTEND_UT_T29" name="Progress made but further sessions beneficial - extend with behavioral activation" sourceRef="GW_G27" targetRef="UT_T29" />
+    <bpmn:sequenceFlow id="SF_GW_G27_INSUF_GW_G15" name="Insufficient progress - reassess for Step 4 escalation" sourceRef="GW_G27" targetRef="GW_G15" />
+    <bpmn:sequenceFlow id="SF_UT_T29_UT_T30" sourceRef="UT_T29" targetRef="UT_T30" />
+    <bpmn:sequenceFlow id="SF_UT_T30_GW_G15" sourceRef="UT_T30" targetRef="GW_G15" />
+    <bpmn:sequenceFlow id="SF_GW_G15_YES_UT_T39" name="Yes - Severe depression or life risk confirmed; Step 4 required" sourceRef="GW_G15" targetRef="UT_T39" />
+    <bpmn:sequenceFlow id="SF_GW_G15_NO_GW_G16" name="No - Moderate depression responding to Step 3; continue monitoring" sourceRef="GW_G15" targetRef="GW_G16" />
+
+    <!-- Phase 3 Step 4 flows -->
+    <bpmn:sequenceFlow id="SF_UT_T39_UT_T40" sourceRef="UT_T39" targetRef="UT_T40" />
+    <bpmn:sequenceFlow id="SF_UT_T40_GW_G32" sourceRef="UT_T40" targetRef="GW_G32" />
+    <bpmn:sequenceFlow id="SF_GW_G32_YES_UT_T52" name="Yes - Severity or neglect warrants inpatient hospitalization" sourceRef="GW_G32" targetRef="UT_T52" />
+    <bpmn:sequenceFlow id="SF_GW_G32_NO_GW_G29" name="No - Intensive outpatient management sufficient" sourceRef="GW_G32" targetRef="GW_G29" />
+    <bpmn:sequenceFlow id="SF_UT_T52_GW_G29" sourceRef="UT_T52" targetRef="GW_G29" />
+    <bpmn:sequenceFlow id="SF_GW_G29_YES_UT_T54" name="Yes - Psychological comorbidity probable; coordinate care" sourceRef="GW_G29" targetRef="UT_T54" />
+    <bpmn:sequenceFlow id="SF_GW_G29_NO_GW_G30" name="No - No psychological comorbidity detected during hospitalization" sourceRef="GW_G29" targetRef="GW_G30" />
+    <bpmn:sequenceFlow id="SF_UT_T54_GW_G30" sourceRef="UT_T54" targetRef="GW_G30" />
+    <bpmn:sequenceFlow id="SF_GW_G30_YES_UT_T47b" name="Yes - Outpatient psychological follow-up required post-discharge" sourceRef="GW_G30" targetRef="UT_T47b" />
+    <bpmn:sequenceFlow id="SF_GW_G30_NO_EE_3" name="No - Discharge to standard GP follow-up; no further psychological care" sourceRef="GW_G30" targetRef="EE_3" />
+    <bpmn:sequenceFlow id="SF_UT_T47b_EE_3" sourceRef="UT_T47b" targetRef="EE_3" />
+
+    <!-- Phase 4 monitoring flows -->
+    <bpmn:sequenceFlow id="SF_UT_T44_GW_G16" sourceRef="UT_T44" targetRef="GW_G16" />
+    <bpmn:sequenceFlow id="SF_UT_T46_GW_G16" sourceRef="UT_T46" targetRef="GW_G16" />
+    <bpmn:sequenceFlow id="SF_GW_G16_YES_UT_T51" name="Yes - Treatment duration exceeds 3 months; contact multidisciplinary center" sourceRef="GW_G16" targetRef="UT_T51" />
+    <bpmn:sequenceFlow id="SF_GW_G16_NO_GW_G17" name="No - Within treatment duration threshold" sourceRef="GW_G16" targetRef="GW_G17" />
+    <bpmn:sequenceFlow id="SF_UT_T51_EE_1" sourceRef="UT_T51" targetRef="EE_1" />
+    <bpmn:sequenceFlow id="SF_GW_G17_ACTIVE_EE_1" name="Yes - Active treatment ongoing; discharge when complete" sourceRef="GW_G17" targetRef="EE_1" />
+    <bpmn:sequenceFlow id="SF_GW_G17_INACTIVE_GW_G31" name="No - Permanent dysfunction without active treatment; annual review" sourceRef="GW_G17" targetRef="GW_G31" />
+    <bpmn:sequenceFlow id="SF_GW_G31_GP_UT_T21b" name="General advice and monitoring sufficient - GP-managed annual review" sourceRef="GW_G31" targetRef="UT_T21b" />
+    <bpmn:sequenceFlow id="SF_GW_G31_PSYCH_UT_T47" name="Referral to clinical psychologist required" sourceRef="GW_G31" targetRef="UT_T47" />
+    <bpmn:sequenceFlow id="SF_GW_G31_PSYCHIAT_UT_T48" name="Referral to psychiatrist required" sourceRef="GW_G31" targetRef="UT_T48" />
+    <bpmn:sequenceFlow id="SF_UT_T21b_EE_1" sourceRef="UT_T21b" targetRef="EE_1" />
+
+    <!-- Referral pathway flows -->
+    <bpmn:sequenceFlow id="SF_UT_T47_GW_G04" sourceRef="UT_T47" targetRef="GW_G04" />
+    <bpmn:sequenceFlow id="SF_GW_G04_YES_EE_1" name="Yes - GP initiated referral; no additional notification needed" sourceRef="GW_G04" targetRef="EE_1" />
+    <bpmn:sequenceFlow id="SF_GW_G04_NO_UT_T50" name="No - Non-GP initiated; GP must be notified of referral" sourceRef="GW_G04" targetRef="UT_T50" />
+    <bpmn:sequenceFlow id="SF_UT_T50_EE_1" sourceRef="UT_T50" targetRef="EE_1" />
+    <bpmn:sequenceFlow id="SF_UT_T48_UT_T09" sourceRef="UT_T48" targetRef="UT_T09" />
+    <bpmn:sequenceFlow id="SF_UT_T09_EE_1" sourceRef="UT_T09" targetRef="EE_1" />
+
+    <!-- E-Health pathway flows -->
+    <bpmn:sequenceFlow id="SF_SE_EH_UT_T06" sourceRef="SE_EH" targetRef="UT_T06" />
+    <bpmn:sequenceFlow id="SF_UT_T06_ST_T07" sourceRef="UT_T06" targetRef="ST_T07" />
+    <bpmn:sequenceFlow id="SF_ST_T07_GW_G05" sourceRef="ST_T07" targetRef="GW_G05" />
+    <bpmn:sequenceFlow id="SF_GW_G05_RISK_UT_T53" name="Elevated risk profile - psychosocial difficulties detected" sourceRef="GW_G05" targetRef="UT_T53" />
+    <bpmn:sequenceFlow id="SF_GW_G05_NORISK_EE_4" name="No risk profile - standard medical care without additional psychological treatment" sourceRef="GW_G05" targetRef="EE_4" />
+    <bpmn:sequenceFlow id="SF_UT_T53_UT_T25" sourceRef="UT_T53" targetRef="UT_T25" />
+    <bpmn:sequenceFlow id="SF_UT_T25_ST_T45" sourceRef="UT_T25" targetRef="ST_T45" />
+    <bpmn:sequenceFlow id="SF_ST_T45_EE_4" sourceRef="ST_T45" targetRef="EE_4" />
+
+    <!-- Cardiac CBT pathway flows -->
+    <bpmn:sequenceFlow id="SF_SE_CAR_UT_T34" sourceRef="SE_CAR" targetRef="UT_T34" />
+    <bpmn:sequenceFlow id="SF_UT_T34_UT_T35" sourceRef="UT_T34" targetRef="UT_T35" />
+    <bpmn:sequenceFlow id="SF_UT_T35_GW_G23" sourceRef="UT_T35" targetRef="GW_G23" />
+    <bpmn:sequenceFlow id="SF_GW_G23_YES_GW_G24" name="Yes - Patient suitable for current cardiac CBT step" sourceRef="GW_G23" targetRef="GW_G24" />
+    <bpmn:sequenceFlow id="SF_GW_G23_NO_EE_1b" name="No - Patient not suitable; refer to alternative service" sourceRef="GW_G23" targetRef="EE_1b" />
+    <bpmn:sequenceFlow id="SF_GW_G24_S2_UT_T36" name="Mild to moderate depression or anxiety - Step 2 telephone CBT" sourceRef="GW_G24" targetRef="UT_T36" />
+    <bpmn:sequenceFlow id="SF_GW_G24_S3_UT_T37" name="Moderate to severe depression or anxiety - Step 3 in-person CBT" sourceRef="GW_G24" targetRef="UT_T37" />
+    <bpmn:sequenceFlow id="SF_GW_G24_S4_UT_T38" name="Severe or complex psychological problems - Step 4 specialist CBT" sourceRef="GW_G24" targetRef="UT_T38" />
+    <bpmn:sequenceFlow id="SF_UT_T36_EE_1c" sourceRef="UT_T36" targetRef="EE_1c" />
+    <bpmn:sequenceFlow id="SF_UT_T37_EE_1c" sourceRef="UT_T37" targetRef="EE_1c" />
+    <bpmn:sequenceFlow id="SF_UT_T38_EE_1c" sourceRef="UT_T38" targetRef="EE_1c" />
+
+  </bpmn:process>
+
+  <!-- ==================== BPMN DI ==================== -->
+
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1wlyh5l">
+
+      <!-- START EVENTS -->
+      <bpmndi:BPMNShape id="SE_1_di" bpmnElement="SE_1">
+        <dc:Bounds x="152" y="392" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="SE_EH_di" bpmnElement="SE_EH">
+        <dc:Bounds x="152" y="1692" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="SE_CAR_di" bpmnElement="SE_CAR">
+        <dc:Bounds x="152" y="1992" width="36" height="36" />
+      </bpmndi:BPMNShape>
+
+      <!-- PHASE 0 SHAPES -->
+      <bpmndi:BPMNShape id="UT_T01_di" bpmnElement="UT_T01">
+        <dc:Bounds x="240" y="370" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_T02_di" bpmnElement="UT_T02">
+        <dc:Bounds x="430" y="370" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G01_di" bpmnElement="GW_G01" isMarkerVisible="true">
+        <dc:Bounds x="625" y="385" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_T03_di" bpmnElement="UT_T03">
+        <dc:Bounds x="730" y="370" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G03_di" bpmnElement="GW_G03" isMarkerVisible="true">
+        <dc:Bounds x="925" y="385" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G02_di" bpmnElement="GW_G02" isMarkerVisible="true">
+        <dc:Bounds x="1030" y="385" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_T04_di" bpmnElement="UT_T04">
+        <dc:Bounds x="1140" y="370" width="140" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- PHASE 1 SHAPES -->
+      <bpmndi:BPMNShape id="UT_T08_di" bpmnElement="UT_T08">
+        <dc:Bounds x="1350" y="370" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_T05_di" bpmnElement="UT_T05">
+        <dc:Bounds x="1550" y="370" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_T10_di" bpmnElement="UT_T10">
+        <dc:Bounds x="1750" y="370" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_T11_di" bpmnElement="UT_T11">
+        <dc:Bounds x="1950" y="370" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G06_di" bpmnElement="GW_G06" isMarkerVisible="true">
+        <dc:Bounds x="2145" y="385" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_T49_di" bpmnElement="UT_T49">
+        <dc:Bounds x="2250" y="250" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G07_di" bpmnElement="GW_G07" isMarkerVisible="true">
+        <dc:Bounds x="2250" y="385" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_T12_di" bpmnElement="UT_T12">
+        <dc:Bounds x="2360" y="250" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_T12b_di" bpmnElement="UT_T12b">
+        <dc:Bounds x="2360" y="370" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G10_di" bpmnElement="GW_G10" isMarkerVisible="true">
+        <dc:Bounds x="2560" y="385" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_T13_di" bpmnElement="UT_T13">
+        <dc:Bounds x="2670" y="370" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_T48_di" bpmnElement="UT_T48">
+        <dc:Bounds x="2670" y="530" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_T09_di" bpmnElement="UT_T09">
+        <dc:Bounds x="2870" y="530" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G11_di" bpmnElement="GW_G11" isMarkerVisible="true">
+        <dc:Bounds x="2870" y="385" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BRT_T14_di" bpmnElement="BRT_T14">
+        <dc:Bounds x="2980" y="370" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G12_di" bpmnElement="GW_G12" isMarkerVisible="true">
+        <dc:Bounds x="3180" y="385" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_T15_di" bpmnElement="UT_T15">
+        <dc:Bounds x="3290" y="250" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_T15b_di" bpmnElement="UT_T15b">
+        <dc:Bounds x="3290" y="370" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G09_di" bpmnElement="GW_G09" isMarkerVisible="true">
+        <dc:Bounds x="3490" y="385" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <!-- PHASE 2 SHAPES -->
+      <bpmndi:BPMNShape id="UT_T19_di" bpmnElement="UT_T19">
+        <dc:Bounds x="3600" y="370" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_T18_di" bpmnElement="UT_T18">
+        <dc:Bounds x="3800" y="370" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_T20_di" bpmnElement="UT_T20">
+        <dc:Bounds x="4000" y="370" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G28_di" bpmnElement="GW_G28" isMarkerVisible="true">
+        <dc:Bounds x="4200" y="385" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_T56_di" bpmnElement="UT_T56">
+        <dc:Bounds x="4310" y="250" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_T57_di" bpmnElement="UT_T57">
+        <dc:Bounds x="4510" y="250" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_T16_di" bpmnElement="UT_T16">
+        <dc:Bounds x="4310" y="370" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G33_di" bpmnElement="GW_G33" isMarkerVisible="true">
+        <dc:Bounds x="4510" y="385" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_T55_di" bpmnElement="UT_T55">
+        <dc:Bounds x="4620" y="250" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G08_di" bpmnElement="GW_G08" isMarkerVisible="true">
+        <dc:Bounds x="4620" y="385" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <!-- PHASE 3 STEP 1 SHAPES -->
+      <bpmndi:BPMNShape id="UT_T21_di" bpmnElement="UT_T21">
+        <dc:Bounds x="4730" y="370" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G22_di" bpmnElement="GW_G22" isMarkerVisible="true">
+        <dc:Bounds x="4930" y="385" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G25_di" bpmnElement="GW_G25" isMarkerVisible="true">
+        <dc:Bounds x="5040" y="385" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G13_di" bpmnElement="GW_G13" isMarkerVisible="true">
+        <dc:Bounds x="5150" y="385" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_T41_di" bpmnElement="UT_T41">
+        <dc:Bounds x="5260" y="370" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_T42_di" bpmnElement="UT_T42">
+        <dc:Bounds x="5460" y="370" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_T43_di" bpmnElement="UT_T43">
+        <dc:Bounds x="5660" y="370" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G26_di" bpmnElement="GW_G26" isMarkerVisible="true">
+        <dc:Bounds x="5860" y="385" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G06b_di" bpmnElement="GW_G06b" isMarkerVisible="true">
+        <dc:Bounds x="5970" y="385" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_T49b_di" bpmnElement="UT_T49b">
+        <dc:Bounds x="6080" y="250" width="140" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- PHASE 3 STEP 2 SHAPES -->
+      <bpmndi:BPMNShape id="UT_T17_di" bpmnElement="UT_T17">
+        <dc:Bounds x="4730" y="530" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G18_di" bpmnElement="GW_G18" isMarkerVisible="true">
+        <dc:Bounds x="4930" y="545" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_T32_di" bpmnElement="UT_T32">
+        <dc:Bounds x="5040" y="530" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_T33_di" bpmnElement="UT_T33">
+        <dc:Bounds x="5240" y="530" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G21_di" bpmnElement="GW_G21" isMarkerVisible="true">
+        <dc:Bounds x="5440" y="545" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_T22_di" bpmnElement="UT_T22">
+        <dc:Bounds x="5550" y="530" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_T23_di" bpmnElement="UT_T23">
+        <dc:Bounds x="5750" y="530" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_T24_di" bpmnElement="UT_T24">
+        <dc:Bounds x="5550" y="660" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G14_di" bpmnElement="GW_G14" isMarkerVisible="true">
+        <dc:Bounds x="5950" y="545" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <!-- PHASE 3 STEP 3 SHAPES -->
+      <bpmndi:BPMNShape id="GW_G19_di" bpmnElement="GW_G19" isMarkerVisible="true">
+        <dc:Bounds x="6060" y="545" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_T26_di" bpmnElement="UT_T26">
+        <dc:Bounds x="6170" y="410" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_T27_di" bpmnElement="UT_T27">
+        <dc:Bounds x="6170" y="530" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_T28_di" bpmnElement="UT_T28">
+        <dc:Bounds x="6170" y="660" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G20_di" bpmnElement="GW_G20" isMarkerVisible="true">
+        <dc:Bounds x="6370" y="545" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_T31_di" bpmnElement="UT_T31">
+        <dc:Bounds x="6480" y="410" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G27_di" bpmnElement="GW_G27" isMarkerVisible="true">
+        <dc:Bounds x="6480" y="545" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_T29_di" bpmnElement="UT_T29">
+        <dc:Bounds x="6590" y="530" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_T30_di" bpmnElement="UT_T30">
+        <dc:Bounds x="6790" y="530" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G15_di" bpmnElement="GW_G15" isMarkerVisible="true">
+        <dc:Bounds x="6990" y="545" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <!-- PHASE 3 STEP 4 SHAPES -->
+      <bpmndi:BPMNShape id="UT_T39_di" bpmnElement="UT_T39">
+        <dc:Bounds x="7100" y="530" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_T40_di" bpmnElement="UT_T40">
+        <dc:Bounds x="7300" y="530" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G32_di" bpmnElement="GW_G32" isMarkerVisible="true">
+        <dc:Bounds x="7500" y="545" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_T52_di" bpmnElement="UT_T52">
+        <dc:Bounds x="7610" y="410" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G29_di" bpmnElement="GW_G29" isMarkerVisible="true">
+        <dc:Bounds x="7810" y="545" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_T54_di" bpmnElement="UT_T54">
+        <dc:Bounds x="7920" y="530" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G30_di" bpmnElement="GW_G30" isMarkerVisible="true">
+        <dc:Bounds x="8120" y="545" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_T47b_di" bpmnElement="UT_T47b">
+        <dc:Bounds x="8230" y="410" width="140" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- PHASE 4 SHAPES -->
+      <bpmndi:BPMNShape id="UT_T44_di" bpmnElement="UT_T44">
+        <dc:Bounds x="6480" y="780" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_T46_di" bpmnElement="UT_T46">
+        <dc:Bounds x="6680" y="780" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G16_di" bpmnElement="GW_G16" isMarkerVisible="true">
+        <dc:Bounds x="6880" y="795" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_T51_di" bpmnElement="UT_T51">
+        <dc:Bounds x="6990" y="780" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G17_di" bpmnElement="GW_G17" isMarkerVisible="true">
+        <dc:Bounds x="7200" y="795" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G31_di" bpmnElement="GW_G31" isMarkerVisible="true">
+        <dc:Bounds x="7310" y="795" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_T21b_di" bpmnElement="UT_T21b">
+        <dc:Bounds x="7420" y="660" width="140" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- REFERRAL SHAPES -->
+      <bpmndi:BPMNShape id="UT_T47_di" bpmnElement="UT_T47">
+        <dc:Bounds x="1140" y="530" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G04_di" bpmnElement="GW_G04" isMarkerVisible="true">
+        <dc:Bounds x="1340" y="545" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_T50_di" bpmnElement="UT_T50">
+        <dc:Bounds x="1450" y="530" width="140" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- E-HEALTH SHAPES -->
+      <bpmndi:BPMNShape id="UT_T06_di" bpmnElement="UT_T06">
+        <dc:Bounds x="240" y="1670" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ST_T07_di" bpmnElement="ST_T07">
+        <dc:Bounds x="430" y="1670" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G05_di" bpmnElement="GW_G05" isMarkerVisible="true">
+        <dc:Bounds x="625" y="1685" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_T53_di" bpmnElement="UT_T53">
+        <dc:Bounds x="730" y="1670" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_T25_di" bpmnElement="UT_T25">
+        <dc:Bounds x="930" y="1670" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ST_T45_di" bpmnElement="ST_T45">
+        <dc:Bounds x="1130" y="1670" width="140" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- CARDIAC SHAPES -->
+      <bpmndi:BPMNShape id="UT_T34_di" bpmnElement="UT_T34">
+        <dc:Bounds x="240" y="1970" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_T35_di" bpmnElement="UT_T35">
+        <dc:Bounds x="430" y="1970" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G23_di" bpmnElement="GW_G23" isMarkerVisible="true">
+        <dc:Bounds x="625" y="1985" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_G24_di" bpmnElement="GW_G24" isMarkerVisible="true">
+        <dc:Bounds x="730" y="1985" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_T36_di" bpmnElement="UT_T36">
+        <dc:Bounds x="840" y="1850" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_T37_di" bpmnElement="UT_T37">
+        <dc:Bounds x="840" y="1970" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UT_T38_di" bpmnElement="UT_T38">
+        <dc:Bounds x="840" y="2090" width="140" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- END EVENT SHAPES -->
+      <bpmndi:BPMNShape id="EE_1_di" bpmnElement="EE_1">
+        <dc:Bounds x="7622" y="802" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EE_2_di" bpmnElement="EE_2">
+        <dc:Bounds x="2452" y="267" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EE_2b_di" bpmnElement="EE_2b">
+        <dc:Bounds x="6280" y="267" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EE_3_di" bpmnElement="EE_3">
+        <dc:Bounds x="8432" y="557" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EE_4_di" bpmnElement="EE_4">
+        <dc:Bounds x="1332" y="1697" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EE_5_di" bpmnElement="EE_5">
+        <dc:Bounds x="625" y="507" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EE_1b_di" bpmnElement="EE_1b">
+        <dc:Bounds x="730" y="2107" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EE_1c_di" bpmnElement="EE_1c">
+        <dc:Bounds x="1042" y="1997" width="36" height="36" />
+      </bpmndi:BPMNShape>
+
+      <!-- ==================== SEQUENCE FLOW EDGES ==================== -->
+
+      <!-- Phase 0 edges -->
+      <bpmndi:BPMNEdge id="SF_SE1_UT_T01_di" bpmnElement="SF_SE1_UT_T01">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="188" y="410" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="240" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T01_UT_T02_di" bpmnElement="SF_UT_T01_UT_T02">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="380" y="410" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="430" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T02_GW_G01_di" bpmnElement="SF_UT_T02_GW_G01">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="570" y="410" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="625" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G01_YES_UT_T03_di" bpmnElement="SF_GW_G01_YES_UT_T03">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="675" y="410" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="730" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G01_NO_EE_5_di" bpmnElement="SF_GW_G01_NO_EE_5">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="650" y="435" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="650" y="507" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T03_GW_G03_di" bpmnElement="SF_UT_T03_GW_G03">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="870" y="410" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="925" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G03_YES_GW_G02_di" bpmnElement="SF_GW_G03_YES_GW_G02">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="975" y="410" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1030" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G03_NO_EE_5_di" bpmnElement="SF_GW_G03_NO_EE_5">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="950" y="435" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="950" y="525" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="661" y="525" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G02_YES_UT_T04_di" bpmnElement="SF_GW_G02_YES_UT_T04">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1080" y="410" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1140" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G02_NO_UT_T47_di" bpmnElement="SF_GW_G02_NO_UT_T47">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1055" y="435" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1055" y="570" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1140" y="570" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T04_UT_T08_di" bpmnElement="SF_UT_T04_UT_T08">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1280" y="410" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1350" y="410" />
+      </bpmndi:BPMNEdge>
+
+      <!-- Phase 1 edges -->
+      <bpmndi:BPMNEdge id="SF_UT_T47_UT_T08_di" bpmnElement="SF_UT_T47_UT_T08">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1280" y="570" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1420" y="570" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1420" y="450" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T08_UT_T05_di" bpmnElement="SF_UT_T08_UT_T05">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1490" y="410" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1550" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T05_UT_T10_di" bpmnElement="SF_UT_T05_UT_T10">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1690" y="410" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1750" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T10_UT_T11_di" bpmnElement="SF_UT_T10_UT_T11">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1890" y="410" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1950" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T11_GW_G06_di" bpmnElement="SF_UT_T11_GW_G06">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2090" y="410" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2145" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G06_YES_UT_T49_di" bpmnElement="SF_GW_G06_YES_UT_T49">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2170" y="385" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2170" y="290" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2250" y="290" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G06_NO_GW_G07_di" bpmnElement="SF_GW_G06_NO_GW_G07">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2195" y="410" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2250" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T49_EE_2_di" bpmnElement="SF_UT_T49_EE_2">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2390" y="290" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2452" y="285" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G07_HIGH_UT_T12_di" bpmnElement="SF_GW_G07_HIGH_UT_T12">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2275" y="385" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2275" y="290" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2360" y="290" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G07_LOW_UT_T12b_di" bpmnElement="SF_GW_G07_LOW_UT_T12b">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2300" y="410" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2360" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T12_GW_G10_di" bpmnElement="SF_UT_T12_GW_G10">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2500" y="290" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2585" y="290" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2585" y="385" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T12b_GW_G10_di" bpmnElement="SF_UT_T12b_GW_G10">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2500" y="410" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2560" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G10_ADJUST_UT_T13_di" bpmnElement="SF_GW_G10_ADJUST_UT_T13">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2610" y="410" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2670" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G10_DEP_UT_T13_di" bpmnElement="SF_GW_G10_DEP_UT_T13">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2585" y="385" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2585" y="370" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2670" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G10_OTHER_UT_T48_di" bpmnElement="SF_GW_G10_OTHER_UT_T48">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2585" y="435" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2585" y="570" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2670" y="570" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T13_GW_G11_di" bpmnElement="SF_UT_T13_GW_G11">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2810" y="410" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2870" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T48_UT_T09_di" bpmnElement="SF_UT_T48_UT_T09">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2810" y="570" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2870" y="570" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T09_EE_1_di" bpmnElement="SF_UT_T09_EE_1">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3010" y="570" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7640" y="570" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7640" y="838" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G11_YES_BRT_T14_di" bpmnElement="SF_GW_G11_YES_BRT_T14">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2895" y="385" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2895" y="340" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3050" y="340" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3050" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G11_NO_BRT_T14_di" bpmnElement="SF_GW_G11_NO_BRT_T14">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2920" y="410" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2980" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_BRT_T14_GW_G12_di" bpmnElement="SF_BRT_T14_GW_G12">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3120" y="410" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3180" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G12_YES_UT_T15_di" bpmnElement="SF_GW_G12_YES_UT_T15">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3205" y="385" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3205" y="290" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3290" y="290" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G12_NO_UT_T15b_di" bpmnElement="SF_GW_G12_NO_UT_T15b">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3230" y="410" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3290" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T15_GW_G09_di" bpmnElement="SF_UT_T15_GW_G09">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3430" y="290" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3515" y="290" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3515" y="385" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T15b_GW_G09_di" bpmnElement="SF_UT_T15b_GW_G09">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3430" y="410" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3490" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G09_DEP_ANXI_UT_T19_di" bpmnElement="SF_GW_G09_DEP_ANXI_UT_T19">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3515" y="385" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3515" y="340" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3670" y="340" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3670" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G09_DEP_ONLY_UT_T19_di" bpmnElement="SF_GW_G09_DEP_ONLY_UT_T19">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3540" y="410" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3600" y="410" />
+      </bpmndi:BPMNEdge>
+
+      <!-- Phase 2 edges -->
+      <bpmndi:BPMNEdge id="SF_UT_T19_UT_T18_di" bpmnElement="SF_UT_T19_UT_T18">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3740" y="410" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3800" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T18_UT_T20_di" bpmnElement="SF_UT_T18_UT_T20">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="3940" y="410" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4000" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T20_GW_G28_di" bpmnElement="SF_UT_T20_GW_G28">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4140" y="410" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4200" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G28_YES_UT_T56_di" bpmnElement="SF_GW_G28_YES_UT_T56">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4225" y="385" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4225" y="290" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4310" y="290" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G28_NO_UT_T16_di" bpmnElement="SF_GW_G28_NO_UT_T16">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4250" y="410" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4310" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T56_UT_T57_di" bpmnElement="SF_UT_T56_UT_T57">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4450" y="290" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4510" y="290" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T57_UT_T16_di" bpmnElement="SF_UT_T57_UT_T16">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4580" y="330" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4380" y="330" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4380" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T16_GW_G33_di" bpmnElement="SF_UT_T16_GW_G33">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4450" y="410" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4510" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G33_STD_GW_G08_di" bpmnElement="SF_GW_G33_STD_GW_G08">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4560" y="410" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4620" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G33_ALT_UT_T55_di" bpmnElement="SF_GW_G33_ALT_UT_T55">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4535" y="385" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4535" y="290" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4620" y="290" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T55_GW_G08_di" bpmnElement="SF_UT_T55_GW_G08">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4760" y="290" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4645" y="290" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4645" y="385" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G08_SUBCLX_UT_T21_di" bpmnElement="SF_GW_G08_SUBCLX_UT_T21">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4670" y="410" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4730" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G08_MILD_UT_T21_di" bpmnElement="SF_GW_G08_MILD_UT_T21">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4645" y="385" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4645" y="360" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4800" y="360" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4800" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G08_MOD_UT_T17_di" bpmnElement="SF_GW_G08_MOD_UT_T17">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4645" y="435" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4645" y="570" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4730" y="570" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G08_SEV_UT_T17_di" bpmnElement="SF_GW_G08_SEV_UT_T17">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4645" y="435" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4645" y="600" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4800" y="600" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4800" y="610" />
+      </bpmndi:BPMNEdge>
+
+      <!-- Phase 3 Step 1 edges -->
+      <bpmndi:BPMNEdge id="SF_UT_T21_GW_G22_di" bpmnElement="SF_UT_T21_GW_G22">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4870" y="410" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4930" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G22_YES_GW_G25_di" bpmnElement="SF_GW_G22_YES_GW_G25">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4980" y="410" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5040" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G22_NO_UT_T42_di" bpmnElement="SF_GW_G22_NO_UT_T42">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4955" y="435" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4955" y="480" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5530" y="480" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5530" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G25_YES_UT_T41_di" bpmnElement="SF_GW_G25_YES_UT_T41">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5090" y="410" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5260" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G25_NO_GW_G13_di" bpmnElement="SF_GW_G25_NO_GW_G13">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5065" y="435" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5065" y="460" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5175" y="460" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5175" y="435" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G13_ADEQUATE_UT_T41_di" bpmnElement="SF_GW_G13_ADEQUATE_UT_T41">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5175" y="385" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5175" y="350" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5330" y="350" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5330" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G13_ESCALATE_UT_T17_di" bpmnElement="SF_GW_G13_ESCALATE_UT_T17">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5150" y="410" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5100" y="410" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5100" y="650" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4800" y="650" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4800" y="610" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T41_UT_T42_di" bpmnElement="SF_UT_T41_UT_T42">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5400" y="410" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5460" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T41_GW_G13_di" bpmnElement="SF_UT_T41_GW_G13">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5330" y="450" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5330" y="500" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5175" y="500" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5175" y="435" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T42_UT_T43_di" bpmnElement="SF_UT_T42_UT_T43">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5600" y="410" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5660" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T43_GW_G26_di" bpmnElement="SF_UT_T43_GW_G26">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5800" y="410" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5860" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G26_WORSEN_GW_G06b_di" bpmnElement="SF_GW_G26_WORSEN_GW_G06b">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5910" y="410" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5970" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G26_STABLE_GW_G13_di" bpmnElement="SF_GW_G26_STABLE_GW_G13">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5885" y="435" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5885" y="520" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5175" y="520" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5175" y="435" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G06b_URGENT_UT_T49b_di" bpmnElement="SF_GW_G06b_URGENT_UT_T49b">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5995" y="385" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5995" y="290" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6080" y="290" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G06b_NOURGENT_GW_G13_di" bpmnElement="SF_GW_G06b_NOURGENT_GW_G13">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5995" y="435" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5995" y="540" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5175" y="540" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5175" y="435" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T49b_EE_2b_di" bpmnElement="SF_UT_T49b_EE_2b">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6220" y="290" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6280" y="285" />
+      </bpmndi:BPMNEdge>
+
+      <!-- Phase 3 Step 2 edges -->
+      <bpmndi:BPMNEdge id="SF_UT_T17_GW_G18_di" bpmnElement="SF_UT_T17_GW_G18">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4870" y="570" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4930" y="570" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G18_YES_UT_T32_di" bpmnElement="SF_GW_G18_YES_UT_T32">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4980" y="570" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5040" y="570" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G18_NO_GW_G21_di" bpmnElement="SF_GW_G18_NO_GW_G21">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4955" y="595" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="4955" y="640" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5465" y="640" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5465" y="595" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T32_UT_T33_di" bpmnElement="SF_UT_T32_UT_T33">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5180" y="570" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5240" y="570" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T33_GW_G21_di" bpmnElement="SF_UT_T33_GW_G21">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5380" y="570" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5440" y="570" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G21_YES_UT_T22_di" bpmnElement="SF_GW_G21_YES_UT_T22">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5490" y="570" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5550" y="570" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G21_NO_UT_T24_di" bpmnElement="SF_GW_G21_NO_UT_T24">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5465" y="595" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5465" y="700" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5550" y="700" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T22_UT_T23_di" bpmnElement="SF_UT_T22_UT_T23">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5690" y="570" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5750" y="570" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T23_GW_G14_di" bpmnElement="SF_UT_T23_GW_G14">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5890" y="570" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5950" y="570" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T24_GW_G14_di" bpmnElement="SF_UT_T24_GW_G14">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5690" y="700" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5975" y="700" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5975" y="595" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G14_ADEQUATE_UT_T44_di" bpmnElement="SF_GW_G14_ADEQUATE_UT_T44">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5975" y="595" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="5975" y="820" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6480" y="820" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G14_ESCALATE_GW_G19_di" bpmnElement="SF_GW_G14_ESCALATE_GW_G19">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6000" y="570" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6060" y="570" />
+      </bpmndi:BPMNEdge>
+
+      <!-- Phase 3 Step 3 edges -->
+      <bpmndi:BPMNEdge id="SF_GW_G19_GROUP_UT_T26_di" bpmnElement="SF_GW_G19_GROUP_UT_T26">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6085" y="545" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6085" y="450" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6170" y="450" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G19_MOD_UT_T27_di" bpmnElement="SF_GW_G19_MOD_UT_T27">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6110" y="570" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6170" y="570" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G19_SEV_UT_T28_di" bpmnElement="SF_GW_G19_SEV_UT_T28">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6085" y="595" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6085" y="700" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6170" y="700" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T26_GW_G20_di" bpmnElement="SF_UT_T26_GW_G20">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6310" y="450" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6395" y="450" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6395" y="545" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T27_GW_G20_di" bpmnElement="SF_UT_T27_GW_G20">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6310" y="570" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6370" y="570" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T28_GW_G20_di" bpmnElement="SF_UT_T28_GW_G20">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6310" y="700" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6395" y="700" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6395" y="595" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G20_YES_UT_T31_di" bpmnElement="SF_GW_G20_YES_UT_T31">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6395" y="545" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6395" y="450" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6480" y="450" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G20_NO_GW_G27_di" bpmnElement="SF_GW_G20_NO_GW_G27">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6420" y="570" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6480" y="570" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T31_GW_G27_di" bpmnElement="SF_UT_T31_GW_G27">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6620" y="450" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6505" y="450" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6505" y="545" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G27_REMISSION_UT_T46_di" bpmnElement="SF_GW_G27_REMISSION_UT_T46">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6505" y="595" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6505" y="820" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6680" y="820" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G27_EXTEND_UT_T29_di" bpmnElement="SF_GW_G27_EXTEND_UT_T29">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6530" y="570" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6590" y="570" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G27_INSUF_GW_G15_di" bpmnElement="SF_GW_G27_INSUF_GW_G15">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6505" y="545" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6505" y="500" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7015" y="500" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7015" y="545" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T29_UT_T30_di" bpmnElement="SF_UT_T29_UT_T30">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6730" y="570" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6790" y="570" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T30_GW_G15_di" bpmnElement="SF_UT_T30_GW_G15">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6930" y="570" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6990" y="570" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G15_YES_UT_T39_di" bpmnElement="SF_GW_G15_YES_UT_T39">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7040" y="570" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7100" y="570" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G15_NO_GW_G16_di" bpmnElement="SF_GW_G15_NO_GW_G16">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7015" y="595" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7015" y="820" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6905" y="820" />
+      </bpmndi:BPMNEdge>
+
+      <!-- Phase 3 Step 4 edges -->
+      <bpmndi:BPMNEdge id="SF_UT_T39_UT_T40_di" bpmnElement="SF_UT_T39_UT_T40">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7240" y="570" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7300" y="570" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T40_GW_G32_di" bpmnElement="SF_UT_T40_GW_G32">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7440" y="570" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7500" y="570" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G32_YES_UT_T52_di" bpmnElement="SF_GW_G32_YES_UT_T52">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7525" y="545" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7525" y="450" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7610" y="450" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G32_NO_GW_G29_di" bpmnElement="SF_GW_G32_NO_GW_G29">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7550" y="570" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7810" y="570" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T52_GW_G29_di" bpmnElement="SF_UT_T52_GW_G29">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7750" y="450" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7835" y="450" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7835" y="545" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G29_YES_UT_T54_di" bpmnElement="SF_GW_G29_YES_UT_T54">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7860" y="570" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7920" y="570" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G29_NO_GW_G30_di" bpmnElement="SF_GW_G29_NO_GW_G30">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7835" y="545" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7835" y="500" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8145" y="500" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8145" y="545" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T54_GW_G30_di" bpmnElement="SF_UT_T54_GW_G30">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8060" y="570" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8120" y="570" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G30_YES_UT_T47b_di" bpmnElement="SF_GW_G30_YES_UT_T47b">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8145" y="545" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8145" y="450" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8230" y="450" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G30_NO_EE_3_di" bpmnElement="SF_GW_G30_NO_EE_3">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8170" y="570" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8432" y="575" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T47b_EE_3_di" bpmnElement="SF_UT_T47b_EE_3">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8370" y="450" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8450" y="450" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="8450" y="557" />
+      </bpmndi:BPMNEdge>
+
+      <!-- Phase 4 edges -->
+      <bpmndi:BPMNEdge id="SF_UT_T44_GW_G16_di" bpmnElement="SF_UT_T44_GW_G16">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6620" y="820" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6880" y="820" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T46_GW_G16_di" bpmnElement="SF_UT_T46_GW_G16">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6820" y="820" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6880" y="820" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G16_YES_UT_T51_di" bpmnElement="SF_GW_G16_YES_UT_T51">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6930" y="820" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6990" y="820" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G16_NO_GW_G17_di" bpmnElement="SF_GW_G16_NO_GW_G17">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6905" y="845" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="6905" y="880" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7225" y="880" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7225" y="845" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T51_EE_1_di" bpmnElement="SF_UT_T51_EE_1">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7130" y="820" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7622" y="820" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G17_ACTIVE_EE_1_di" bpmnElement="SF_GW_G17_ACTIVE_EE_1">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7250" y="820" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7622" y="820" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G17_INACTIVE_GW_G31_di" bpmnElement="SF_GW_G17_INACTIVE_GW_G31">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7260" y="820" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7310" y="820" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G31_GP_UT_T21b_di" bpmnElement="SF_GW_G31_GP_UT_T21b">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7335" y="795" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7335" y="700" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7420" y="700" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G31_PSYCH_UT_T47_di" bpmnElement="SF_GW_G31_PSYCH_UT_T47">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7335" y="845" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7335" y="950" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1210" y="950" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1210" y="610" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G31_PSYCHIAT_UT_T48_di" bpmnElement="SF_GW_G31_PSYCHIAT_UT_T48">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7360" y="820" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7450" y="820" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7450" y="1000" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2740" y="1000" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="2740" y="610" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T21b_EE_1_di" bpmnElement="SF_UT_T21b_EE_1">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7560" y="700" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7640" y="700" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7640" y="802" />
+      </bpmndi:BPMNEdge>
+
+      <!-- Referral edges -->
+      <bpmndi:BPMNEdge id="SF_UT_T47_GW_G04_di" bpmnElement="SF_UT_T47_GW_G04">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1280" y="570" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1340" y="570" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G04_YES_EE_1_di" bpmnElement="SF_GW_G04_YES_EE_1">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1365" y="545" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1365" y="480" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7640" y="480" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7640" y="802" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G04_NO_UT_T50_di" bpmnElement="SF_GW_G04_NO_UT_T50">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1390" y="570" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1450" y="570" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T50_EE_1_di" bpmnElement="SF_UT_T50_EE_1">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1590" y="570" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7640" y="570" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="7640" y="802" />
+      </bpmndi:BPMNEdge>
+
+      <!-- E-Health edges -->
+      <bpmndi:BPMNEdge id="SF_SE_EH_UT_T06_di" bpmnElement="SF_SE_EH_UT_T06">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="188" y="1710" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="240" y="1710" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T06_ST_T07_di" bpmnElement="SF_UT_T06_ST_T07">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="380" y="1710" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="430" y="1710" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_ST_T07_GW_G05_di" bpmnElement="SF_ST_T07_GW_G05">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="570" y="1710" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="625" y="1710" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G05_RISK_UT_T53_di" bpmnElement="SF_GW_G05_RISK_UT_T53">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="675" y="1710" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="730" y="1710" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G05_NORISK_EE_4_di" bpmnElement="SF_GW_G05_NORISK_EE_4">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="650" y="1735" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="650" y="1780" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1350" y="1780" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1350" y="1733" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T53_UT_T25_di" bpmnElement="SF_UT_T53_UT_T25">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="870" y="1710" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="930" y="1710" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T25_ST_T45_di" bpmnElement="SF_UT_T25_ST_T45">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1070" y="1710" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1130" y="1710" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_ST_T45_EE_4_di" bpmnElement="SF_ST_T45_EE_4">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1270" y="1710" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1332" y="1715" />
+      </bpmndi:BPMNEdge>
+
+      <!-- Cardiac edges -->
+      <bpmndi:BPMNEdge id="SF_SE_CAR_UT_T34_di" bpmnElement="SF_SE_CAR_UT_T34">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="188" y="2010" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="240" y="2010" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T34_UT_T35_di" bpmnElement="SF_UT_T34_UT_T35">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="380" y="2010" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="430" y="2010" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T35_GW_G23_di" bpmnElement="SF_UT_T35_GW_G23">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="570" y="2010" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="625" y="2010" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G23_YES_GW_G24_di" bpmnElement="SF_GW_G23_YES_GW_G24">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="675" y="2010" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="730" y="2010" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G23_NO_EE_1b_di" bpmnElement="SF_GW_G23_NO_EE_1b">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="650" y="2035" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="650" y="2125" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="730" y="2125" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G24_S2_UT_T36_di" bpmnElement="SF_GW_G24_S2_UT_T36">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="755" y="1985" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="755" y="1890" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="840" y="1890" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G24_S3_UT_T37_di" bpmnElement="SF_GW_G24_S3_UT_T37">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="780" y="2010" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="840" y="2010" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_GW_G24_S4_UT_T38_di" bpmnElement="SF_GW_G24_S4_UT_T38">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="755" y="2035" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="755" y="2130" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="840" y="2130" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T36_EE_1c_di" bpmnElement="SF_UT_T36_EE_1c">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="980" y="1890" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1060" y="1890" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1060" y="1997" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T37_EE_1c_di" bpmnElement="SF_UT_T37_EE_1c">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="980" y="2010" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1042" y="2015" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SF_UT_T38_EE_1c_di" bpmnElement="SF_UT_T38_EE_1c">
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="980" y="2130" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1060" y="2130" />
+        <di:waypoint xmlns:di="http://www.omg.org/spec/DD/20100524/DI" x="1060" y="2033" />
+      </bpmndi:BPMNEdge>
+
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

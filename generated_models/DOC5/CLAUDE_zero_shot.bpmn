@@ -1,0 +1,642 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+                  id="Definitions_DepressionManagement"
+                  targetNamespace="http://bpmn.io/schema/bpmn"
+                  xmlns:modeler="http://camunda.org/schema/modeler/1.0"
+                  exporter="Camunda Modeler"
+                  exporterVersion="5.33.1"
+                  modeler:executionPlatform="Camunda Platform"
+                  modeler:executionPlatformVersion="7.22.0">
+
+  <!-- ═══════════════════════════════════════════════════════════
+       COLLABORATION
+  ═══════════════════════════════════════════════════════════ -->
+  <bpmn:collaboration id="Collaboration_Depression">
+    <bpmn:participant id="Participant_GP"             name="Všeobecný lekár (GP)"          processRef="Process_GP"/>
+    <bpmn:participant id="Participant_Specialist"     name="Klinický psychológ / Psychiater" processRef="Process_Specialist"/>
+    <bpmn:participant id="Participant_Patient"        name="Pacient"                         processRef="Process_Patient"/>
+  </bpmn:collaboration>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       PROCESS – GP
+  ═══════════════════════════════════════════════════════════ -->
+  <bpmn:process id="Process_GP" name="Proces – Všeobecný lekár" isExecutable="true">
+
+    <bpmn:startEvent id="SE_PatientPresents" name="Pacient príde k lekárovi">
+      <bpmn:outgoing>SF_SE_to_Screening</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <bpmn:task id="T_Screening" name="Skríning depresie&#10;(PHQ-9, 2 otázky NICE)">
+      <bpmn:incoming>SF_SE_to_Screening</bpmn:incoming>
+      <bpmn:outgoing>SF_Screening_to_GW1</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:exclusiveGateway id="GW_DepressionSuspected" name="Podozrenie&#10;na depresiu?">
+      <bpmn:incoming>SF_Screening_to_GW1</bpmn:incoming>
+      <bpmn:outgoing>SF_NoDepression</bpmn:outgoing>
+      <bpmn:outgoing>SF_DepressionSuspected</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:task id="T_NoDepressionFollowUp" name="Bežná starostlivosť /&#10;sledovanie">
+      <bpmn:incoming>SF_NoDepression</bpmn:incoming>
+      <bpmn:outgoing>SF_NoDepression_End</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:endEvent id="EE_NoDepression" name="Ukončenie (bez depresie)">
+      <bpmn:incoming>SF_NoDepression_End</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:task id="T_ExcludeSomatic" name="Vylúčenie somatických príčin&#10;(lab., anamnéza, EEG, CT)">
+      <bpmn:incoming>SF_DepressionSuspected</bpmn:incoming>
+      <bpmn:outgoing>SF_Excl_to_GW2</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:exclusiveGateway id="GW_SomaticCause" name="Somatická príčina?">
+      <bpmn:incoming>SF_Excl_to_GW2</bpmn:incoming>
+      <bpmn:outgoing>SF_SomaticYes</bpmn:outgoing>
+      <bpmn:outgoing>SF_SomaticNo</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:task id="T_TreatSomatic" name="Liečba somatickej príčiny&#10;/ odoslanie k špecialistovi">
+      <bpmn:incoming>SF_SomaticYes</bpmn:incoming>
+      <bpmn:outgoing>SF_TreatSomatic_End</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:endEvent id="EE_SomaticTreated" name="Ukončenie (somatická liečba)">
+      <bpmn:incoming>SF_TreatSomatic_End</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:task id="T_AssessSeverity_GP" name="Posúdenie závažnosti depresie&#10;(PHQ-9 skóre)">
+      <bpmn:incoming>SF_SomaticNo</bpmn:incoming>
+      <bpmn:outgoing>SF_Severity_to_GW3</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:exclusiveGateway id="GW_Severity_GP" name="Závažnosť depresie?">
+      <bpmn:incoming>SF_Severity_to_GW3</bpmn:incoming>
+      <bpmn:outgoing>SF_MildGP</bpmn:outgoing>
+      <bpmn:outgoing>SF_ModSevereGP</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- Mild: GP manages + active monitoring -->
+    <bpmn:task id="T_GP_ActiveMonitoring" name="Edukácia, aktívne monitorovanie&#10;(kontrola o 2 týždne)">
+      <bpmn:incoming>SF_MildGP</bpmn:incoming>
+      <bpmn:outgoing>SF_Monitor_to_GW4</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:exclusiveGateway id="GW_Improvement_GP" name="Nastáva zlepšenie?">
+      <bpmn:incoming>SF_Monitor_to_GW4</bpmn:incoming>
+      <bpmn:outgoing>SF_ImprovementYes_GP</bpmn:outgoing>
+      <bpmn:outgoing>SF_ImprovementNo_GP</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:task id="T_GP_ContinueMonitor" name="Pokračovanie v sledovaní&#10;+ katamnestická starostlivosť">
+      <bpmn:incoming>SF_ImprovementYes_GP</bpmn:incoming>
+      <bpmn:outgoing>SF_ContinueMonitor_End</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:endEvent id="EE_GP_Resolved" name="Pacient stabilizovaný">
+      <bpmn:incoming>SF_ContinueMonitor_End</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <!-- Referral to specialist -->
+    <bpmn:task id="T_ReferToSpecialist" name="Odoslanie ku klinickému&#10;psychológovi / psychiatrovi">
+      <bpmn:incoming>SF_ImprovementNo_GP</bpmn:incoming>
+      <bpmn:incoming>SF_ModSevereGP</bpmn:incoming>
+      <bpmn:outgoing>SF_Refer_MsgOut</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:endEvent id="EE_GP_Referred" name="Pacient odoslaný">
+      <bpmn:incoming>SF_Refer_MsgOut</bpmn:incoming>
+      <bpmn:messageEventDefinition id="MED_ReferOut" messageRef="Msg_Referral"/>
+    </bpmn:endEvent>
+
+    <!-- Sequence flows GP -->
+    <bpmn:sequenceFlow id="SF_SE_to_Screening"      sourceRef="SE_PatientPresents"      targetRef="T_Screening"/>
+    <bpmn:sequenceFlow id="SF_Screening_to_GW1"     sourceRef="T_Screening"             targetRef="GW_DepressionSuspected"/>
+    <bpmn:sequenceFlow id="SF_NoDepression"          sourceRef="GW_DepressionSuspected"  targetRef="T_NoDepressionFollowUp" name="Nie"/>
+    <bpmn:sequenceFlow id="SF_DepressionSuspected"   sourceRef="GW_DepressionSuspected"  targetRef="T_ExcludeSomatic"       name="Áno"/>
+    <bpmn:sequenceFlow id="SF_NoDepression_End"      sourceRef="T_NoDepressionFollowUp"  targetRef="EE_NoDepression"/>
+    <bpmn:sequenceFlow id="SF_Excl_to_GW2"           sourceRef="T_ExcludeSomatic"        targetRef="GW_SomaticCause"/>
+    <bpmn:sequenceFlow id="SF_SomaticYes"            sourceRef="GW_SomaticCause"         targetRef="T_TreatSomatic"         name="Áno"/>
+    <bpmn:sequenceFlow id="SF_SomaticNo"             sourceRef="GW_SomaticCause"         targetRef="T_AssessSeverity_GP"    name="Nie"/>
+    <bpmn:sequenceFlow id="SF_TreatSomatic_End"      sourceRef="T_TreatSomatic"          targetRef="EE_SomaticTreated"/>
+    <bpmn:sequenceFlow id="SF_Severity_to_GW3"       sourceRef="T_AssessSeverity_GP"     targetRef="GW_Severity_GP"/>
+    <bpmn:sequenceFlow id="SF_MildGP"                sourceRef="GW_Severity_GP"          targetRef="T_GP_ActiveMonitoring"  name="Mierna depresia"/>
+    <bpmn:sequenceFlow id="SF_ModSevereGP"           sourceRef="GW_Severity_GP"          targetRef="T_ReferToSpecialist"    name="Stredná / Ťažká"/>
+    <bpmn:sequenceFlow id="SF_Monitor_to_GW4"        sourceRef="T_GP_ActiveMonitoring"   targetRef="GW_Improvement_GP"/>
+    <bpmn:sequenceFlow id="SF_ImprovementYes_GP"     sourceRef="GW_Improvement_GP"       targetRef="T_GP_ContinueMonitor"   name="Áno"/>
+    <bpmn:sequenceFlow id="SF_ImprovementNo_GP"      sourceRef="GW_Improvement_GP"       targetRef="T_ReferToSpecialist"    name="Nie"/>
+    <bpmn:sequenceFlow id="SF_ContinueMonitor_End"   sourceRef="T_GP_ContinueMonitor"    targetRef="EE_GP_Resolved"/>
+    <bpmn:sequenceFlow id="SF_Refer_MsgOut"          sourceRef="T_ReferToSpecialist"     targetRef="EE_GP_Referred"/>
+  </bpmn:process>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       PROCESS – SPECIALIST (Clinical Psychologist / Psychiatrist)
+  ═══════════════════════════════════════════════════════════ -->
+  <bpmn:process id="Process_Specialist" name="Proces – Klinický psychológ / Psychiater" isExecutable="true">
+
+    <bpmn:startEvent id="SE_SpecialistReceives" name="Prijatie pacienta">
+      <bpmn:outgoing>SF_Sp_Start_to_Assess</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MED_ReferIn" messageRef="Msg_Referral"/>
+    </bpmn:startEvent>
+
+    <!-- Comprehensive assessment -->
+    <bpmn:task id="T_Sp_Assessment" name="Komplexné psychologické vyšetrenie&#10;(PHQ-9, BDI-II, HAMD, MMPI,&#10;anamnéza, suicidálne riziko)">
+      <bpmn:incoming>SF_Sp_Start_to_Assess</bpmn:incoming>
+      <bpmn:outgoing>SF_Assess_to_SuicideGW</bpmn:outgoing>
+    </bpmn:task>
+
+    <!-- Suicide risk -->
+    <bpmn:exclusiveGateway id="GW_SuicideRisk" name="Vysoké suicidálne&#10;riziko?">
+      <bpmn:incoming>SF_Assess_to_SuicideGW</bpmn:incoming>
+      <bpmn:outgoing>SF_SuicideYes</bpmn:outgoing>
+      <bpmn:outgoing>SF_SuicideNo</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:task id="T_CrisisIntervention" name="Krízová intervencia&#10;+ zváženie hospitalizácie (Stupeň 4)">
+      <bpmn:incoming>SF_SuicideYes</bpmn:incoming>
+      <bpmn:outgoing>SF_Crisis_to_Stabilise</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:task id="T_Stabilise" name="Stabilizácia pacienta&#10;+ intenzívna psychosociálna liečba">
+      <bpmn:incoming>SF_Crisis_to_Stabilise</bpmn:incoming>
+      <bpmn:outgoing>SF_Stabilise_to_SeverityGW</bpmn:outgoing>
+    </bpmn:task>
+
+    <!-- Severity classification -->
+    <bpmn:exclusiveGateway id="GW_Sp_Severity" name="Závažnosť depresie?">
+      <bpmn:incoming>SF_SuicideNo</bpmn:incoming>
+      <bpmn:incoming>SF_Stabilise_to_SeverityGW</bpmn:incoming>
+      <bpmn:outgoing>SF_Step2</bpmn:outgoing>
+      <bpmn:outgoing>SF_Step3</bpmn:outgoing>
+      <bpmn:outgoing>SF_Step4</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- ── STEP 2: mild / subthreshold ── -->
+    <bpmn:subProcess id="SP_Step2" name="Stupeň 2: Mierna / subklinická depresia">
+      <bpmn:incoming>SF_Step2</bpmn:incoming>
+      <bpmn:outgoing>SF_Step2_to_ImprovGW</bpmn:outgoing>
+
+      <bpmn:startEvent id="SE_Step2"/>
+      <bpmn:parallelGateway id="PGW_Step2_Options" name="Vyber ŠPI intervencií"/>
+
+      <bpmn:task id="T_Step2_SelfHelpCBT"   name="Individuálna svojpomocná liečba&#10;(princípy KBT, 6-8 sedení / 9-12 týž.)"/>
+      <bpmn:task id="T_Step2_ComputerCBT"   name="Počítačová / internetová KBT&#10;(9-12 týždňov)"/>
+      <bpmn:task id="T_Step2_PhysActivity"  name="Skupinový program fyzickej aktivity&#10;(3× týžd., 45-60 min., 10-14 dní)"/>
+      <bpmn:task id="T_Step2_Psychoedu"     name="Psychoedukácia o depresii&#10;a spánková hygiena"/>
+
+      <bpmn:parallelGateway id="PGW_Step2_Join" name="Dokončenie ŠPI"/>
+      <bpmn:endEvent id="EE_Step2"/>
+
+      <bpmn:sequenceFlow id="SF_Step2_SE_to_PGW"        sourceRef="SE_Step2"             targetRef="PGW_Step2_Options"/>
+      <bpmn:sequenceFlow id="SF_Step2_PGW_to_SelfHelp"  sourceRef="PGW_Step2_Options"    targetRef="T_Step2_SelfHelpCBT"/>
+      <bpmn:sequenceFlow id="SF_Step2_PGW_to_CompCBT"   sourceRef="PGW_Step2_Options"    targetRef="T_Step2_ComputerCBT"/>
+      <bpmn:sequenceFlow id="SF_Step2_PGW_to_Phys"      sourceRef="PGW_Step2_Options"    targetRef="T_Step2_PhysActivity"/>
+      <bpmn:sequenceFlow id="SF_Step2_PGW_to_Edu"       sourceRef="PGW_Step2_Options"    targetRef="T_Step2_Psychoedu"/>
+      <bpmn:sequenceFlow id="SF_Step2_SelfHelp_to_Join" sourceRef="T_Step2_SelfHelpCBT"  targetRef="PGW_Step2_Join"/>
+      <bpmn:sequenceFlow id="SF_Step2_CompCBT_to_Join"  sourceRef="T_Step2_ComputerCBT"  targetRef="PGW_Step2_Join"/>
+      <bpmn:sequenceFlow id="SF_Step2_Phys_to_Join"     sourceRef="T_Step2_PhysActivity" targetRef="PGW_Step2_Join"/>
+      <bpmn:sequenceFlow id="SF_Step2_Edu_to_Join"      sourceRef="T_Step2_Psychoedu"    targetRef="PGW_Step2_Join"/>
+      <bpmn:sequenceFlow id="SF_Step2_Join_to_EE"       sourceRef="PGW_Step2_Join"       targetRef="EE_Step2"/>
+    </bpmn:subProcess>
+
+    <!-- ── STEP 3: moderate / severe ── -->
+    <bpmn:subProcess id="SP_Step3" name="Stupeň 3: Stredná / Ťažká depresia">
+      <bpmn:incoming>SF_Step3</bpmn:incoming>
+      <bpmn:outgoing>SF_Step3_to_ImprovGW</bpmn:outgoing>
+
+      <bpmn:startEvent id="SE_Step3"/>
+
+      <bpmn:task id="T_Step3_Pharma" name="Farmakoterapia (antidepresíva)&#10;– v kompetencii psychiatra"/>
+
+      <bpmn:exclusiveGateway id="GW_TherapyChoice" name="Výber psychoterapie">
+        <bpmn:outgoing>SF_Choice_KBT</bpmn:outgoing>
+        <bpmn:outgoing>SF_Choice_IPT</bpmn:outgoing>
+        <bpmn:outgoing>SF_Choice_BA</bpmn:outgoing>
+        <bpmn:outgoing>SF_Choice_Couples</bpmn:outgoing>
+        <bpmn:outgoing>SF_Choice_Psychodyn</bpmn:outgoing>
+      </bpmn:exclusiveGateway>
+
+      <bpmn:task id="T_Step3_KBT"      name="KBT (16-20 sedení / 3-4 mes.)&#10;2× týžd. v prvých 2-3 týžd."/>
+      <bpmn:task id="T_Step3_IPT"      name="IPT (16-20 sedení / 3-4 mes.)"/>
+      <bpmn:task id="T_Step3_BA"       name="Behaviorálna aktivácia&#10;(16-20 sedení / 3-4 mes.)"/>
+      <bpmn:task id="T_Step3_Couples"  name="Párová / rodinná terapia&#10;(15-20 sedení / 5-6 mes.)"/>
+      <bpmn:task id="T_Step3_Psychodyn"name="Krátkodobá psychodynamická&#10;terapia (16-20 sedení / 4-6 mes.)"/>
+
+      <bpmn:exclusiveGateway id="GW_Step3_TherapyJoin" name="Zlúčenie výsledku terapie"/>
+
+      <bpmn:task id="T_Step3_Monitoring" name="Priebežné dotazníkové monitorovanie&#10;(PHQ-9, BDI-II)"/>
+      <bpmn:endEvent id="EE_Step3"/>
+
+      <bpmn:sequenceFlow id="SF_Step3_SE_to_Pharma"    sourceRef="SE_Step3"            targetRef="T_Step3_Pharma"/>
+      <bpmn:sequenceFlow id="SF_Step3_Pharma_to_Choice" sourceRef="T_Step3_Pharma"      targetRef="GW_TherapyChoice"/>
+      <bpmn:sequenceFlow id="SF_Choice_KBT"             sourceRef="GW_TherapyChoice"    targetRef="T_Step3_KBT"       name="KBT"/>
+      <bpmn:sequenceFlow id="SF_Choice_IPT"             sourceRef="GW_TherapyChoice"    targetRef="T_Step3_IPT"       name="IPT"/>
+      <bpmn:sequenceFlow id="SF_Choice_BA"              sourceRef="GW_TherapyChoice"    targetRef="T_Step3_BA"        name="Beh. aktivácia"/>
+      <bpmn:sequenceFlow id="SF_Choice_Couples"         sourceRef="GW_TherapyChoice"    targetRef="T_Step3_Couples"   name="Párová/rodinná"/>
+      <bpmn:sequenceFlow id="SF_Choice_Psychodyn"       sourceRef="GW_TherapyChoice"    targetRef="T_Step3_Psychodyn" name="Psychodyn."/>
+      <bpmn:sequenceFlow id="SF_KBT_to_Join"            sourceRef="T_Step3_KBT"         targetRef="GW_Step3_TherapyJoin"/>
+      <bpmn:sequenceFlow id="SF_IPT_to_Join"            sourceRef="T_Step3_IPT"         targetRef="GW_Step3_TherapyJoin"/>
+      <bpmn:sequenceFlow id="SF_BA_to_Join"             sourceRef="T_Step3_BA"          targetRef="GW_Step3_TherapyJoin"/>
+      <bpmn:sequenceFlow id="SF_Couples_to_Join"        sourceRef="T_Step3_Couples"     targetRef="GW_Step3_TherapyJoin"/>
+      <bpmn:sequenceFlow id="SF_Psychodyn_to_Join"      sourceRef="T_Step3_Psychodyn"   targetRef="GW_Step3_TherapyJoin"/>
+      <bpmn:sequenceFlow id="SF_Step3_Join_to_Monitor"  sourceRef="GW_Step3_TherapyJoin" targetRef="T_Step3_Monitoring"/>
+      <bpmn:sequenceFlow id="SF_Step3_Monitor_to_EE"    sourceRef="T_Step3_Monitoring"  targetRef="EE_Step3"/>
+    </bpmn:subProcess>
+
+    <!-- ── STEP 4: severe / psychotic ── -->
+    <bpmn:subProcess id="SP_Step4" name="Stupeň 4: Komplexná / ťažká depresia">
+      <bpmn:incoming>SF_Step4</bpmn:incoming>
+      <bpmn:outgoing>SF_Step4_to_ImprovGW</bpmn:outgoing>
+
+      <bpmn:startEvent id="SE_Step4"/>
+      <bpmn:task id="T_Step4_Hospitalise"  name="Hospitalizácia&#10;(zváženie pri suicidálnom riziku)"/>
+      <bpmn:task id="T_Step4_ECT"          name="Elektrokonvulzívna terapia (ECT)&#10;+ Farmakoterapia"/>
+      <bpmn:task id="T_Step4_IntensivePsycho" name="Intenzívna psychosociálna liečba&#10;(vysoká frekvencia sedení)"/>
+      <bpmn:task id="T_Step4_Monitoring"   name="Nepretržité monitorovanie&#10;suicidálneho rizika"/>
+      <bpmn:endEvent id="EE_Step4"/>
+
+      <bpmn:sequenceFlow id="SF_Step4_SE_to_Hosp"    sourceRef="SE_Step4"              targetRef="T_Step4_Hospitalise"/>
+      <bpmn:sequenceFlow id="SF_Step4_Hosp_to_ECT"   sourceRef="T_Step4_Hospitalise"   targetRef="T_Step4_ECT"/>
+      <bpmn:sequenceFlow id="SF_Step4_ECT_to_Psycho" sourceRef="T_Step4_ECT"           targetRef="T_Step4_IntensivePsycho"/>
+      <bpmn:sequenceFlow id="SF_Step4_Psycho_to_Mon" sourceRef="T_Step4_IntensivePsycho" targetRef="T_Step4_Monitoring"/>
+      <bpmn:sequenceFlow id="SF_Step4_Mon_to_EE"     sourceRef="T_Step4_Monitoring"    targetRef="EE_Step4"/>
+    </bpmn:subProcess>
+
+    <!-- Post-treatment improvement check -->
+    <bpmn:exclusiveGateway id="GW_Sp_Improvement" name="Dostatočná odpoveď&#10;na liečbu?">
+      <bpmn:incoming>SF_Step2_to_ImprovGW</bpmn:incoming>
+      <bpmn:incoming>SF_Step3_to_ImprovGW</bpmn:incoming>
+      <bpmn:incoming>SF_Step4_to_ImprovGW</bpmn:incoming>
+      <bpmn:outgoing>SF_Sp_ImprovYes</bpmn:outgoing>
+      <bpmn:outgoing>SF_Sp_ImprovNo</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- Relapse prevention -->
+    <bpmn:subProcess id="SP_RelapsePrevention" name="Udržiavacia liečba a prevencia relapsu">
+      <bpmn:incoming>SF_Sp_ImprovYes</bpmn:incoming>
+      <bpmn:outgoing>SF_Relapse_to_End</bpmn:outgoing>
+
+      <bpmn:startEvent id="SE_Relapse"/>
+      <bpmn:task id="T_Relapse_RiskAssess"  name="Posúdenie rizika relapsu&#10;(anamnéza, reziduálne symptómy)"/>
+      <bpmn:exclusiveGateway id="GW_RelapseRisk" name="Vysoké riziko relapsu?">
+        <bpmn:outgoing>SF_RR_High</bpmn:outgoing>
+        <bpmn:outgoing>SF_RR_Low</bpmn:outgoing>
+      </bpmn:exclusiveGateway>
+
+      <bpmn:task id="T_Relapse_MBCT"    name="MBCT (skupinová, 8 týždňov)&#10;pre ≥3 predchádzajúce epizódy"/>
+      <bpmn:task id="T_Relapse_KBT_IPT" name="KBT / IPT pre prevenciu relapsu&#10;(16-20 sedení / 3-4 mes.)"/>
+      <bpmn:task id="T_Relapse_Pharma"  name="Pokračovanie antidepresív&#10;min. 6 mes. po remisii"/>
+      <bpmn:exclusiveGateway id="GW_Relapse_Join" name="Zlúčenie"/>
+      <bpmn:task id="T_Relapse_Monitor" name="Systematické posudzovanie&#10;(PHQ-9, BDI-II, funkčnosť)"/>
+      <bpmn:task id="T_Relapse_FollowUp" name="Katamnestické sledovanie&#10;+ kontrolné sedenia"/>
+      <bpmn:endEvent id="EE_Relapse"/>
+
+      <bpmn:sequenceFlow id="SF_R_SE_to_RiskA"    sourceRef="SE_Relapse"           targetRef="T_Relapse_RiskAssess"/>
+      <bpmn:sequenceFlow id="SF_R_RiskA_to_GW"    sourceRef="T_Relapse_RiskAssess" targetRef="GW_RelapseRisk"/>
+      <bpmn:sequenceFlow id="SF_RR_High"           sourceRef="GW_RelapseRisk"       targetRef="T_Relapse_MBCT"     name="Áno"/>
+      <bpmn:sequenceFlow id="SF_RR_Low"            sourceRef="GW_RelapseRisk"       targetRef="T_Relapse_KBT_IPT"  name="Nie"/>
+      <bpmn:sequenceFlow id="SF_MBCT_to_Pharma"    sourceRef="T_Relapse_MBCT"       targetRef="T_Relapse_Pharma"/>
+      <bpmn:sequenceFlow id="SF_KBT_IPT_to_Pharma" sourceRef="T_Relapse_KBT_IPT"   targetRef="T_Relapse_Pharma"/>
+      <bpmn:sequenceFlow id="SF_Pharma_to_Join"    sourceRef="T_Relapse_Pharma"     targetRef="GW_Relapse_Join"/>
+      <bpmn:sequenceFlow id="SF_Join_to_Monitor"   sourceRef="GW_Relapse_Join"      targetRef="T_Relapse_Monitor"/>
+      <bpmn:sequenceFlow id="SF_Monitor_to_FU"     sourceRef="T_Relapse_Monitor"    targetRef="T_Relapse_FollowUp"/>
+      <bpmn:sequenceFlow id="SF_FU_to_EE"          sourceRef="T_Relapse_FollowUp"   targetRef="EE_Relapse"/>
+    </bpmn:subProcess>
+
+    <!-- Treatment change if no improvement -->
+    <bpmn:task id="T_ChangeTreatment" name="Zmena terapeutického prístupu&#10;/ eskalácia na vyšší stupeň&#10;/ odporučenie psychiatrovi">
+      <bpmn:incoming>SF_Sp_ImprovNo</bpmn:incoming>
+      <bpmn:outgoing>SF_Change_to_Severity</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:endEvent id="EE_Sp_Completed" name="Liečba úspešne ukončená">
+      <bpmn:incoming>SF_Relapse_to_End</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <!-- Sequence flows Specialist (outer) -->
+    <bpmn:sequenceFlow id="SF_Sp_Start_to_Assess"    sourceRef="SE_SpecialistReceives" targetRef="T_Sp_Assessment"/>
+    <bpmn:sequenceFlow id="SF_Assess_to_SuicideGW"   sourceRef="T_Sp_Assessment"       targetRef="GW_SuicideRisk"/>
+    <bpmn:sequenceFlow id="SF_SuicideYes"             sourceRef="GW_SuicideRisk"        targetRef="T_CrisisIntervention"    name="Áno"/>
+    <bpmn:sequenceFlow id="SF_SuicideNo"              sourceRef="GW_SuicideRisk"        targetRef="GW_Sp_Severity"          name="Nie"/>
+    <bpmn:sequenceFlow id="SF_Crisis_to_Stabilise"    sourceRef="T_CrisisIntervention"  targetRef="T_Stabilise"/>
+    <bpmn:sequenceFlow id="SF_Stabilise_to_SeverityGW" sourceRef="T_Stabilise"          targetRef="GW_Sp_Severity"/>
+    <bpmn:sequenceFlow id="SF_Step2"                  sourceRef="GW_Sp_Severity"        targetRef="SP_Step2"                name="Mierna / subklinická"/>
+    <bpmn:sequenceFlow id="SF_Step3"                  sourceRef="GW_Sp_Severity"        targetRef="SP_Step3"                name="Stredná / Ťažká"/>
+    <bpmn:sequenceFlow id="SF_Step4"                  sourceRef="GW_Sp_Severity"        targetRef="SP_Step4"                name="Komplexná / Psychotická"/>
+    <bpmn:sequenceFlow id="SF_Step2_to_ImprovGW"      sourceRef="SP_Step2"              targetRef="GW_Sp_Improvement"/>
+    <bpmn:sequenceFlow id="SF_Step3_to_ImprovGW"      sourceRef="SP_Step3"              targetRef="GW_Sp_Improvement"/>
+    <bpmn:sequenceFlow id="SF_Step4_to_ImprovGW"      sourceRef="SP_Step4"              targetRef="GW_Sp_Improvement"/>
+    <bpmn:sequenceFlow id="SF_Sp_ImprovYes"           sourceRef="GW_Sp_Improvement"     targetRef="SP_RelapsePrevention"    name="Áno"/>
+    <bpmn:sequenceFlow id="SF_Sp_ImprovNo"            sourceRef="GW_Sp_Improvement"     targetRef="T_ChangeTreatment"       name="Nie"/>
+    <bpmn:sequenceFlow id="SF_Change_to_Severity"     sourceRef="T_ChangeTreatment"     targetRef="GW_Sp_Severity"/>
+    <bpmn:sequenceFlow id="SF_Relapse_to_End"         sourceRef="SP_RelapsePrevention"  targetRef="EE_Sp_Completed"/>
+  </bpmn:process>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       PROCESS – PATIENT (thin lane for message correlation)
+  ═══════════════════════════════════════════════════════════ -->
+  <bpmn:process id="Process_Patient" name="Proces – Pacient" isExecutable="false">
+    <bpmn:startEvent id="SE_Pat_Start" name="Pacient zaregistruje ťažkosti">
+      <bpmn:outgoing>SF_Pat_to_End</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="T_Pat_Consent" name="Informovaný súhlas s liečbou&#10;+ aktívna účasť na terapii">
+      <bpmn:incoming>SF_Pat_to_End</bpmn:incoming>
+      <bpmn:outgoing>SF_Pat_Consent_to_EE</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="EE_Pat_End" name="Pacient v starostlivosti">
+      <bpmn:incoming>SF_Pat_Consent_to_EE</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="SF_Pat_to_End"        sourceRef="SE_Pat_Start"   targetRef="T_Pat_Consent"/>
+    <bpmn:sequenceFlow id="SF_Pat_Consent_to_EE" sourceRef="T_Pat_Consent"  targetRef="EE_Pat_End"/>
+  </bpmn:process>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       MESSAGE
+  ═══════════════════════════════════════════════════════════ -->
+  <bpmn:message id="Msg_Referral" name="OdoslanieKSpecialistovi"/>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       MESSAGE FLOWS (between pools)
+  ═══════════════════════════════════════════════════════════ -->
+  <bpmn:messageFlow id="MF_GPtoSpecialist"
+                    sourceRef="EE_GP_Referred"
+                    targetRef="SE_SpecialistReceives"
+                    name="Odporúčanie pacienta"/>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       DIAGRAM
+  ═══════════════════════════════════════════════════════════ -->
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_Depression">
+
+      <!-- ── GP pool ── -->
+      <bpmndi:BPMNShape id="Shape_Participant_GP" bpmnElement="Participant_GP" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="2400" height="360"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_SE_PatientPresents" bpmnElement="SE_PatientPresents">
+        <dc:Bounds x="222" y="242" width="36" height="36"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="200" y="285" width="80" height="27"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_T_Screening" bpmnElement="T_Screening">
+        <dc:Bounds x="310" y="220" width="120" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_GW_DepressionSuspected" bpmnElement="GW_DepressionSuspected" isMarkerVisible="true">
+        <dc:Bounds x="485" y="240" width="50" height="50"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="463" y="297" width="94" height="27"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_T_NoDepressionFollowUp" bpmnElement="T_NoDepressionFollowUp">
+        <dc:Bounds x="590" y="100" width="120" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_EE_NoDepression" bpmnElement="EE_NoDepression">
+        <dc:Bounds x="772" y="122" width="36" height="36"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="750" y="165" width="80" height="27"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_T_ExcludeSomatic" bpmnElement="T_ExcludeSomatic">
+        <dc:Bounds x="590" y="220" width="120" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_GW_SomaticCause" bpmnElement="GW_SomaticCause" isMarkerVisible="true">
+        <dc:Bounds x="765" y="240" width="50" height="50"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="748" y="297" width="84" height="27"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_T_TreatSomatic" bpmnElement="T_TreatSomatic">
+        <dc:Bounds x="870" y="100" width="120" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_EE_SomaticTreated" bpmnElement="EE_SomaticTreated">
+        <dc:Bounds x="1052" y="122" width="36" height="36"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="1030" y="165" width="80" height="27"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_T_AssessSeverity_GP" bpmnElement="T_AssessSeverity_GP">
+        <dc:Bounds x="870" y="220" width="120" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_GW_Severity_GP" bpmnElement="GW_Severity_GP" isMarkerVisible="true">
+        <dc:Bounds x="1045" y="240" width="50" height="50"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="1023" y="297" width="94" height="27"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_T_GP_ActiveMonitoring" bpmnElement="T_GP_ActiveMonitoring">
+        <dc:Bounds x="1150" y="220" width="120" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_GW_Improvement_GP" bpmnElement="GW_Improvement_GP" isMarkerVisible="true">
+        <dc:Bounds x="1325" y="240" width="50" height="50"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="1303" y="297" width="94" height="27"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_T_GP_ContinueMonitor" bpmnElement="T_GP_ContinueMonitor">
+        <dc:Bounds x="1430" y="220" width="120" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_EE_GP_Resolved" bpmnElement="EE_GP_Resolved">
+        <dc:Bounds x="1612" y="242" width="36" height="36"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="1590" y="285" width="80" height="27"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_T_ReferToSpecialist" bpmnElement="T_ReferToSpecialist">
+        <dc:Bounds x="1700" y="220" width="120" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_EE_GP_Referred" bpmnElement="EE_GP_Referred">
+        <dc:Bounds x="1882" y="242" width="36" height="36"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="1860" y="285" width="80" height="27"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- GP edges -->
+      <bpmndi:BPMNEdge id="Edge_SF_SE_to_Screening"    bpmnElement="SF_SE_to_Screening">    <di:waypoint x="258" y="260"/> <di:waypoint x="310" y="260"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_Screening_to_GW1"   bpmnElement="SF_Screening_to_GW1">   <di:waypoint x="430" y="260"/> <di:waypoint x="485" y="265"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_NoDepression"        bpmnElement="SF_NoDepression">        <di:waypoint x="510" y="240"/> <di:waypoint x="510" y="140"/> <di:waypoint x="590" y="140"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_DepressionSuspected" bpmnElement="SF_DepressionSuspected"><di:waypoint x="535" y="265"/> <di:waypoint x="590" y="265"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_NoDepression_End"    bpmnElement="SF_NoDepression_End">    <di:waypoint x="710" y="140"/> <di:waypoint x="772" y="140"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_Excl_to_GW2"         bpmnElement="SF_Excl_to_GW2">         <di:waypoint x="710" y="260"/> <di:waypoint x="765" y="265"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_SomaticYes"          bpmnElement="SF_SomaticYes">          <di:waypoint x="790" y="240"/> <di:waypoint x="790" y="140"/> <di:waypoint x="870" y="140"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_SomaticNo"           bpmnElement="SF_SomaticNo">           <di:waypoint x="815" y="265"/> <di:waypoint x="870" y="265"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_TreatSomatic_End"    bpmnElement="SF_TreatSomatic_End">    <di:waypoint x="990" y="140"/> <di:waypoint x="1052" y="140"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_Severity_to_GW3"     bpmnElement="SF_Severity_to_GW3">     <di:waypoint x="990" y="260"/> <di:waypoint x="1045" y="265"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_MildGP"              bpmnElement="SF_MildGP">              <di:waypoint x="1095" y="265"/> <di:waypoint x="1150" y="260"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_ModSevereGP"         bpmnElement="SF_ModSevereGP">         <di:waypoint x="1070" y="290"/> <di:waypoint x="1070" y="340"/> <di:waypoint x="1760" y="340"/> <di:waypoint x="1760" y="300"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_Monitor_to_GW4"      bpmnElement="SF_Monitor_to_GW4">      <di:waypoint x="1270" y="260"/> <di:waypoint x="1325" y="265"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_ImprovementYes_GP"   bpmnElement="SF_ImprovementYes_GP">   <di:waypoint x="1375" y="265"/> <di:waypoint x="1430" y="260"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_ImprovementNo_GP"    bpmnElement="SF_ImprovementNo_GP">    <di:waypoint x="1350" y="290"/> <di:waypoint x="1350" y="340"/> <di:waypoint x="1760" y="340"/> <di:waypoint x="1760" y="300"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_ContinueMonitor_End" bpmnElement="SF_ContinueMonitor_End"> <di:waypoint x="1550" y="260"/> <di:waypoint x="1612" y="260"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SF_Refer_MsgOut"        bpmnElement="SF_Refer_MsgOut">        <di:waypoint x="1820" y="260"/> <di:waypoint x="1882" y="260"/></bpmndi:BPMNEdge>
+
+      <!-- ── Specialist pool ── -->
+      <bpmndi:BPMNShape id="Shape_Participant_Specialist" bpmnElement="Participant_Specialist" isHorizontal="true">
+        <dc:Bounds x="160" y="460" width="2400" height="900"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_SE_SpecialistReceives" bpmnElement="SE_SpecialistReceives">
+        <dc:Bounds x="222" y="900" width="36" height="36"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="200" y="943" width="80" height="27"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_T_Sp_Assessment" bpmnElement="T_Sp_Assessment">
+        <dc:Bounds x="310" y="878" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_GW_SuicideRisk" bpmnElement="GW_SuicideRisk" isMarkerVisible="true">
+        <dc:Bounds x="505" y="893" width="50" height="50"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="483" y="950" width="94" height="27"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_T_CrisisIntervention" bpmnElement="T_CrisisIntervention">
+        <dc:Bounds x="590" y="780" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_T_Stabilise" bpmnElement="T_Stabilise">
+        <dc:Bounds x="590" y="1000" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_GW_Sp_Severity" bpmnElement="GW_Sp_Severity" isMarkerVisible="true">
+        <dc:Bounds x="785" y="893" width="50" height="50"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="763" y="950" width="94" height="27"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- Step 2 subprocess -->
+      <bpmndi:BPMNShape id="Shape_SP_Step2" bpmnElement="SP_Step2" isExpanded="true">
+        <dc:Bounds x="890" y="480" width="500" height="200"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_SE_Step2"  bpmnElement="SE_Step2">  <dc:Bounds x="922" y="560" width="36" height="36"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_PGW_Step2_Options" bpmnElement="PGW_Step2_Options"> <dc:Bounds x="997" y="556" width="50" height="50"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_T_Step2_SelfHelpCBT"  bpmnElement="T_Step2_SelfHelpCBT">  <dc:Bounds x="1070" y="490" width="110" height="60"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_T_Step2_ComputerCBT"  bpmnElement="T_Step2_ComputerCBT">  <dc:Bounds x="1070" y="558" width="110" height="60"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_T_Step2_PhysActivity" bpmnElement="T_Step2_PhysActivity"> <dc:Bounds x="1070" y="626" width="110" height="60"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_T_Step2_Psychoedu"    bpmnElement="T_Step2_Psychoedu">    <dc:Bounds x="1070" y="490" width="110" height="60"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_PGW_Step2_Join" bpmnElement="PGW_Step2_Join"> <dc:Bounds x="1210" y="556" width="50" height="50"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_EE_Step2" bpmnElement="EE_Step2"> <dc:Bounds x="1300" y="560" width="36" height="36"/></bpmndi:BPMNShape>
+
+      <bpmndi:BPMNEdge id="Edge_Step2_SE_to_PGW"        bpmnElement="SF_Step2_SE_to_PGW">        <di:waypoint x="958" y="578"/> <di:waypoint x="997" y="581"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Step2_PGW_to_SelfHelp"  bpmnElement="SF_Step2_PGW_to_SelfHelp">  <di:waypoint x="1047" y="581"/> <di:waypoint x="1070" y="520"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Step2_PGW_to_CompCBT"   bpmnElement="SF_Step2_PGW_to_CompCBT">   <di:waypoint x="1047" y="581"/> <di:waypoint x="1070" y="588"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Step2_PGW_to_Phys"      bpmnElement="SF_Step2_PGW_to_Phys">      <di:waypoint x="1047" y="581"/> <di:waypoint x="1070" y="656"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Step2_PGW_to_Edu"       bpmnElement="SF_Step2_PGW_to_Edu">       <di:waypoint x="1047" y="570"/> <di:waypoint x="1070" y="510"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Step2_SelfHelp_to_Join" bpmnElement="SF_Step2_SelfHelp_to_Join"> <di:waypoint x="1180" y="520"/> <di:waypoint x="1235" y="556"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Step2_CompCBT_to_Join"  bpmnElement="SF_Step2_CompCBT_to_Join">  <di:waypoint x="1180" y="588"/> <di:waypoint x="1210" y="581"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Step2_Phys_to_Join"     bpmnElement="SF_Step2_Phys_to_Join">     <di:waypoint x="1180" y="656"/> <di:waypoint x="1235" y="606"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Step2_Edu_to_Join"      bpmnElement="SF_Step2_Edu_to_Join">      <di:waypoint x="1180" y="510"/> <di:waypoint x="1235" y="556"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Step2_Join_to_EE"       bpmnElement="SF_Step2_Join_to_EE">       <di:waypoint x="1260" y="581"/> <di:waypoint x="1300" y="578"/></bpmndi:BPMNEdge>
+
+      <!-- Step 3 subprocess -->
+      <bpmndi:BPMNShape id="Shape_SP_Step3" bpmnElement="SP_Step3" isExpanded="true">
+        <dc:Bounds x="890" y="840" width="600" height="260"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_SE_Step3"    bpmnElement="SE_Step3">    <dc:Bounds x="922" y="950" width="36" height="36"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_T_Step3_Pharma" bpmnElement="T_Step3_Pharma"> <dc:Bounds x="990" y="928" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_GW_TherapyChoice" bpmnElement="GW_TherapyChoice" isMarkerVisible="true"> <dc:Bounds x="1155" y="943" width="50" height="50"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_T_Step3_KBT"       bpmnElement="T_Step3_KBT">       <dc:Bounds x="1250" y="850" width="100" height="60"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_T_Step3_IPT"       bpmnElement="T_Step3_IPT">       <dc:Bounds x="1250" y="920" width="100" height="60"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_T_Step3_BA"        bpmnElement="T_Step3_BA">        <dc:Bounds x="1250" y="990" width="100" height="60"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_T_Step3_Couples"   bpmnElement="T_Step3_Couples">   <dc:Bounds x="1250" y="860" width="100" height="60"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_T_Step3_Psychodyn" bpmnElement="T_Step3_Psychodyn"> <dc:Bounds x="1250" y="1000" width="100" height="60"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_GW_Step3_TherapyJoin" bpmnElement="GW_Step3_TherapyJoin" isMarkerVisible="true"> <dc:Bounds x="1390" y="943" width="50" height="50"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_T_Step3_Monitoring" bpmnElement="T_Step3_Monitoring"> <dc:Bounds x="1460" y="928" width="120" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_EE_Step3" bpmnElement="EE_Step3"> <dc:Bounds x="1600" y="950" width="36" height="36"/></bpmndi:BPMNShape>
+
+      <bpmndi:BPMNEdge id="Edge_Step3_SE_to_Pharma"    bpmnElement="SF_Step3_SE_to_Pharma">    <di:waypoint x="958" y="968"/> <di:waypoint x="990" y="968"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Step3_Pharma_to_Choice" bpmnElement="SF_Step3_Pharma_to_Choice"> <di:waypoint x="1110" y="968"/> <di:waypoint x="1155" y="968"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Choice_KBT"             bpmnElement="SF_Choice_KBT">             <di:waypoint x="1205" y="968"/> <di:waypoint x="1250" y="880"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Choice_IPT"             bpmnElement="SF_Choice_IPT">             <di:waypoint x="1205" y="968"/> <di:waypoint x="1250" y="950"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Choice_BA"              bpmnElement="SF_Choice_BA">              <di:waypoint x="1205" y="968"/> <di:waypoint x="1250" y="1020"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Choice_Couples"         bpmnElement="SF_Choice_Couples">         <di:waypoint x="1180" y="943"/> <di:waypoint x="1250" y="890"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Choice_Psychodyn"       bpmnElement="SF_Choice_Psychodyn">       <di:waypoint x="1180" y="993"/> <di:waypoint x="1250" y="1030"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_KBT_to_Join"            bpmnElement="SF_KBT_to_Join">            <di:waypoint x="1350" y="880"/> <di:waypoint x="1415" y="943"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_IPT_to_Join"            bpmnElement="SF_IPT_to_Join">            <di:waypoint x="1350" y="950"/> <di:waypoint x="1390" y="968"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_BA_to_Join"             bpmnElement="SF_BA_to_Join">             <di:waypoint x="1350" y="1020"/> <di:waypoint x="1415" y="993"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Couples_to_Join"        bpmnElement="SF_Couples_to_Join">        <di:waypoint x="1350" y="890"/> <di:waypoint x="1415" y="943"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Psychodyn_to_Join"      bpmnElement="SF_Psychodyn_to_Join">      <di:waypoint x="1350" y="1030"/> <di:waypoint x="1415" y="993"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Step3_Join_to_Monitor"  bpmnElement="SF_Step3_Join_to_Monitor">  <di:waypoint x="1440" y="968"/> <di:waypoint x="1460" y="968"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Step3_Monitor_to_EE"    bpmnElement="SF_Step3_Monitor_to_EE">    <di:waypoint x="1580" y="968"/> <di:waypoint x="1600" y="968"/></bpmndi:BPMNEdge>
+
+      <!-- Step 4 subprocess -->
+      <bpmndi:BPMNShape id="Shape_SP_Step4" bpmnElement="SP_Step4" isExpanded="true">
+        <dc:Bounds x="890" y="1140" width="700" height="160"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_SE_Step4"           bpmnElement="SE_Step4">           <dc:Bounds x="922"  y="1200" width="36" height="36"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_T_Step4_Hospitalise" bpmnElement="T_Step4_Hospitalise"><dc:Bounds x="990"  y="1178" width="130" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_T_Step4_ECT"         bpmnElement="T_Step4_ECT">        <dc:Bounds x="1140" y="1178" width="130" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_T_Step4_IntensivePsycho" bpmnElement="T_Step4_IntensivePsycho"><dc:Bounds x="1290" y="1178" width="130" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_T_Step4_Monitoring"  bpmnElement="T_Step4_Monitoring"> <dc:Bounds x="1440" y="1178" width="100" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_EE_Step4"            bpmnElement="EE_Step4">           <dc:Bounds x="1560" y="1200" width="36" height="36"/></bpmndi:BPMNShape>
+
+      <bpmndi:BPMNEdge id="Edge_Step4_SE_to_Hosp"    bpmnElement="SF_Step4_SE_to_Hosp">    <di:waypoint x="958"  y="1218"/> <di:waypoint x="990"  y="1218"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Step4_Hosp_to_ECT"   bpmnElement="SF_Step4_Hosp_to_ECT">   <di:waypoint x="1120" y="1218"/> <di:waypoint x="1140" y="1218"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Step4_ECT_to_Psycho" bpmnElement="SF_Step4_ECT_to_Psycho"> <di:waypoint x="1270" y="1218"/> <di:waypoint x="1290" y="1218"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Step4_Psycho_to_Mon" bpmnElement="SF_Step4_Psycho_to_Mon"> <di:waypoint x="1420" y="1218"/> <di:waypoint x="1440" y="1218"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Step4_Mon_to_EE"     bpmnElement="SF_Step4_Mon_to_EE">     <di:waypoint x="1540" y="1218"/> <di:waypoint x="1560" y="1218"/></bpmndi:BPMNEdge>
+
+      <!-- Improvement GW -->
+      <bpmndi:BPMNShape id="Shape_GW_Sp_Improvement" bpmnElement="GW_Sp_Improvement" isMarkerVisible="true">
+        <dc:Bounds x="1700" y="893" width="50" height="50"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="1678" y="950" width="94" height="27"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- Relapse prevention subprocess -->
+      <bpmndi:BPMNShape id="Shape_SP_RelapsePrevention" bpmnElement="SP_RelapsePrevention" isExpanded="true">
+        <dc:Bounds x="1800" y="480" width="700" height="340"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_SE_Relapse"          bpmnElement="SE_Relapse">          <dc:Bounds x="1832" y="630" width="36" height="36"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_T_Relapse_RiskAssess" bpmnElement="T_Relapse_RiskAssess"><dc:Bounds x="1900" y="608" width="130" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_GW_RelapseRisk"       bpmnElement="GW_RelapseRisk" isMarkerVisible="true"><dc:Bounds x="2075" y="623" width="50" height="50"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_T_Relapse_MBCT"       bpmnElement="T_Relapse_MBCT">    <dc:Bounds x="2160" y="510" width="130" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_T_Relapse_KBT_IPT"    bpmnElement="T_Relapse_KBT_IPT"> <dc:Bounds x="2160" y="700" width="130" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_T_Relapse_Pharma"     bpmnElement="T_Relapse_Pharma">  <dc:Bounds x="2330" y="608" width="130" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_GW_Relapse_Join"      bpmnElement="GW_Relapse_Join" isMarkerVisible="true"><dc:Bounds x="2500" y="623" width="50" height="50"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_T_Relapse_Monitor"    bpmnElement="T_Relapse_Monitor"> <dc:Bounds x="2570" y="608" width="130" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_T_Relapse_FollowUp"   bpmnElement="T_Relapse_FollowUp"><dc:Bounds x="2720" y="608" width="130" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_EE_Relapse"           bpmnElement="EE_Relapse">        <dc:Bounds x="2870" y="630" width="36" height="36"/></bpmndi:BPMNShape>
+
+      <bpmndi:BPMNEdge id="Edge_R_SE_to_RiskA"    bpmnElement="SF_R_SE_to_RiskA">    <di:waypoint x="1868" y="648"/> <di:waypoint x="1900" y="648"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_R_RiskA_to_GW"    bpmnElement="SF_R_RiskA_to_GW">    <di:waypoint x="2030" y="648"/> <di:waypoint x="2075" y="648"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_RR_High"           bpmnElement="SF_RR_High">           <di:waypoint x="2100" y="623"/> <di:waypoint x="2100" y="550"/> <di:waypoint x="2160" y="550"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_RR_Low"            bpmnElement="SF_RR_Low">            <di:waypoint x="2100" y="673"/> <di:waypoint x="2100" y="740"/> <di:waypoint x="2160" y="740"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_MBCT_to_Pharma"    bpmnElement="SF_MBCT_to_Pharma">    <di:waypoint x="2290" y="550"/> <di:waypoint x="2395" y="550"/> <di:waypoint x="2395" y="608"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_KBT_IPT_to_Pharma" bpmnElement="SF_KBT_IPT_to_Pharma"> <di:waypoint x="2290" y="740"/> <di:waypoint x="2395" y="740"/> <di:waypoint x="2395" y="688"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Pharma_to_Join"    bpmnElement="SF_Pharma_to_Join">    <di:waypoint x="2460" y="648"/> <di:waypoint x="2500" y="648"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Join_to_Monitor"   bpmnElement="SF_Join_to_Monitor">   <di:waypoint x="2550" y="648"/> <di:waypoint x="2570" y="648"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Monitor_to_FU"     bpmnElement="SF_Monitor_to_FU">     <di:waypoint x="2700" y="648"/> <di:waypoint x="2720" y="648"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_FU_to_EE"          bpmnElement="SF_FU_to_EE">          <di:waypoint x="2850" y="648"/> <di:waypoint x="2870" y="648"/></bpmndi:BPMNEdge>
+
+      <!-- Change treatment -->
+      <bpmndi:BPMNShape id="Shape_T_ChangeTreatment" bpmnElement="T_ChangeTreatment">
+        <dc:Bounds x="1800" y="1100" width="140" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_EE_Sp_Completed" bpmnElement="EE_Sp_Completed">
+        <dc:Bounds x="2560" y="820" width="36" height="36"/>
+        <bpmndi:BPMNLabel><dc:Bounds x="2538" y="863" width="80" height="27"/></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- Specialist outer edges -->
+      <bpmndi:BPMNEdge id="Edge_Sp_Start_to_Assess"    bpmnElement="SF_Sp_Start_to_Assess">    <di:waypoint x="258"  y="918"/> <di:waypoint x="310"  y="918"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Assess_to_SuicideGW"   bpmnElement="SF_Assess_to_SuicideGW">   <di:waypoint x="450"  y="918"/> <di:waypoint x="505"  y="918"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SuicideYes"             bpmnElement="SF_SuicideYes">             <di:waypoint x="530"  y="893"/> <di:waypoint x="530"  y="820"/> <di:waypoint x="590"  y="820"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_SuicideNo"              bpmnElement="SF_SuicideNo">              <di:waypoint x="555"  y="918"/> <di:waypoint x="785"  y="918"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Crisis_to_Stabilise"    bpmnElement="SF_Crisis_to_Stabilise">    <di:waypoint x="660"  y="860"/> <di:waypoint x="660"  y="1000"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Stabilise_to_SeverityGW" bpmnElement="SF_Stabilise_to_SeverityGW"><di:waypoint x="730"  y="1040"/> <di:waypoint x="810"  y="1040"/> <di:waypoint x="810"  y="943"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Step2"                  bpmnElement="SF_Step2">                  <di:waypoint x="810"  y="893"/> <di:waypoint x="810"  y="580"/> <di:waypoint x="890"  y="580"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Step3"                  bpmnElement="SF_Step3">                  <di:waypoint x="835"  y="918"/> <di:waypoint x="890"  y="968"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Step4"                  bpmnElement="SF_Step4">                  <di:waypoint x="810"  y="943"/> <di:waypoint x="810"  y="1218"/> <di:waypoint x="890"  y="1218"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Step2_to_ImprovGW"      bpmnElement="SF_Step2_to_ImprovGW">      <di:waypoint x="1390" y="580"/> <di:waypoint x="1725" y="580"/> <di:waypoint x="1725" y="893"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Step3_to_ImprovGW"      bpmnElement="SF_Step3_to_ImprovGW">      <di:waypoint x="1490" y="968"/> <di:waypoint x="1725" y="968"/> <di:waypoint x="1725" y="943"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Step4_to_ImprovGW"      bpmnElement="SF_Step4_to_ImprovGW">      <di:waypoint x="1596" y="1218"/> <di:waypoint x="1725" y="1218"/> <di:waypoint x="1725" y="943"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Sp_ImprovYes"           bpmnElement="SF_Sp_ImprovYes">           <di:waypoint x="1750" y="918"/> <di:waypoint x="1800" y="648"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Sp_ImprovNo"            bpmnElement="SF_Sp_ImprovNo">            <di:waypoint x="1725" y="943"/> <di:waypoint x="1725" y="1140"/> <di:waypoint x="1800" y="1140"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Change_to_Severity"     bpmnElement="SF_Change_to_Severity">     <di:waypoint x="1800" y="1140"/> <di:waypoint x="810"  y="1140"/> <di:waypoint x="810"  y="943"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Relapse_to_End"         bpmnElement="SF_Relapse_to_End">         <di:waypoint x="2500" y="648"/> <di:waypoint x="2578" y="838"/></bpmndi:BPMNEdge>
+
+      <!-- ── Patient pool ── -->
+      <bpmndi:BPMNShape id="Shape_Participant_Patient" bpmnElement="Participant_Patient" isHorizontal="true">
+        <dc:Bounds x="160" y="1390" width="600" height="160"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_SE_Pat_Start"  bpmnElement="SE_Pat_Start">  <dc:Bounds x="222" y="1452" width="36" height="36"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_T_Pat_Consent" bpmnElement="T_Pat_Consent"> <dc:Bounds x="310" y="1430" width="140" height="80"/></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_EE_Pat_End"    bpmnElement="EE_Pat_End">    <dc:Bounds x="502" y="1452" width="36" height="36"/></bpmndi:BPMNShape>
+
+      <bpmndi:BPMNEdge id="Edge_Pat_to_End"        bpmnElement="SF_Pat_to_End">        <di:waypoint x="258" y="1470"/> <di:waypoint x="310" y="1470"/></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Pat_Consent_to_EE" bpmnElement="SF_Pat_Consent_to_EE"> <di:waypoint x="450" y="1470"/> <di:waypoint x="502" y="1470"/></bpmndi:BPMNEdge>
+
+      <!-- ── Message flow (inter-pool) ── -->
+      <bpmndi:BPMNEdge id="Edge_MF_GPtoSpecialist" bpmnElement="MF_GPtoSpecialist">
+        <di:waypoint x="1900" y="278"/>
+        <di:waypoint x="1900" y="370"/>
+        <di:waypoint x="240"  y="370"/>
+        <di:waypoint x="240"  y="918"/>
+      </bpmndi:BPMNEdge>
+
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+
+</bpmn:definitions>

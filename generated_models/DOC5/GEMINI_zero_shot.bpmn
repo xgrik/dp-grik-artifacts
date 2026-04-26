@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_02fe9dz" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.33.1" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.22.0">
+  <bpmn:process id="Process_DepresiaManagement" name="Manažment pacienta s depresiou" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1" name="Podozrenie na depresiu">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_1" targetRef="Activity_Stupen1_Identifikacia" />
+    
+    <bpmn:task id="Activity_Stupen1_Identifikacia" name="Stupeň 1: Identifikácia, hodnotenie a edukácia">
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+    </bpmn:task>
+    
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Activity_Stupen1_Identifikacia" targetRef="Gateway_Zlepsenie" />
+    
+    <bpmn:exclusiveGateway id="Gateway_Zlepsenie" name="Zlepšenie po aktívnom monitorovaní?">
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_Zlepsenie_Ano</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Zlepsenie_Nie</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    
+    <bpmn:sequenceFlow id="Flow_Zlepsenie_Ano" name="Áno" sourceRef="Gateway_Zlepsenie" targetRef="EndEvent_Stabilizovany">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${zlepsenie == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    
+    <bpmn:sequenceFlow id="Flow_Zlepsenie_Nie" name="Nie / Mierna až stredná depresia" sourceRef="Gateway_Zlepsenie" targetRef="Activity_Stupen2_Intervencie">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${zlepsenie == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    
+    <bpmn:task id="Activity_Stupen2_Intervencie" name="Stupeň 2: ŠPI, medikácia a odporúčanie k špecialistovi">
+      <bpmn:incoming>Flow_Zlepsenie_Nie</bpmn:incoming>
+      <bpmn:outgoing>Flow_3</bpmn:outgoing>
+    </bpmn:task>
+    
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="Activity_Stupen2_Intervencie" targetRef="Gateway_Odozva" />
+    
+    <bpmn:exclusiveGateway id="Gateway_Odozva" name="Adekvátna odpoveď na liečbu?">
+      <bpmn:incoming>Flow_3</bpmn:incoming>
+      <bpmn:outgoing>Flow_Odozva_Ano</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Odozva_Nie</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    
+    <bpmn:sequenceFlow id="Flow_Odozva_Ano" name="Áno" sourceRef="Gateway_Odozva" targetRef="EndEvent_Stabilizovany" />
+    
+    <bpmn:sequenceFlow id="Flow_Odozva_Nie" name="Nie / Stredne ťažká a ťažká depresia" sourceRef="Gateway_Odozva" targetRef="Activity_Stupen3_VysokaIntenzita" />
+    
+    <bpmn:task id="Activity_Stupen3_VysokaIntenzita" name="Stupeň 3: Vysoko intenzívne intervencie (KBT, IPT)">
+      <bpmn:incoming>Flow_Odozva_Nie</bpmn:incoming>
+      <bpmn:outgoing>Flow_4</bpmn:outgoing>
+    </bpmn:task>
+    
+    <bpmn:sequenceFlow id="Flow_4" sourceRef="Activity_Stupen3_VysokaIntenzita" targetRef="Gateway_Riziko" />
+    
+    <bpmn:exclusiveGateway id="Gateway_Riziko" name="Vysoké riziko / komplexná depresia?">
+      <bpmn:incoming>Flow_4</bpmn:incoming>
+      <bpmn:outgoing>Flow_Riziko_Ano</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Riziko_Nie</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    
+    <bpmn:sequenceFlow id="Flow_Riziko_Ano" name="Áno" sourceRef="Gateway_Riziko" targetRef="Activity_Stupen4_KomplexnaStarostlivost" />
+    
+    <bpmn:sequenceFlow id="Flow_Riziko_Nie" name="Nie" sourceRef="Gateway_Riziko" targetRef="EndEvent_Stabilizovany" />
+    
+    <bpmn:task id="Activity_Stupen4_KomplexnaStarostlivost" name="Stupeň 4: Komplexná expertná liečba a hospitalizácia">
+      <bpmn:incoming>Flow_Riziko_Ano</bpmn:incoming>
+      <bpmn:outgoing>Flow_5</bpmn:outgoing>
+    </bpmn:task>
+    
+    <bpmn:sequenceFlow id="Flow_5" sourceRef="Activity_Stupen4_KomplexnaStarostlivost" targetRef="EndEvent_Stabilizovany" />
+    
+    <bpmn:endEvent id="EndEvent_Stabilizovany" name="Stabilizácia a ukončenie liečby">
+      <bpmn:incoming>Flow_Zlepsenie_Ano</bpmn:incoming>
+      <bpmn:incoming>Flow_Odozva_Ano</bpmn:incoming>
+      <bpmn:incoming>Flow_Riziko_Nie</bpmn:incoming>
+      <bpmn:incoming>Flow_5</bpmn:incoming>
+    </bpmn:endEvent>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_DepresiaManagement">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="152" y="102" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="135" y="145" width="71" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_Stupen1_Identifikacia_di" bpmnElement="Activity_Stupen1_Identifikacia">
+        <dc:Bounds x="240" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_Zlepsenie_di" bpmnElement="Gateway_Zlepsenie" isMarkerVisible="true">
+        <dc:Bounds x="395" y="95" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="387" y="58" width="67" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_Stupen2_Intervencie_di" bpmnElement="Activity_Stupen2_Intervencie">
+        <dc:Bounds x="500" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_Odozva_di" bpmnElement="Gateway_Odozva" isMarkerVisible="true">
+        <dc:Bounds x="655" y="95" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_Stupen3_VysokaIntenzita_di" bpmnElement="Activity_Stupen3_VysokaIntenzita">
+        <dc:Bounds x="760" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_Riziko_di" bpmnElement="Gateway_Riziko" isMarkerVisible="true">
+        <dc:Bounds x="915" y="95" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_Stupen4_KomplexnaStarostlivost_di" bpmnElement="Activity_Stupen4_KomplexnaStarostlivost">
+        <dc:Bounds x="1020" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_Stabilizovany_di" bpmnElement="EndEvent_Stabilizovany">
+        <dc:Bounds x="1182" y="102" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1165" y="145" width="71" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
